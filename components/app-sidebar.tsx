@@ -11,6 +11,8 @@ import {
   Eye,
   MessageCircle,
   Wifi,
+  Code2,
+  User,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -24,6 +26,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarFooter,
 } from "@/components/ui/sidebar";
 
 // Menu items.
@@ -36,7 +39,7 @@ const items = [
   {
     title: "Basic APIs",
     url: "/basic-apis",
-    icon: Settings,
+    icon: Code2,
   },
   {
     title: "WebSockets",
@@ -117,6 +120,17 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter className="border-t border-sidebar-border">
+        <div className="flex items-center gap-2 px-4 py-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground font-medium text-sm">
+            U
+          </div>
+          <div className="flex flex-col">
+            <span className="text-sm font-medium">User</span>
+            <span className="text-xs text-muted-foreground">Developer</span>
+          </div>
+        </div>
+      </SidebarFooter>
     </Sidebar>
   );
 }
