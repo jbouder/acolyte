@@ -14,14 +14,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 
 export default function WebTransportPage() {
   return (
     <div className="flex flex-1 flex-col gap-4">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">WebTransport</h1>
-        <Badge variant="secondary">Coming Soon</Badge>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">

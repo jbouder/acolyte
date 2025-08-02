@@ -65,21 +65,6 @@ const items = [
     url: "/jwt",
     icon: Key,
   },
-  {
-    title: "Web Scraper",
-    url: "/web-scraper",
-    icon: Globe,
-  },
-  {
-    title: "Accessibility",
-    url: "/accessibility",
-    icon: Eye,
-  },
-  {
-    title: "Chat",
-    url: "/chat",
-    icon: MessageCircle,
-  },
 ];
 
 export function AppSidebar() {

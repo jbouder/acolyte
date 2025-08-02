@@ -88,66 +88,6 @@ export default function SSEPage() {
             </div>
           </CardContent>
         </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>SSE Server</CardTitle>
-            <CardDescription>Create a test SSE endpoint</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">
-                  Message Interval (ms)
-                </label>
-                <Input placeholder="1000" type="number" />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Message Template</label>
-                <textarea
-                  className="min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                  placeholder='{"timestamp": "{{timestamp}}", "message": "Hello"}'
-                />
-              </div>
-              <Button className="w-full">Start Test Server</Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Event Types</CardTitle>
-            <CardDescription>Filter events by type</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <input type="checkbox" id="message" defaultChecked />
-                <label htmlFor="message" className="text-sm">
-                  message
-                </label>
-              </div>
-              <div className="flex items-center gap-2">
-                <input type="checkbox" id="data" defaultChecked />
-                <label htmlFor="data" className="text-sm">
-                  data
-                </label>
-              </div>
-              <div className="flex items-center gap-2">
-                <input type="checkbox" id="error" defaultChecked />
-                <label htmlFor="error" className="text-sm">
-                  error
-                </label>
-              </div>
-              <div className="flex items-center gap-2">
-                <input type="checkbox" id="open" defaultChecked />
-                <label htmlFor="open" className="text-sm">
-                  open
-                </label>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );
