@@ -40,14 +40,14 @@ const items = [
     icon: Code2,
   },
   {
-    title: "WebSockets",
-    url: "/websockets",
-    icon: Cable,
-  },
-  {
     title: "SSE",
     url: "/sse",
     icon: Zap,
+  },
+  {
+    title: "WebSockets",
+    url: "/websockets",
+    icon: Cable,
   },
   {
     title: "WebTransport",
