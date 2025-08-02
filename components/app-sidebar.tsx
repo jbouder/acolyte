@@ -10,6 +10,7 @@ import {
   Wifi,
   Code2,
   Braces,
+  Palette,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -62,6 +63,11 @@ const items = [
     title: "JSON Formatter",
     url: "/json-formatter",
     icon: Braces,
+  },
+  {
+    title: "Color Picker",
+    url: "/color-picker",
+    icon: Palette,
   },
   {
     title: "JWT Decoder",
