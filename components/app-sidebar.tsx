@@ -7,11 +7,9 @@ import {
   Zap,
   FileText,
   Key,
-  Globe,
-  Eye,
-  MessageCircle,
   Wifi,
   Code2,
+  Braces,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -59,6 +57,11 @@ const items = [
     title: "Base64",
     url: "/base64",
     icon: FileText,
+  },
+  {
+    title: "JSON Formatter",
+    url: "/json-formatter",
+    icon: Braces,
   },
   {
     title: "JWT Decoder",
