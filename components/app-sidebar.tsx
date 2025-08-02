@@ -11,6 +11,7 @@ import {
   Code2,
   Braces,
   Palette,
+  BarChart3,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -53,6 +54,11 @@ const items = [
     title: "WebTransport",
     url: "/webtransport",
     icon: Wifi,
+  },
+  {
+    title: "Web Stats",
+    url: "/web-stats",
+    icon: BarChart3,
   },
   {
     title: "Base64",
