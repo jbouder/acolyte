@@ -62,7 +62,10 @@ export default function Home() {
                 Timezone: {Intl.DateTimeFormat().resolvedOptions().timeZone}
               </div>
               <div>UTC Offset: {new Date().getTimezoneOffset() / -60}h</div>
-              <div>Locale: {navigator.language || "N/A"}</div>
+              <div>
+                Locale:{" "}
+                {typeof navigator !== "undefined" ? navigator.language : "N/A"}
+              </div>
             </div>
           </div>
         </div>
