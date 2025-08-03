@@ -12,6 +12,7 @@ import {
   Braces,
   Palette,
   BarChart3,
+  Database,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -59,6 +60,11 @@ const items = [
     title: "Web Stats",
     url: "/web-stats",
     icon: BarChart3,
+  },
+  {
+    title: "Web Storage",
+    url: "/web-storage",
+    icon: Database,
   },
   {
     title: "Base64",
