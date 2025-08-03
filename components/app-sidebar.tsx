@@ -26,7 +26,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarFooter,
 } from "@/components/ui/sidebar";
 
 // Menu items.
@@ -93,7 +92,7 @@ export function AppSidebar() {
 
   return (
     <Sidebar>
-      <SidebarHeader className="border-b border-sidebar-border">
+      <SidebarHeader className="border-b border-sidebar-border h-17">
         <Link
           href="/"
           className="flex items-center gap-2 px-4 py-2 hover:bg-sidebar-accent rounded-md transition-colors"
@@ -125,17 +124,6 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="border-t border-sidebar-border">
-        <div className="flex items-center gap-2 px-4 py-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground font-medium text-sm">
-            U
-          </div>
-          <div className="flex flex-col">
-            <span className="text-sm font-medium">User</span>
-            <span className="text-xs text-muted-foreground">Developer</span>
-          </div>
-        </div>
-      </SidebarFooter>
     </Sidebar>
   );
 }
