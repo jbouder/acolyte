@@ -34,9 +34,11 @@ export default function SSEPage() {
   const timerRef = useRef<number | null>(null);
   useEffect(() => {
     return () => {
-      disconnect();
+      if (isConnected) {
+        disconnect();
+      }
     };
-  }, []);
+  }, [isConnected]);
 
   const connect = () => {
     if (isConnected) return;
