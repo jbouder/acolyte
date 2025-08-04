@@ -130,12 +130,12 @@ export default function WebStatsPage() {
   return (
     <div className="flex flex-1 flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Web Stats</h1>
+        <h1 className="text-3xl font-bold">Website Analysis</h1>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Website Analysis</CardTitle>
+          <CardTitle>Website URL</CardTitle>
           <CardDescription>
             Enter a URL to get detailed statistics and performance metrics
           </CardDescription>

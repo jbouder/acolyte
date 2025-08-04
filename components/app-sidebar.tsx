@@ -12,7 +12,6 @@ import {
   Braces,
   Palette,
   BarChart3,
-  Database,
   StickyNote,
 } from "lucide-react";
 import Link from "next/link";
@@ -57,14 +56,9 @@ const items = [
     icon: Wifi,
   },
   {
-    title: "Web Stats",
-    url: "/web-stats",
+    title: "Website Analysis",
+    url: "/website-analysis",
     icon: BarChart3,
-  },
-  {
-    title: "Web Storage",
-    url: "/web-storage",
-    icon: Database,
   },
   {
     title: "Base64",
