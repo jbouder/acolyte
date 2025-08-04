@@ -195,29 +195,46 @@ export default function ColorPickerPage() {
     toast.info("Random color generated!");
   };
 
-  // Predefined color palette
-  const predefinedColors = [
-    "#ef4444",
-    "#f97316",
-    "#f59e0b",
-    "#eab308",
-    "#84cc16",
-    "#22c55e",
-    "#10b981",
-    "#14b8a6",
-    "#06b6d4",
-    "#0ea5e9",
-    "#3b82f6",
-    "#6366f1",
-    "#8b5cf6",
-    "#a855f7",
-    "#d946ef",
-    "#ec4899",
-    "#f43f5e",
-    "#64748b",
-    "#374151",
-    "#000000",
-  ];
+  // Color contrast calculation
+  const [contrastColor, setContrastColor] = useState("#ffffff");
+  
+  // Calculate relative luminance
+  const getLuminance = (r: number, g: number, b: number): number => {
+    const sRGB = [r, g, b].map((c) => {
+      c = c / 255;
+      return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * sRGB[0] + 0.7152 * sRGB[1] + 0.0722 * sRGB[2];
+  };
+
+  // Calculate contrast ratio
+  const getContrastRatio = (color1: string, color2: string): number => {
+    const rgb1 = hexToRgb(color1);
+    const rgb2 = hexToRgb(color2);
+    
+    if (!rgb1 || !rgb2) return 0;
+    
+    const lum1 = getLuminance(rgb1.r, rgb1.g, rgb1.b);
+    const lum2 = getLuminance(rgb2.r, rgb2.g, rgb2.b);
+    
+    const brightest = Math.max(lum1, lum2);
+    const darkest = Math.min(lum1, lum2);
+    
+    return (brightest + 0.05) / (darkest + 0.05);
+  };
+
+  // Get contrast rating
+  const getContrastRating = (ratio: number): { rating: string; color: string } => {
+    if (ratio >= 7) return { rating: "AAA", color: "text-green-600" };
+    if (ratio >= 4.5) return { rating: "AA", color: "text-yellow-600" };
+    if (ratio >= 3) return { rating: "AA Large", color: "text-orange-600" };
+    return { rating: "Fail", color: "text-red-600" };
+  };
+
+  // Update contrast color
+  const updateContrastColor = (color: string) => {
+    setContrastColor(color);
+  };
 
   return (
     <div className="flex flex-1 flex-col gap-4">
@@ -328,25 +345,95 @@ export default function ColorPickerPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Color Palettes</CardTitle>
+            <CardTitle>Color Contrast Checker</CardTitle>
             <CardDescription>
-              Quick access to predefined colors and your history
+              Check accessibility contrast ratios between two colors
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Predefined Colors */}
-            <div>
-              <h3 className="text-sm font-medium mb-3">Predefined Colors</h3>
-              <div className="grid grid-cols-5 gap-2">
-                {predefinedColors.map((color) => (
-                  <button
-                    key={color}
-                    onClick={() => updateColor(color)}
-                    className="w-12 h-12 rounded-lg border-2 border-border hover:scale-105 transition-transform"
-                    style={{ backgroundColor: color }}
-                    title={color}
-                  />
-                ))}
+            {/* Contrast Color Picker */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-medium">Compare Against</h3>
+              <div
+                className="w-full h-16 rounded-lg border-2 border-border"
+                style={{ backgroundColor: contrastColor }}
+              />
+              <input
+                type="color"
+                value={contrastColor}
+                onChange={(e) => updateContrastColor(e.target.value)}
+                className="w-full h-12 border-2 border-border rounded-lg cursor-pointer"
+              />
+            </div>
+
+            {/* Contrast Results */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-medium">Contrast Analysis</h3>
+              {(() => {
+                const ratio = getContrastRatio(selectedColor, contrastColor);
+                const rating = getContrastRating(ratio);
+                return (
+                  <div className="bg-muted p-4 rounded-lg space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium">Contrast Ratio:</span>
+                      <span className="font-mono text-lg">{ratio.toFixed(2)}:1</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium">WCAG Rating:</span>
+                      <span className={`font-bold ${rating.color}`}>{rating.rating}</span>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+
+            {/* Text Preview */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-medium">Text Preview</h3>
+              <div className="space-y-3">
+                <div
+                  className="p-4 rounded-lg border"
+                  style={{
+                    backgroundColor: selectedColor,
+                    color: contrastColor,
+                  }}
+                >
+                  <div className="text-lg font-bold">Large Text (18pt+)</div>
+                  <div className="text-sm">Normal text (under 18pt)</div>
+                </div>
+                <div
+                  className="p-4 rounded-lg border"
+                  style={{
+                    backgroundColor: contrastColor,
+                    color: selectedColor,
+                  }}
+                >
+                  <div className="text-lg font-bold">Large Text (18pt+)</div>
+                  <div className="text-sm">Normal text (under 18pt)</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Contrast Options */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium">Quick Contrast Tests</h3>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  onClick={() => updateContrastColor("#ffffff")}
+                  variant="outline"
+                  size="sm"
+                  className="bg-white text-black border-2"
+                >
+                  vs White
+                </Button>
+                <Button
+                  onClick={() => updateContrastColor("#000000")}
+                  variant="outline"
+                  size="sm"
+                  className="bg-black text-white border-2"
+                >
+                  vs Black
+                </Button>
               </div>
             </div>
 
@@ -378,16 +465,6 @@ export default function ColorPickerPage() {
                 </Button>
               </div>
             )}
-
-            {/* CSS Examples */}
-            <div>
-              <h3 className="text-sm font-medium mb-3">CSS Examples</h3>
-              <div className="space-y-2 text-xs font-mono bg-muted p-3 rounded-lg">
-                <div>color: {selectedColor};</div>
-                <div>background-color: rgb({rgbInput});</div>
-                <div>border-color: hsl({hslInput});</div>
-              </div>
-            </div>
           </CardContent>
         </Card>
       </div>
