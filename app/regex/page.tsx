@@ -1,25 +1,25 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { toast } from "sonner";
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 interface Match {
   match: string;
@@ -28,34 +28,65 @@ interface Match {
 }
 
 export default function RegexPage() {
-  const [pattern, setPattern] = useState("");
-  const [flags, setFlags] = useState("g");
-  const [testString, setTestString] = useState("");
-  const [replacement, setReplacement] = useState("");
+  const [pattern, setPattern] = useState('');
+  const [flags, setFlags] = useState('g');
+  const [testString, setTestString] = useState('');
+  const [replacement, setReplacement] = useState('');
   const [matches, setMatches] = useState<Match[]>([]);
-  const [replacedText, setReplacedText] = useState("");
-  const [error, setError] = useState("");
+  const [replacedText, setReplacedText] = useState('');
+  const [error, setError] = useState('');
   const [isValid, setIsValid] = useState(false);
 
   // Common regex patterns for quick selection
   const commonPatterns = [
-    { name: "Email", pattern: "^[\\w\\.-]+@[\\w\\.-]+\\.[a-zA-Z]{2,}$", flags: "i" },
-    { name: "URL", pattern: "https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)", flags: "gi" },
-    { name: "Phone (US)", pattern: "\\(?([0-9]{3})\\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})", flags: "g" },
-    { name: "Date (MM/DD/YYYY)", pattern: "^(0[1-9]|1[0-2])\\/(0[1-9]|[12]\\d|3[01])\\/(19|20)\\d{2}$", flags: "" },
-    { name: "IP Address", pattern: "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$", flags: "" },
-    { name: "Hex Color", pattern: "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", flags: "i" },
-    { name: "Credit Card", pattern: "^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13}|3[0-9]{13}|6(?:011|5[0-9]{2})[0-9]{12})$", flags: "" },
-    { name: "HTML Tags", pattern: "<\\/?[a-z][\\s\\S]*>", flags: "gi" },
-    { name: "Whitespace", pattern: "\\s+", flags: "g" },
-    { name: "Numbers Only", pattern: "^[0-9]+$", flags: "" }
+    {
+      name: 'Email',
+      pattern: '^[\\w\\.-]+@[\\w\\.-]+\\.[a-zA-Z]{2,}$',
+      flags: 'i',
+    },
+    {
+      name: 'URL',
+      pattern:
+        'https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)',
+      flags: 'gi',
+    },
+    {
+      name: 'Phone (US)',
+      pattern: '\\(?([0-9]{3})\\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})',
+      flags: 'g',
+    },
+    {
+      name: 'Date (MM/DD/YYYY)',
+      pattern: '^(0[1-9]|1[0-2])\\/(0[1-9]|[12]\\d|3[01])\\/(19|20)\\d{2}$',
+      flags: '',
+    },
+    {
+      name: 'IP Address',
+      pattern:
+        '^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$',
+      flags: '',
+    },
+    {
+      name: 'Hex Color',
+      pattern: '^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$',
+      flags: 'i',
+    },
+    {
+      name: 'Credit Card',
+      pattern:
+        '^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13}|3[0-9]{13}|6(?:011|5[0-9]{2})[0-9]{12})$',
+      flags: '',
+    },
+    { name: 'HTML Tags', pattern: '<\\/?[a-z][\\s\\S]*>', flags: 'gi' },
+    { name: 'Whitespace', pattern: '\\s+', flags: 'g' },
+    { name: 'Numbers Only', pattern: '^[0-9]+$', flags: '' },
   ];
 
   // Test regex and find matches
   useEffect(() => {
     if (!pattern || !testString) {
       setMatches([]);
-      setError("");
+      setError('');
       setIsValid(false);
       return;
     }
@@ -63,7 +94,7 @@ export default function RegexPage() {
     try {
       const regex = new RegExp(pattern, flags);
       setIsValid(true);
-      setError("");
+      setError('');
 
       const foundMatches: Match[] = [];
       let match;
@@ -73,7 +104,7 @@ export default function RegexPage() {
           foundMatches.push({
             match: match[0],
             index: match.index,
-            groups: match.slice(1)
+            groups: match.slice(1),
           });
           if (match.index === regex.lastIndex) break;
         }
@@ -83,7 +114,7 @@ export default function RegexPage() {
           foundMatches.push({
             match: match[0],
             index: match.index,
-            groups: match.slice(1)
+            groups: match.slice(1),
           });
         }
       }
@@ -99,7 +130,7 @@ export default function RegexPage() {
   // Update replaced text
   useEffect(() => {
     if (!pattern || !testString || !replacement) {
-      setReplacedText("");
+      setReplacedText('');
       return;
     }
 
@@ -108,7 +139,7 @@ export default function RegexPage() {
       const result = testString.replace(regex, replacement);
       setReplacedText(result);
     } catch {
-      setReplacedText("");
+      setReplacedText('');
     }
   }, [pattern, flags, testString, replacement]);
 
@@ -117,26 +148,26 @@ export default function RegexPage() {
       await navigator.clipboard.writeText(text);
       toast.success(`${label} copied to clipboard!`);
     } catch {
-      toast.error("Failed to copy to clipboard");
+      toast.error('Failed to copy to clipboard');
     }
   };
 
-  const loadCommonPattern = (patternObj: typeof commonPatterns[0]) => {
+  const loadCommonPattern = (patternObj: (typeof commonPatterns)[0]) => {
     setPattern(patternObj.pattern);
     setFlags(patternObj.flags);
     toast.success(`Loaded ${patternObj.name} pattern`);
   };
 
   const clearAll = () => {
-    setPattern("");
-    setFlags("g");
-    setTestString("");
-    setReplacement("");
+    setPattern('');
+    setFlags('g');
+    setTestString('');
+    setReplacement('');
     setMatches([]);
-    setReplacedText("");
-    setError("");
+    setReplacedText('');
+    setError('');
     setIsValid(false);
-    toast.success("All fields cleared!");
+    toast.success('All fields cleared!');
   };
 
   const highlightMatches = (text: string, matches: Match[]) => {
@@ -149,14 +180,14 @@ export default function RegexPage() {
       const startTag = `<mark class="bg-yellow-200 dark:bg-yellow-800" data-match="${index}">`;
       const endTag = '</mark>';
       const insertPos = match.index + offset;
-      
-      highlightedText = 
-        highlightedText.slice(0, insertPos) + 
-        startTag + 
-        match.match + 
-        endTag + 
+
+      highlightedText =
+        highlightedText.slice(0, insertPos) +
+        startTag +
+        match.match +
+        endTag +
         highlightedText.slice(insertPos + match.match.length);
-      
+
       offset += startTag.length + endTag.length;
     });
 
@@ -210,7 +241,9 @@ export default function RegexPage() {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => copyToClipboard(`/${pattern}/${flags}`, "Regex")}
+                    onClick={() =>
+                      copyToClipboard(`/${pattern}/${flags}`, 'Regex')
+                    }
                   >
                     Copy Regex
                   </Button>
@@ -219,11 +252,15 @@ export default function RegexPage() {
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Common Patterns</label>
-              <Select onValueChange={(value) => {
-                const selected = commonPatterns.find(p => p.name === value);
-                if (selected) loadCommonPattern(selected);
-              }}>
+              <label className="text-sm font-medium mb-2 block">
+                Common Patterns
+              </label>
+              <Select
+                onValueChange={(value) => {
+                  const selected = commonPatterns.find((p) => p.name === value);
+                  if (selected) loadCommonPattern(selected);
+                }}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select a common pattern..." />
                 </SelectTrigger>
@@ -238,14 +275,28 @@ export default function RegexPage() {
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Flags Guide</label>
+              <label className="text-sm font-medium mb-2 block">
+                Flags Guide
+              </label>
               <div className="text-xs space-y-1 text-muted-foreground">
-                <div><code>g</code> - Global (find all matches)</div>
-                <div><code>i</code> - Case insensitive</div>
-                <div><code>m</code> - Multiline</div>
-                <div><code>s</code> - Dotall (. matches newline)</div>
-                <div><code>u</code> - Unicode</div>
-                <div><code>y</code> - Sticky</div>
+                <div>
+                  <code>g</code> - Global (find all matches)
+                </div>
+                <div>
+                  <code>i</code> - Case insensitive
+                </div>
+                <div>
+                  <code>m</code> - Multiline
+                </div>
+                <div>
+                  <code>s</code> - Dotall (. matches newline)
+                </div>
+                <div>
+                  <code>u</code> - Unicode
+                </div>
+                <div>
+                  <code>y</code> - Sticky
+                </div>
               </div>
             </div>
           </CardContent>
@@ -272,7 +323,7 @@ export default function RegexPage() {
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => copyToClipboard(testString, "Test string")}
+                onClick={() => copyToClipboard(testString, 'Test string')}
                 disabled={!testString}
               >
                 Copy Text
@@ -301,13 +352,17 @@ export default function RegexPage() {
               {matches.map((match, index) => (
                 <div key={index} className="border rounded-lg p-3 bg-muted/50">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium">Match {index + 1}</span>
+                    <span className="text-sm font-medium">
+                      Match {index + 1}
+                    </span>
                     <div className="flex gap-2">
                       <Badge variant="outline">Index: {match.index}</Badge>
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => copyToClipboard(match.match, `Match ${index + 1}`)}
+                        onClick={() =>
+                          copyToClipboard(match.match, `Match ${index + 1}`)
+                        }
                       >
                         Copy
                       </Button>
@@ -321,7 +376,11 @@ export default function RegexPage() {
                       <span className="text-xs font-medium">Groups:</span>
                       <div className="flex flex-wrap gap-1 mt-1">
                         {match.groups.map((group, groupIndex) => (
-                          <Badge key={groupIndex} variant="secondary" className="text-xs">
+                          <Badge
+                            key={groupIndex}
+                            variant="secondary"
+                            className="text-xs"
+                          >
                             ${groupIndex + 1}: &ldquo;{group}&rdquo;
                           </Badge>
                         ))}
@@ -345,10 +404,10 @@ export default function RegexPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div 
+            <div
               className="p-3 bg-muted/50 rounded border font-mono text-sm whitespace-pre-wrap"
               dangerouslySetInnerHTML={{
-                __html: highlightMatches(testString, matches)
+                __html: highlightMatches(testString, matches),
               }}
             />
           </CardContent>
@@ -365,7 +424,9 @@ export default function RegexPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <label className="text-sm font-medium mb-2 block">Replacement String</label>
+            <label className="text-sm font-medium mb-2 block">
+              Replacement String
+            </label>
             <Input
               value={replacement}
               onChange={(e) => setReplacement(e.target.value)}
@@ -384,7 +445,7 @@ export default function RegexPage() {
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => copyToClipboard(replacedText, "Replaced text")}
+                  onClick={() => copyToClipboard(replacedText, 'Replaced text')}
                 >
                   Copy Result
                 </Button>

@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import { useState } from "react";
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { useState } from 'react';
 
 interface ApiResponse {
   status: number;
@@ -27,12 +27,12 @@ interface RequestStatus {
 }
 
 export default function BasicAPIsPage() {
-  const [selectedMethod, setSelectedMethod] = useState<string>("GET");
+  const [selectedMethod, setSelectedMethod] = useState<string>('GET');
   const [url, setUrl] = useState<string>(
-    "https://jsonplaceholder.typicode.com/posts"
+    'https://jsonplaceholder.typicode.com/posts',
   );
   const [headers, setHeaders] = useState<string>(
-    "Content-Type: application/json"
+    'Content-Type: application/json',
   );
   const [requestBody, setRequestBody] = useState<string>();
   const [status, setStatus] = useState<RequestStatus>({
@@ -45,10 +45,10 @@ export default function BasicAPIsPage() {
     setStatus({ loading: true, error: null, response: null });
 
     try {
-      const response = await fetch("/api/basic", {
-        method: "POST",
+      const response = await fetch('/api/basic', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           url,
@@ -61,7 +61,7 @@ export default function BasicAPIsPage() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || "Request failed");
+        throw new Error(result.error || 'Request failed');
       }
 
       setStatus({
@@ -72,7 +72,7 @@ export default function BasicAPIsPage() {
     } catch (error) {
       setStatus({
         loading: false,
-        error: error instanceof Error ? error.message : "Unknown error",
+        error: error instanceof Error ? error.message : 'Unknown error',
         response: null,
       });
     }
@@ -114,39 +114,39 @@ export default function BasicAPIsPage() {
                 <label className="text-sm font-medium">HTTP Method</label>
                 <div className="flex gap-2">
                   <Button
-                    variant={selectedMethod === "GET" ? "default" : "outline"}
+                    variant={selectedMethod === 'GET' ? 'default' : 'outline'}
                     size="sm"
-                    onClick={() => setSelectedMethod("GET")}
+                    onClick={() => setSelectedMethod('GET')}
                   >
                     GET
                   </Button>
                   <Button
-                    variant={selectedMethod === "POST" ? "default" : "outline"}
+                    variant={selectedMethod === 'POST' ? 'default' : 'outline'}
                     size="sm"
-                    onClick={() => setSelectedMethod("POST")}
+                    onClick={() => setSelectedMethod('POST')}
                   >
                     POST
                   </Button>
                   <Button
-                    variant={selectedMethod === "PUT" ? "default" : "outline"}
+                    variant={selectedMethod === 'PUT' ? 'default' : 'outline'}
                     size="sm"
-                    onClick={() => setSelectedMethod("PUT")}
+                    onClick={() => setSelectedMethod('PUT')}
                   >
                     PUT
                   </Button>
                   <Button
                     variant={
-                      selectedMethod === "DELETE" ? "default" : "outline"
+                      selectedMethod === 'DELETE' ? 'default' : 'outline'
                     }
                     size="sm"
-                    onClick={() => setSelectedMethod("DELETE")}
+                    onClick={() => setSelectedMethod('DELETE')}
                   >
                     DELETE
                   </Button>
                   <Button
-                    variant={selectedMethod === "PATCH" ? "default" : "outline"}
+                    variant={selectedMethod === 'PATCH' ? 'default' : 'outline'}
                     size="sm"
-                    onClick={() => setSelectedMethod("PATCH")}
+                    onClick={() => setSelectedMethod('PATCH')}
                   >
                     PATCH
                   </Button>
@@ -175,7 +175,7 @@ export default function BasicAPIsPage() {
                 onClick={handleSendRequest}
                 disabled={status.loading}
               >
-                {status.loading ? "Sending..." : "Send Request"}
+                {status.loading ? 'Sending...' : 'Send Request'}
               </Button>
             </div>
           </CardContent>
@@ -195,33 +195,33 @@ export default function BasicAPIsPage() {
                   <div
                     className={`h-2 w-2 rounded-full ${
                       status.loading
-                        ? "bg-yellow-500"
+                        ? 'bg-yellow-500'
                         : status.error
-                        ? "bg-red-500"
-                        : status.response
-                        ? "bg-green-500"
-                        : "bg-gray-500"
+                          ? 'bg-red-500'
+                          : status.response
+                            ? 'bg-green-500'
+                            : 'bg-gray-500'
                     }`}
                   ></div>
                   <span className="text-sm">
                     {status.loading
-                      ? "Loading..."
+                      ? 'Loading...'
                       : status.error
-                      ? "Error"
-                      : status.response
-                      ? "Success"
-                      : "Ready"}
+                        ? 'Error'
+                        : status.response
+                          ? 'Success'
+                          : 'Ready'}
                   </span>
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  <p>Status Code: {status.response?.status || "-"}</p>
+                  <p>Status Code: {status.response?.status || '-'}</p>
                   <p>
-                    Response Time:{" "}
+                    Response Time:{' '}
                     {status.response?.responseTime
                       ? `${status.response.responseTime}ms`
-                      : "-"}
+                      : '-'}
                   </p>
-                  <p>Content Length: {status.response?.contentLength || "-"}</p>
+                  <p>Content Length: {status.response?.contentLength || '-'}</p>
                   {status.error && (
                     <p className="text-red-500">Error: {status.error}</p>
                   )}
@@ -243,7 +243,7 @@ export default function BasicAPIsPage() {
                   <pre className="whitespace-pre-wrap">
                     {Object.entries(status.response.headers)
                       .map(([key, value]) => `${key}: ${value}`)
-                      .join("\n")}
+                      .join('\n')}
                   </pre>
                 ) : (
                   <p className="text-muted-foreground">

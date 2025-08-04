@@ -1,27 +1,27 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { toast } from "sonner";
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
 export default function ColorPickerPage() {
-  const [selectedColor, setSelectedColor] = useState("#3b82f6");
-  const [hexInput, setHexInput] = useState("#3b82f6");
-  const [rgbInput, setRgbInput] = useState("59, 130, 246");
-  const [hslInput, setHslInput] = useState("217, 91%, 60%");
+  const [selectedColor, setSelectedColor] = useState('#3b82f6');
+  const [hexInput, setHexInput] = useState('#3b82f6');
+  const [rgbInput, setRgbInput] = useState('59, 130, 246');
+  const [hslInput, setHslInput] = useState('217, 91%, 60%');
   const [colorHistory, setColorHistory] = useState<string[]>([]);
 
   // Convert hex to RGB
   const hexToRgb = (
-    hex: string
+    hex: string,
   ): { r: number; g: number; b: number } | null => {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result
@@ -35,14 +35,14 @@ export default function ColorPickerPage() {
 
   // Convert RGB to hex
   const rgbToHex = (r: number, g: number, b: number): string => {
-    return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
   };
 
   // Convert RGB to HSL
   const rgbToHsl = (
     r: number,
     g: number,
-    b: number
+    b: number,
   ): { h: number; s: number; l: number } => {
     r /= 255;
     g /= 255;
@@ -83,7 +83,7 @@ export default function ColorPickerPage() {
   const hslToRgb = (
     h: number,
     s: number,
-    l: number
+    l: number,
   ): { r: number; g: number; b: number } => {
     h /= 360;
     s /= 100;
@@ -170,7 +170,7 @@ export default function ColorPickerPage() {
     if (!colorHistory.includes(selectedColor)) {
       const newHistory = [selectedColor, ...colorHistory.slice(0, 9)];
       setColorHistory(newHistory);
-      toast.success("Color added to history!");
+      toast.success('Color added to history!');
     }
   };
 
@@ -180,24 +180,24 @@ export default function ColorPickerPage() {
       await navigator.clipboard.writeText(text);
       toast.success(`${format} copied to clipboard!`);
     } catch {
-      toast.error("Failed to copy to clipboard");
+      toast.error('Failed to copy to clipboard');
     }
   };
 
   // Generate random color
   const generateRandomColor = () => {
     const randomColor =
-      "#" +
+      '#' +
       Math.floor(Math.random() * 16777215)
         .toString(16)
-        .padStart(6, "0");
+        .padStart(6, '0');
     updateColor(randomColor);
-    toast.info("Random color generated!");
+    toast.info('Random color generated!');
   };
 
   // Color contrast calculation
-  const [contrastColor, setContrastColor] = useState("#ffffff");
-  
+  const [contrastColor, setContrastColor] = useState('#ffffff');
+
   // Calculate relative luminance
   const getLuminance = (r: number, g: number, b: number): number => {
     const sRGB = [r, g, b].map((c) => {
@@ -211,24 +211,26 @@ export default function ColorPickerPage() {
   const getContrastRatio = (color1: string, color2: string): number => {
     const rgb1 = hexToRgb(color1);
     const rgb2 = hexToRgb(color2);
-    
+
     if (!rgb1 || !rgb2) return 0;
-    
+
     const lum1 = getLuminance(rgb1.r, rgb1.g, rgb1.b);
     const lum2 = getLuminance(rgb2.r, rgb2.g, rgb2.b);
-    
+
     const brightest = Math.max(lum1, lum2);
     const darkest = Math.min(lum1, lum2);
-    
+
     return (brightest + 0.05) / (darkest + 0.05);
   };
 
   // Get contrast rating
-  const getContrastRating = (ratio: number): { rating: string; color: string } => {
-    if (ratio >= 7) return { rating: "AAA", color: "text-green-600" };
-    if (ratio >= 4.5) return { rating: "AA", color: "text-yellow-600" };
-    if (ratio >= 3) return { rating: "AA Large", color: "text-orange-600" };
-    return { rating: "Fail", color: "text-red-600" };
+  const getContrastRating = (
+    ratio: number,
+  ): { rating: string; color: string } => {
+    if (ratio >= 7) return { rating: 'AAA', color: 'text-green-600' };
+    if (ratio >= 4.5) return { rating: 'AA', color: 'text-yellow-600' };
+    if (ratio >= 3) return { rating: 'AA Large', color: 'text-orange-600' };
+    return { rating: 'Fail', color: 'text-red-600' };
   };
 
   // Update contrast color
@@ -279,7 +281,7 @@ export default function ColorPickerPage() {
                     className="font-mono"
                   />
                   <Button
-                    onClick={() => copyToClipboard(hexInput, "HEX")}
+                    onClick={() => copyToClipboard(hexInput, 'HEX')}
                     variant="outline"
                     size="sm"
                   >
@@ -298,7 +300,7 @@ export default function ColorPickerPage() {
                     className="font-mono"
                   />
                   <Button
-                    onClick={() => copyToClipboard(`rgb(${rgbInput})`, "RGB")}
+                    onClick={() => copyToClipboard(`rgb(${rgbInput})`, 'RGB')}
                     variant="outline"
                     size="sm"
                   >
@@ -317,7 +319,7 @@ export default function ColorPickerPage() {
                     className="font-mono"
                   />
                   <Button
-                    onClick={() => copyToClipboard(`hsl(${hslInput})`, "HSL")}
+                    onClick={() => copyToClipboard(`hsl(${hslInput})`, 'HSL')}
                     variant="outline"
                     size="sm"
                   >
@@ -376,11 +378,15 @@ export default function ColorPickerPage() {
                   <div className="bg-muted p-4 rounded-lg space-y-3">
                     <div className="flex justify-between items-center">
                       <span className="font-medium">Contrast Ratio:</span>
-                      <span className="font-mono text-lg">{ratio.toFixed(2)}:1</span>
+                      <span className="font-mono text-lg">
+                        {ratio.toFixed(2)}:1
+                      </span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="font-medium">WCAG Rating:</span>
-                      <span className={`font-bold ${rating.color}`}>{rating.rating}</span>
+                      <span className={`font-bold ${rating.color}`}>
+                        {rating.rating}
+                      </span>
                     </div>
                   </div>
                 );
@@ -419,7 +425,7 @@ export default function ColorPickerPage() {
               <h3 className="text-sm font-medium">Quick Contrast Tests</h3>
               <div className="grid grid-cols-2 gap-2">
                 <Button
-                  onClick={() => updateContrastColor("#ffffff")}
+                  onClick={() => updateContrastColor('#ffffff')}
                   variant="outline"
                   size="sm"
                   className="bg-white text-black border-2"
@@ -427,7 +433,7 @@ export default function ColorPickerPage() {
                   vs White
                 </Button>
                 <Button
-                  onClick={() => updateContrastColor("#000000")}
+                  onClick={() => updateContrastColor('#000000')}
                   variant="outline"
                   size="sm"
                   className="bg-black text-white border-2"
@@ -455,7 +461,7 @@ export default function ColorPickerPage() {
                 <Button
                   onClick={() => {
                     setColorHistory([]);
-                    toast.info("Color history cleared!");
+                    toast.info('Color history cleared!');
                   }}
                   variant="outline"
                   size="sm"
