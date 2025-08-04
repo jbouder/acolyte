@@ -13,6 +13,7 @@ import {
   Palette,
   BarChart3,
   StickyNote,
+  SearchCode,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -84,6 +85,11 @@ const items = [
     title: "Notepad",
     url: "/notepad",
     icon: StickyNote,
+  },
+  {
+    title: "Regex Tester",
+    url: "/regex",
+    icon: SearchCode,
   },
 ];
 
