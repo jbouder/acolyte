@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Download, Upload, Save, Trash2, FileText } from "lucide-react";
 
-const STORAGE_KEY = "notepad-content";
+const STORAGE_KEY = "web-tools-notepad-content";
 
 export default function NotepadPage() {
   const [content, setContent] = useState("");

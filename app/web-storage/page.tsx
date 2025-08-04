@@ -13,6 +13,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Trash2, Download, Upload, RefreshCw } from "lucide-react";
 
 interface StorageItem {
@@ -27,12 +35,25 @@ interface IndexedDBItem {
   store: string;
 }
 
+interface CookieItem {
+  name: string;
+  value: string;
+  domain?: string;
+  path?: string;
+  expires?: string;
+  httpOnly?: boolean;
+  secure?: boolean;
+  sameSite?: string;
+  size: number;
+}
+
 export default function WebStoragePage() {
   const [activeTab, setActiveTab] = useState<
-    "localStorage" | "sessionStorage" | "indexedDB"
+    "localStorage" | "sessionStorage" | "indexedDB" | "cookies"
   >("localStorage");
   const [storageItems, setStorageItems] = useState<StorageItem[]>([]);
   const [indexedDBItems, setIndexedDBItems] = useState<IndexedDBItem[]>([]);
+  const [cookieItems, setCookieItems] = useState<CookieItem[]>([]);
   const [newKey, setNewKey] = useState("");
   const [newValue, setNewValue] = useState("");
   const [editingKey, setEditingKey] = useState<string | null>(null);
@@ -118,10 +139,37 @@ export default function WebStoragePage() {
     }
   }, [dbName, storeName]);
 
+  const loadCookieItems = useCallback(() => {
+    if (typeof window === "undefined") return;
+
+    try {
+      const cookies = document.cookie.split(';');
+      const items: CookieItem[] = [];
+
+      cookies.forEach(cookie => {
+        const [name, value] = cookie.trim().split('=');
+        if (name && value !== undefined) {
+          const cookieValue = decodeURIComponent(value || '');
+          items.push({
+            name: decodeURIComponent(name),
+            value: cookieValue,
+            size: new Blob([name + '=' + cookieValue]).size,
+          });
+        }
+      });
+
+      setCookieItems(items.sort((a, b) => a.name.localeCompare(b.name)));
+    } catch {
+      console.error("Error loading cookies");
+      setCookieItems([]);
+    }
+  }, []);
+
   useEffect(() => {
     loadStorageItems();
     loadIndexedDBItems();
-  }, [loadStorageItems, loadIndexedDBItems]);
+    loadCookieItems();
+  }, [loadStorageItems, loadIndexedDBItems, loadCookieItems]);
 
   const addStorageItem = () => {
     if (!newKey.trim()) {
@@ -308,8 +356,86 @@ export default function WebStoragePage() {
     }
   };
 
+  const addCookieItem = () => {
+    if (!newKey.trim()) {
+      toast.error("Please enter a cookie name");
+      return;
+    }
+
+    if (typeof window === "undefined") return;
+
+    try {
+      const cookieString = `${encodeURIComponent(newKey)}=${encodeURIComponent(newValue)}; path=/`;
+      document.cookie = cookieString;
+      setNewKey("");
+      setNewValue("");
+      loadCookieItems();
+      toast.success("Cookie added successfully");
+    } catch {
+      toast.error("Failed to add cookie");
+    }
+  };
+
+  const deleteCookieItem = (name: string) => {
+    if (typeof window === "undefined") return;
+
+    try {
+      // Set cookie to expire in the past to delete it
+      document.cookie = `${encodeURIComponent(name)}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+      loadCookieItems();
+      toast.success("Cookie deleted successfully");
+    } catch {
+      toast.error("Failed to delete cookie");
+    }
+  };
+
+  const updateCookieItem = (name: string) => {
+    if (typeof window === "undefined") return;
+
+    try {
+      // Delete the old cookie first
+      document.cookie = `${encodeURIComponent(name)}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+      // Add the updated cookie
+      const cookieString = `${encodeURIComponent(name)}=${encodeURIComponent(editingValue)}; path=/`;
+      document.cookie = cookieString;
+      setEditingKey(null);
+      setEditingValue("");
+      loadCookieItems();
+      toast.success("Cookie updated successfully");
+    } catch {
+      toast.error("Failed to update cookie");
+    }
+  };
+
+  const clearCookies = () => {
+    if (typeof window === "undefined") return;
+
+    try {
+      // Get all cookies and delete them
+      const cookies = document.cookie.split(';');
+      cookies.forEach(cookie => {
+        const [name] = cookie.trim().split('=');
+        if (name) {
+          document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+        }
+      });
+      loadCookieItems();
+      toast.success("All cookies cleared successfully");
+    } catch {
+      toast.error("Failed to clear cookies");
+    }
+  };
+
   const exportData = () => {
-    const data = activeTab === "indexedDB" ? indexedDBItems : storageItems;
+    let data;
+    if (activeTab === "indexedDB") {
+      data = indexedDBItems;
+    } else if (activeTab === "cookies") {
+      data = cookieItems;
+    } else {
+      data = storageItems;
+    }
+    
     const dataStr = JSON.stringify(data, null, 2);
     const dataBlob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(dataBlob);
@@ -369,6 +495,15 @@ export default function WebStoragePage() {
             }
           }
           loadIndexedDBItems();
+        } else if (activeTab === "cookies") {
+          // Import to cookies
+          for (const item of data) {
+            if (item.name && item.value !== undefined) {
+              const cookieString = `${encodeURIComponent(item.name)}=${encodeURIComponent(item.value)}; path=/`;
+              document.cookie = cookieString;
+            }
+          }
+          loadCookieItems();
         } else {
           // Import to localStorage/sessionStorage
           const storage =
@@ -402,6 +537,8 @@ export default function WebStoragePage() {
       return indexedDBItems.reduce((total, item) => {
         return total + new Blob([JSON.stringify(item.value)]).size;
       }, 0);
+    } else if (activeTab === "cookies") {
+      return cookieItems.reduce((total, item) => total + item.size, 0);
     }
     return storageItems.reduce((total, item) => total + item.size, 0);
   };
@@ -451,6 +588,12 @@ export default function WebStoragePage() {
         >
           IndexedDB
         </Button>
+        <Button
+          variant={activeTab === "cookies" ? "default" : "outline"}
+          onClick={() => setActiveTab("cookies")}
+        >
+          Cookies
+        </Button>
       </div>
 
       {activeTab === "indexedDB" && (
@@ -495,9 +638,7 @@ export default function WebStoragePage() {
                 <div className="flex justify-between">
                   <span>Items:</span>
                   <Badge variant="secondary">
-                    {activeTab === "indexedDB"
-                      ? indexedDBItems.length
-                      : storageItems.length}
+                    {indexedDBItems.length}
                   </Badge>
                 </div>
                 <div className="flex justify-between">
@@ -516,23 +657,56 @@ export default function WebStoragePage() {
         </div>
       )}
 
+      {activeTab !== "indexedDB" && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Storage Info</CardTitle>
+            <CardDescription>Current storage statistics</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span>Items:</span>
+                <Badge variant="secondary">
+                  {activeTab === "cookies" ? cookieItems.length : storageItems.length}
+                </Badge>
+              </div>
+              <div className="flex justify-between">
+                <span>Total Size:</span>
+                <Badge variant="secondary">
+                  {formatBytes(getTotalSize())}
+                </Badge>
+              </div>
+              <div className="flex justify-between">
+                <span>Storage Type:</span>
+                <Badge>{activeTab}</Badge>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <Card>
         <CardHeader>
           <CardTitle>Add New Item</CardTitle>
           <CardDescription>
             {activeTab === "indexedDB"
               ? "Add a new key-value pair to IndexedDB (JSON values will be parsed)"
+              : activeTab === "cookies"
+              ? "Add a new cookie to the current domain"
               : `Add a new key-value pair to ${activeTab}`}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-3">
             <div>
-              <label className="text-sm font-medium">Key</label>
+              <label className="text-sm font-medium">
+                {activeTab === "cookies" ? "Name" : "Key"}
+              </label>
               <Input
                 value={newKey}
                 onChange={(e) => setNewKey(e.target.value)}
-                placeholder="Enter key"
+                placeholder={activeTab === "cookies" ? "Enter cookie name" : "Enter key"}
               />
             </div>
             <div>
@@ -545,6 +719,8 @@ export default function WebStoragePage() {
                 placeholder={
                   activeTab === "indexedDB"
                     ? "Enter value (JSON supported)"
+                    : activeTab === "cookies"
+                    ? "Enter cookie value"
                     : "Enter value"
                 }
               />
@@ -552,7 +728,11 @@ export default function WebStoragePage() {
             <div className="flex items-end">
               <Button
                 onClick={
-                  activeTab === "indexedDB" ? addIndexedDBItem : addStorageItem
+                  activeTab === "indexedDB" 
+                    ? addIndexedDBItem 
+                    : activeTab === "cookies"
+                    ? addCookieItem
+                    : addStorageItem
                 }
                 className="w-full"
               >
@@ -571,13 +751,19 @@ export default function WebStoragePage() {
               <CardDescription>
                 {activeTab === "indexedDB"
                   ? indexedDBItems.length
+                  : activeTab === "cookies"
+                  ? cookieItems.length
                   : storageItems.length}{" "}
                 items in {activeTab}
               </CardDescription>
             </div>
             <Button
               onClick={
-                activeTab === "indexedDB" ? clearIndexedDB : clearStorage
+                activeTab === "indexedDB" 
+                  ? clearIndexedDB 
+                  : activeTab === "cookies"
+                  ? clearCookies
+                  : clearStorage
               }
               variant="destructive"
               size="sm"
@@ -588,65 +774,160 @@ export default function WebStoragePage() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {activeTab === "indexedDB" ? (
-              indexedDBItems.length === 0 ? (
-                <p className="text-muted-foreground text-center py-8">
-                  No items in IndexedDB store
-                </p>
-              ) : (
-                indexedDBItems.map((item) => (
-                  <div
-                    key={item.key}
-                    className="border border-border rounded-lg p-4"
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="font-mono text-sm font-medium">
-                            {item.key}
-                          </span>
-                          <Badge variant="outline" className="text-xs">
-                            {typeof item.value}
-                          </Badge>
-                        </div>
-                        <div className="bg-muted p-3 rounded text-sm font-mono break-all max-h-32 overflow-y-auto">
+          {activeTab === "indexedDB" ? (
+            indexedDBItems.length === 0 ? (
+              <p className="text-muted-foreground text-center py-8">
+                No items in IndexedDB store
+              </p>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Key</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Value</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {indexedDBItems.map((item) => (
+                    <TableRow key={item.key}>
+                      <TableCell className="font-mono font-medium">
+                        {item.key}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="text-xs">
+                          {typeof item.value}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="max-w-md">
+                        <div className="bg-muted p-2 rounded text-sm font-mono break-all max-h-20 overflow-y-auto">
                           {typeof item.value === "object"
                             ? JSON.stringify(item.value, null, 2)
                             : String(item.value)}
                         </div>
-                      </div>
-                      <Button
-                        onClick={() => deleteIndexedDBItem(item.key)}
-                        variant="destructive"
-                        size="sm"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                ))
-              )
-            ) : storageItems.length === 0 ? (
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          onClick={() => deleteIndexedDBItem(item.key)}
+                          variant="destructive"
+                          size="sm"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )
+          ) : activeTab === "cookies" ? (
+            cookieItems.length === 0 ? (
               <p className="text-muted-foreground text-center py-8">
-                No items in {activeTab}
+                No cookies found
               </p>
             ) : (
-              storageItems.map((item) => (
-                <div
-                  key={item.key}
-                  className="border border-border rounded-lg p-4"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="font-mono text-sm font-medium">
-                          {item.key}
-                        </span>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Size</TableHead>
+                    <TableHead>Value</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {cookieItems.map((item) => (
+                    <TableRow key={item.name}>
+                      <TableCell className="font-mono font-medium">
+                        {item.name}
+                      </TableCell>
+                      <TableCell>
                         <Badge variant="outline" className="text-xs">
                           {formatBytes(item.size)}
                         </Badge>
-                      </div>
+                      </TableCell>
+                      <TableCell className="max-w-md">
+                        {editingKey === item.name ? (
+                          <div className="space-y-2">
+                            <Textarea
+                              value={editingValue}
+                              onChange={(
+                                e: React.ChangeEvent<HTMLTextAreaElement>
+                              ) => setEditingValue(e.target.value)}
+                              className="min-h-[60px]"
+                            />
+                            <div className="flex gap-2">
+                              <Button
+                                onClick={() => updateCookieItem(item.name)}
+                                size="sm"
+                              >
+                                Save
+                              </Button>
+                              <Button
+                                onClick={() => {
+                                  setEditingKey(null);
+                                  setEditingValue("");
+                                }}
+                                variant="outline"
+                                size="sm"
+                              >
+                                Cancel
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div
+                            className="bg-muted p-2 rounded text-sm font-mono break-all max-h-20 overflow-y-auto cursor-pointer hover:bg-muted/80"
+                            onClick={() => {
+                              setEditingKey(item.name);
+                              setEditingValue(item.value);
+                            }}
+                          >
+                            {item.value}
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          onClick={() => deleteCookieItem(item.name)}
+                          variant="destructive"
+                          size="sm"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )
+          ) : storageItems.length === 0 ? (
+            <p className="text-muted-foreground text-center py-8">
+              No items in {activeTab}
+            </p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Key</TableHead>
+                  <TableHead>Size</TableHead>
+                  <TableHead>Value</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {storageItems.map((item) => (
+                  <TableRow key={item.key}>
+                    <TableCell className="font-mono font-medium">
+                      {item.key}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="text-xs">
+                        {formatBytes(item.size)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="max-w-md">
                       {editingKey === item.key ? (
                         <div className="space-y-2">
                           <Textarea
@@ -654,7 +935,7 @@ export default function WebStoragePage() {
                             onChange={(
                               e: React.ChangeEvent<HTMLTextAreaElement>
                             ) => setEditingValue(e.target.value)}
-                            className="min-h-[80px]"
+                            className="min-h-[60px]"
                           />
                           <div className="flex gap-2">
                             <Button
@@ -677,7 +958,7 @@ export default function WebStoragePage() {
                         </div>
                       ) : (
                         <div
-                          className="bg-muted p-3 rounded text-sm font-mono break-all max-h-32 overflow-y-auto cursor-pointer hover:bg-muted/80"
+                          className="bg-muted p-2 rounded text-sm font-mono break-all max-h-20 overflow-y-auto cursor-pointer hover:bg-muted/80"
                           onClick={() => {
                             setEditingKey(item.key);
                             setEditingValue(item.value);
@@ -686,19 +967,21 @@ export default function WebStoragePage() {
                           {item.value}
                         </div>
                       )}
-                    </div>
-                    <Button
-                      onClick={() => deleteStorageItem(item.key)}
-                      variant="destructive"
-                      size="sm"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        onClick={() => deleteStorageItem(item.key)}
+                        variant="destructive"
+                        size="sm"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
     </div>
