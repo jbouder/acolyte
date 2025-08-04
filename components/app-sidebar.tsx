@@ -72,6 +72,11 @@ const items = [
     icon: Braces,
   },
   {
+    title: "Regex Tester",
+    url: "/regex",
+    icon: SearchCode,
+  },
+  {
     title: "Color Picker",
     url: "/color-picker",
     icon: Palette,
@@ -85,11 +90,6 @@ const items = [
     title: "Notepad",
     url: "/notepad",
     icon: StickyNote,
-  },
-  {
-    title: "Regex Tester",
-    url: "/regex",
-    icon: SearchCode,
   },
 ];
 
