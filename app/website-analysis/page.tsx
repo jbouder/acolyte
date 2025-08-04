@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { toast } from "sonner";
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
 interface WebStats {
   url: string;
@@ -46,26 +46,26 @@ interface WebStats {
 }
 
 export default function WebStatsPage() {
-  const [url, setUrl] = useState("https://example.com");
+  const [url, setUrl] = useState('https://example.com');
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState<WebStats | null>(null);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   const analyzeWebsite = async () => {
     if (!url.trim()) {
-      toast.error("Please enter a URL");
+      toast.error('Please enter a URL');
       return;
     }
 
     setLoading(true);
-    setError("");
+    setError('');
     setStats(null);
 
     try {
-      const response = await fetch("/api/web-stats", {
-        method: "POST",
+      const response = await fetch('/api/web-stats', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ url }),
       });
@@ -73,14 +73,14 @@ export default function WebStatsPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to analyze website");
+        throw new Error(data.error || 'Failed to analyze website');
       }
 
       setStats(data);
-      toast.success("Website analysis completed!");
+      toast.success('Website analysis completed!');
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : "Failed to analyze website";
+        error instanceof Error ? error.message : 'Failed to analyze website';
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -93,7 +93,7 @@ export default function WebStatsPage() {
       await navigator.clipboard.writeText(text);
       toast.success(`${label} copied to clipboard!`);
     } catch {
-      toast.error("Failed to copy to clipboard");
+      toast.error('Failed to copy to clipboard');
     }
   };
 
@@ -101,30 +101,30 @@ export default function WebStatsPage() {
     if (!stats) return;
 
     const dataStr = JSON.stringify(stats, null, 2);
-    const dataBlob = new Blob([dataStr], { type: "application/json" });
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
     const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement("a");
+    const link = document.createElement('a');
     link.href = url;
     link.download = `web-stats-${stats.domain}-${
-      new Date().toISOString().split("T")[0]
+      new Date().toISOString().split('T')[0]
     }.json`;
     link.click();
     URL.revokeObjectURL(url);
-    toast.success("Stats exported!");
+    toast.success('Stats exported!');
   };
 
   const getStatusColor = (statusCode: number) => {
-    if (statusCode >= 200 && statusCode < 300) return "bg-green-500";
-    if (statusCode >= 300 && statusCode < 400) return "bg-yellow-500";
-    if (statusCode >= 400 && statusCode < 500) return "bg-orange-500";
-    return "bg-red-500";
+    if (statusCode >= 200 && statusCode < 300) return 'bg-green-500';
+    if (statusCode >= 300 && statusCode < 400) return 'bg-yellow-500';
+    if (statusCode >= 400 && statusCode < 500) return 'bg-orange-500';
+    return 'bg-red-500';
   };
 
   const getPerformanceColor = (responseTime: number) => {
-    if (responseTime < 500) return "text-green-600";
-    if (responseTime < 1000) return "text-yellow-600";
-    if (responseTime < 2000) return "text-orange-600";
-    return "text-red-600";
+    if (responseTime < 500) return 'text-green-600';
+    if (responseTime < 1000) return 'text-yellow-600';
+    if (responseTime < 2000) return 'text-orange-600';
+    return 'text-red-600';
   };
 
   return (
@@ -148,10 +148,10 @@ export default function WebStatsPage() {
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="https://example.com"
                 className="flex-1"
-                onKeyDown={(e) => e.key === "Enter" && analyzeWebsite()}
+                onKeyDown={(e) => e.key === 'Enter' && analyzeWebsite()}
               />
               <Button onClick={analyzeWebsite} disabled={loading}>
-                {loading ? "Analyzing..." : "Analyze"}
+                {loading ? 'Analyzing...' : 'Analyze'}
               </Button>
             </div>
 
@@ -175,7 +175,7 @@ export default function WebStatsPage() {
                 <div className="flex items-center gap-2">
                   <div
                     className={`h-2 w-2 rounded-full ${getStatusColor(
-                      stats.statusCode
+                      stats.statusCode,
                     )}`}
                   ></div>
                   <span className="font-mono text-lg">{stats.statusCode}</span>
@@ -194,7 +194,7 @@ export default function WebStatsPage() {
                 <div className="flex items-center gap-2">
                   <span
                     className={`font-mono text-lg ${getPerformanceColor(
-                      stats.responseTime
+                      stats.responseTime,
                     )}`}
                   >
                     {stats.responseTime}ms
@@ -223,7 +223,7 @@ export default function WebStatsPage() {
               <CardContent>
                 <div className="flex items-center gap-2">
                   <span className="font-mono text-lg">
-                    {stats.protocol.replace(":", "").toUpperCase()}
+                    {stats.protocol.replace(':', '').toUpperCase()}
                   </span>
                 </div>
               </CardContent>
@@ -249,7 +249,7 @@ export default function WebStatsPage() {
                       size="sm"
                       variant="outline"
                       onClick={() =>
-                        copyToClipboard(stats.content.title, "Title")
+                        copyToClipboard(stats.content.title, 'Title')
                       }
                     >
                       Copy
@@ -269,7 +269,7 @@ export default function WebStatsPage() {
                       onClick={() =>
                         copyToClipboard(
                           stats.content.description,
-                          "Description"
+                          'Description',
                         )
                       }
                     >
@@ -280,27 +280,27 @@ export default function WebStatsPage() {
 
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <span className="font-medium">Word Count:</span>{" "}
+                    <span className="font-medium">Word Count:</span>{' '}
                     {stats.content.wordCount.toLocaleString()}
                   </div>
                   <div>
-                    <span className="font-medium">Character Count:</span>{" "}
+                    <span className="font-medium">Character Count:</span>{' '}
                     {stats.content.charCount.toLocaleString()}
                   </div>
                   <div>
-                    <span className="font-medium">Links:</span>{" "}
+                    <span className="font-medium">Links:</span>{' '}
                     {stats.content.linkCount}
                   </div>
                   <div>
-                    <span className="font-medium">Images:</span>{" "}
+                    <span className="font-medium">Images:</span>{' '}
                     {stats.content.imageCount}
                   </div>
                   <div>
-                    <span className="font-medium">Scripts:</span>{" "}
+                    <span className="font-medium">Scripts:</span>{' '}
                     {stats.content.scriptCount}
                   </div>
                   <div>
-                    <span className="font-medium">CSS Files:</span>{" "}
+                    <span className="font-medium">CSS Files:</span>{' '}
                     {stats.content.cssLinkCount}
                   </div>
                 </div>
@@ -321,11 +321,11 @@ export default function WebStatsPage() {
                         className="flex items-center justify-between"
                       >
                         <span className="text-sm font-mono">{header}</span>
-                        <Badge variant={value ? "default" : "destructive"}>
-                          {value ? "Present" : "Missing"}
+                        <Badge variant={value ? 'default' : 'destructive'}>
+                          {value ? 'Present' : 'Missing'}
                         </Badge>
                       </div>
-                    )
+                    ),
                   )}
                 </div>
               </CardContent>
@@ -346,12 +346,12 @@ export default function WebStatsPage() {
                     ([framework, detected]) => (
                       <Badge
                         key={framework}
-                        variant={detected ? "default" : "secondary"}
-                        className={detected ? "bg-green-500" : ""}
+                        variant={detected ? 'default' : 'secondary'}
+                        className={detected ? 'bg-green-500' : ''}
                       >
                         {framework.charAt(0).toUpperCase() + framework.slice(1)}
                       </Badge>
-                    )
+                    ),
                   )}
                 </div>
               </CardContent>
@@ -369,7 +369,7 @@ export default function WebStatsPage() {
                   <span className="text-sm">Response Time:</span>
                   <span
                     className={`text-sm font-mono ${getPerformanceColor(
-                      stats.performance.responseTimeMs
+                      stats.performance.responseTimeMs,
                     )}`}
                   >
                     {stats.performance.responseTimeMs}ms
@@ -378,7 +378,7 @@ export default function WebStatsPage() {
                 <div className="flex justify-between">
                   <span className="text-sm">Content Size:</span>
                   <span className="text-sm font-mono">
-                    {(stats.performance.contentLengthBytes / 1024).toFixed(2)}{" "}
+                    {(stats.performance.contentLengthBytes / 1024).toFixed(2)}{' '}
                     KB
                   </span>
                 </div>
@@ -460,7 +460,7 @@ export default function WebStatsPage() {
             </Button>
             <Button
               onClick={() =>
-                copyToClipboard(JSON.stringify(stats, null, 2), "Full stats")
+                copyToClipboard(JSON.stringify(stats, null, 2), 'Full stats')
               }
               variant="outline"
             >

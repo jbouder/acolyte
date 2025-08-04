@@ -1,38 +1,38 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useRef } from "react";
-import { toast } from "sonner";
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 interface WebSocketMessage {
   id: string;
-  type: "sent" | "received" | "error" | "connection";
+  type: 'sent' | 'received' | 'error' | 'connection';
   content: string;
   timestamp: string;
 }
 
 export default function WebSocketsPage() {
-  const [url, setUrl] = useState("wss://echo.websocket.org");
+  const [url, setUrl] = useState('wss://echo.websocket.org');
   const [isConnected, setIsConnected] = useState(false);
   const [message, setMessage] = useState(
-    '{"type": "message", "data": "Hello WebSocket!"}'
+    '{"type": "message", "data": "Hello WebSocket!"}',
   );
   const [messages, setMessages] = useState<WebSocketMessage[]>([]);
   const [messagesSent, setMessagesSent] = useState(0);
   const [messagesReceived, setMessagesReceived] = useState(0);
   const [connectionTime, setConnectionTime] = useState(0);
-  const [protocols, setProtocols] = useState("");
-  const [headers, setHeaders] = useState("");
+  const [protocols, setProtocols] = useState('');
+  const [headers, setHeaders] = useState('');
   const [autoReconnect, setAutoReconnect] = useState(false);
-  const [filter, setFilter] = useState("");
+  const [filter, setFilter] = useState('');
   const [autoScroll, setAutoScroll] = useState(true);
 
   const wsRef = useRef<WebSocket | null>(null);
@@ -48,11 +48,11 @@ export default function WebSocketsPage() {
 
   useEffect(() => {
     if (autoScroll && messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages, autoScroll]);
 
-  const addMessage = (type: WebSocketMessage["type"], content: string) => {
+  const addMessage = (type: WebSocketMessage['type'], content: string) => {
     const newMessage: WebSocketMessage = {
       id: Date.now().toString(),
       type,
@@ -68,33 +68,33 @@ export default function WebSocketsPage() {
     try {
       // Parse protocols if provided
       const protocolList = protocols
-        .split(",")
+        .split(',')
         .map((p) => p.trim())
         .filter((p) => p);
 
       wsRef.current = new WebSocket(
         url,
-        protocolList.length > 0 ? protocolList : undefined
+        protocolList.length > 0 ? protocolList : undefined,
       );
       connectionStartRef.current = Date.now();
 
       // Start connection timer
       timerRef.current = window.setInterval(() => {
         setConnectionTime(
-          Math.floor((Date.now() - connectionStartRef.current) / 1000)
+          Math.floor((Date.now() - connectionStartRef.current) / 1000),
         );
       }, 1000);
 
       wsRef.current.onopen = () => {
         setIsConnected(true);
         setConnectionTime(0);
-        addMessage("connection", "WebSocket connection opened");
-        toast.success("WebSocket connected!");
+        addMessage('connection', 'WebSocket connection opened');
+        toast.success('WebSocket connected!');
       };
 
       wsRef.current.onmessage = (event) => {
         setMessagesReceived((prev) => prev + 1);
-        addMessage("received", event.data);
+        addMessage('received', event.data);
       };
 
       wsRef.current.onclose = (event) => {
@@ -108,14 +108,14 @@ export default function WebSocketsPage() {
           ? `Connection closed cleanly (Code: ${event.code})`
           : `Connection lost unexpectedly (Code: ${event.code})`;
 
-        addMessage("connection", reason);
-        toast.info("WebSocket disconnected");
+        addMessage('connection', reason);
+        toast.info('WebSocket disconnected');
 
         // Auto-reconnect if enabled and connection wasn't closed intentionally
         if (autoReconnect && !event.wasClean && event.code !== 1000) {
           setTimeout(() => {
             if (!isConnected) {
-              toast.info("Attempting to reconnect...");
+              toast.info('Attempting to reconnect...');
               connect();
             }
           }, 3000);
@@ -123,19 +123,19 @@ export default function WebSocketsPage() {
       };
 
       wsRef.current.onerror = (error) => {
-        addMessage("error", "WebSocket error occurred");
-        toast.error("WebSocket connection error");
-        console.error("WebSocket error:", error);
+        addMessage('error', 'WebSocket error occurred');
+        toast.error('WebSocket connection error');
+        console.error('WebSocket error:', error);
       };
     } catch (error) {
-      toast.error("Failed to connect to WebSocket");
-      console.error("Connection error:", error);
+      toast.error('Failed to connect to WebSocket');
+      console.error('Connection error:', error);
     }
   };
 
   const disconnect = () => {
     if (wsRef.current) {
-      wsRef.current.close(1000, "Manual disconnect");
+      wsRef.current.close(1000, 'Manual disconnect');
       wsRef.current = null;
     }
     if (timerRef.current) {
@@ -147,41 +147,41 @@ export default function WebSocketsPage() {
 
   const sendMessage = () => {
     if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
-      toast.error("WebSocket is not connected");
+      toast.error('WebSocket is not connected');
       return;
     }
 
     if (!message.trim()) {
-      toast.error("Message cannot be empty");
+      toast.error('Message cannot be empty');
       return;
     }
 
     try {
       wsRef.current.send(message);
       setMessagesSent((prev) => prev + 1);
-      addMessage("sent", message);
-      toast.success("Message sent!");
+      addMessage('sent', message);
+      toast.success('Message sent!');
     } catch (error) {
-      toast.error("Failed to send message");
-      console.error("Send error:", error);
+      toast.error('Failed to send message');
+      console.error('Send error:', error);
     }
   };
 
   const sendPing = () => {
     if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
-      toast.error("WebSocket is not connected");
+      toast.error('WebSocket is not connected');
       return;
     }
 
     try {
       // Send a ping frame (note: this might not work on all servers)
-      wsRef.current.send("ping");
+      wsRef.current.send('ping');
       setMessagesSent((prev) => prev + 1);
-      addMessage("sent", "ping");
-      toast.success("Ping sent!");
+      addMessage('sent', 'ping');
+      toast.success('Ping sent!');
     } catch (error) {
-      toast.error("Failed to send ping");
-      console.error("Ping error:", error);
+      toast.error('Failed to send ping');
+      console.error('Ping error:', error);
     }
   };
 
@@ -189,67 +189,67 @@ export default function WebSocketsPage() {
     setMessages([]);
     setMessagesSent(0);
     setMessagesReceived(0);
-    toast.info("Message history cleared");
+    toast.info('Message history cleared');
   };
 
   const exportMessages = () => {
     const dataStr = JSON.stringify(messages, null, 2);
-    const dataBlob = new Blob([dataStr], { type: "application/json" });
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
     const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement("a");
+    const link = document.createElement('a');
     link.href = url;
     link.download = `websocket-messages-${
-      new Date().toISOString().split("T")[0]
+      new Date().toISOString().split('T')[0]
     }.json`;
     link.click();
     URL.revokeObjectURL(url);
-    toast.success("Messages exported!");
+    toast.success('Messages exported!');
   };
 
   const getConnectionStatus = () => {
-    if (!wsRef.current) return "Disconnected";
+    if (!wsRef.current) return 'Disconnected';
     switch (wsRef.current.readyState) {
       case WebSocket.CONNECTING:
-        return "Connecting";
+        return 'Connecting';
       case WebSocket.OPEN:
-        return "Connected";
+        return 'Connected';
       case WebSocket.CLOSING:
-        return "Closing";
+        return 'Closing';
       case WebSocket.CLOSED:
-        return "Disconnected";
+        return 'Disconnected';
       default:
-        return "Unknown";
+        return 'Unknown';
     }
   };
 
   const getStatusColor = () => {
-    if (!wsRef.current) return "bg-red-500";
+    if (!wsRef.current) return 'bg-red-500';
     switch (wsRef.current.readyState) {
       case WebSocket.CONNECTING:
-        return "bg-yellow-500";
+        return 'bg-yellow-500';
       case WebSocket.OPEN:
-        return "bg-green-500";
+        return 'bg-green-500';
       case WebSocket.CLOSING:
-        return "bg-orange-500";
+        return 'bg-orange-500';
       case WebSocket.CLOSED:
-        return "bg-red-500";
+        return 'bg-red-500';
       default:
-        return "bg-gray-500";
+        return 'bg-gray-500';
     }
   };
 
-  const getMessageTypeColor = (type: WebSocketMessage["type"]) => {
+  const getMessageTypeColor = (type: WebSocketMessage['type']) => {
     switch (type) {
-      case "sent":
-        return "text-blue-600";
-      case "received":
-        return "text-green-600";
-      case "error":
-        return "text-red-600";
-      case "connection":
-        return "text-gray-600";
+      case 'sent':
+        return 'text-blue-600';
+      case 'received':
+        return 'text-green-600';
+      case 'error':
+        return 'text-red-600';
+      case 'connection':
+        return 'text-gray-600';
       default:
-        return "text-gray-600";
+        return 'text-gray-600';
     }
   };
 
@@ -293,7 +293,7 @@ export default function WebSocketsPage() {
                   disabled={isConnected}
                   className="flex-1"
                 >
-                  {isConnected ? "Connected" : "Connect"}
+                  {isConnected ? 'Connected' : 'Connect'}
                 </Button>
                 <Button
                   onClick={disconnect}
@@ -438,9 +438,9 @@ export default function WebSocketsPage() {
                   variant="outline"
                   size="sm"
                   onClick={() => setAutoScroll(!autoScroll)}
-                  className={autoScroll ? "bg-blue-50" : ""}
+                  className={autoScroll ? 'bg-blue-50' : ''}
                 >
-                  Auto-scroll: {autoScroll ? "On" : "Off"}
+                  Auto-scroll: {autoScroll ? 'On' : 'Off'}
                 </Button>
               </div>
 
@@ -448,8 +448,8 @@ export default function WebSocketsPage() {
                 {filteredMessages.length === 0 ? (
                   <p className="text-sm text-muted-foreground">
                     {filter
-                      ? "No messages match the filter..."
-                      : "Connect to a WebSocket to see messages here..."}
+                      ? 'No messages match the filter...'
+                      : 'Connect to a WebSocket to see messages here...'}
                   </p>
                 ) : (
                   <div className="space-y-2">
@@ -461,7 +461,7 @@ export default function WebSocketsPage() {
                         <div className="flex items-center justify-between mb-2">
                           <span
                             className={`text-xs font-mono font-semibold ${getMessageTypeColor(
-                              msg.type
+                              msg.type,
                             )}`}
                           >
                             {msg.type.toUpperCase()}

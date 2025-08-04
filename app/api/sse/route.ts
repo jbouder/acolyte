@@ -1,8 +1,8 @@
-import { NextRequest } from "next/server";
+import { NextRequest } from 'next/server';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const externalUrl = searchParams.get("url");
+  const externalUrl = searchParams.get('url');
 
   if (!externalUrl) {
     return new Response("Missing 'url' parameter", { status: 400 });
@@ -12,15 +12,15 @@ export async function GET(request: NextRequest) {
     // Validate the URL
     new URL(externalUrl);
   } catch {
-    return new Response("Invalid URL format", { status: 400 });
+    return new Response('Invalid URL format', { status: 400 });
   }
 
   try {
     // Fetch from the external SSE endpoint
     const response = await fetch(externalUrl, {
       headers: {
-        Accept: "text/event-stream",
-        "Cache-Control": "no-cache",
+        Accept: 'text/event-stream',
+        'Cache-Control': 'no-cache',
       },
       signal: request.signal,
     });
@@ -30,12 +30,12 @@ export async function GET(request: NextRequest) {
         `Failed to connect to external SSE: ${response.status} ${response.statusText}`,
         {
           status: response.status,
-        }
+        },
       );
     }
 
     if (!response.body) {
-      return new Response("No response body from external SSE", {
+      return new Response('No response body from external SSE', {
         status: 500,
       });
     }
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
               controller.enqueue(value);
             }
           } catch (error) {
-            console.error("SSE proxy error:", error);
+            console.error('SSE proxy error:', error);
             controller.error(error);
           }
         };
@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
         pump();
 
         // Handle client disconnect
-        request.signal.addEventListener("abort", () => {
+        request.signal.addEventListener('abort', () => {
           reader.cancel();
           controller.close();
         });
@@ -76,16 +76,16 @@ export async function GET(request: NextRequest) {
 
     return new Response(stream, {
       headers: {
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
-        Connection: "keep-alive",
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET",
-        "Access-Control-Allow-Headers": "Cache-Control",
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        Connection: 'keep-alive',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET',
+        'Access-Control-Allow-Headers': 'Cache-Control',
       },
     });
   } catch (error) {
-    console.error("SSE proxy error:", error);
+    console.error('SSE proxy error:', error);
     return new Response(`Failed to connect to external SSE: ${error}`, {
       status: 500,
     });

@@ -1,11 +1,11 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
     const { url } = await request.json();
 
     if (!url) {
-      return NextResponse.json({ error: "URL is required" }, { status: 400 });
+      return NextResponse.json({ error: 'URL is required' }, { status: 400 });
     }
 
     // Validate URL format
@@ -14,8 +14,8 @@ export async function POST(request: NextRequest) {
       targetUrl = new URL(url);
     } catch {
       return NextResponse.json(
-        { error: "Invalid URL format" },
-        { status: 400 }
+        { error: 'Invalid URL format' },
+        { status: 400 },
       );
     }
 
@@ -23,9 +23,9 @@ export async function POST(request: NextRequest) {
 
     // Fetch the webpage
     const response = await fetch(targetUrl.toString(), {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "User-Agent": "Web-Tools-Stats/1.0",
+        'User-Agent': 'Web-Tools-Stats/1.0',
       },
       // Set a reasonable timeout
       signal: AbortSignal.timeout(10000),
@@ -40,14 +40,14 @@ export async function POST(request: NextRequest) {
 
     // Parse HTML to extract metadata
     const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
-    const title = titleMatch ? titleMatch[1].trim() : "No title found";
+    const title = titleMatch ? titleMatch[1].trim() : 'No title found';
 
     const descriptionMatch = html.match(
-      /<meta[^>]*name=["']description["'][^>]*content=["']([^"']+)["'][^>]*>/i
+      /<meta[^>]*name=["']description["'][^>]*content=["']([^"']+)["'][^>]*>/i,
     );
     const description = descriptionMatch
       ? descriptionMatch[1]
-      : "No description found";
+      : 'No description found';
 
     // Count various elements
     const linkCount = (html.match(/<a[^>]*href/gi) || []).length;
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
 
       if ((nameMatch || propertyMatch) && contentMatch) {
         metaTags.push({
-          name: nameMatch?.[1] || propertyMatch?.[1] || "",
+          name: nameMatch?.[1] || propertyMatch?.[1] || '',
           content: contentMatch[1],
         });
       }
@@ -83,27 +83,27 @@ export async function POST(request: NextRequest) {
 
     // Calculate some additional metrics
     const wordCount = html
-      .replace(/<[^>]*>/g, "")
+      .replace(/<[^>]*>/g, '')
       .split(/\s+/)
       .filter((word) => word.length > 0).length;
     const charCount = html.length;
     const htmlSizeKB = (contentLength / 1024).toFixed(2);
 
     // Check for common frameworks/libraries
-    const hasJQuery = html.includes("jquery") || html.includes("jQuery");
-    const hasReact = html.includes("react") || html.includes("React");
-    const hasVue = html.includes("vue") || html.includes("Vue");
-    const hasAngular = html.includes("angular") || html.includes("Angular");
+    const hasJQuery = html.includes('jquery') || html.includes('jQuery');
+    const hasReact = html.includes('react') || html.includes('React');
+    const hasVue = html.includes('vue') || html.includes('Vue');
+    const hasAngular = html.includes('angular') || html.includes('Angular');
     const hasBootstrap =
-      html.includes("bootstrap") || html.includes("Bootstrap");
+      html.includes('bootstrap') || html.includes('Bootstrap');
 
     // Security headers check
     const securityHeaders = {
-      "x-frame-options": headers["x-frame-options"] || null,
-      "x-content-type-options": headers["x-content-type-options"] || null,
-      "x-xss-protection": headers["x-xss-protection"] || null,
-      "strict-transport-security": headers["strict-transport-security"] || null,
-      "content-security-policy": headers["content-security-policy"] || null,
+      'x-frame-options': headers['x-frame-options'] || null,
+      'x-content-type-options': headers['x-content-type-options'] || null,
+      'x-xss-protection': headers['x-xss-protection'] || null,
+      'strict-transport-security': headers['strict-transport-security'] || null,
+      'content-security-policy': headers['content-security-policy'] || null,
     };
 
     const stats = {
@@ -150,37 +150,37 @@ export async function POST(request: NextRequest) {
       performance: {
         responseTimeMs: responseTime,
         contentLengthBytes: contentLength,
-        compressionRatio: headers["content-encoding"]
-          ? "Compressed"
-          : "Not compressed",
+        compressionRatio: headers['content-encoding']
+          ? 'Compressed'
+          : 'Not compressed',
       },
     };
 
     return NextResponse.json(stats);
   } catch (error) {
-    console.error("Web stats error:", error);
+    console.error('Web stats error:', error);
 
     if (error instanceof Error) {
-      if (error.name === "TimeoutError" || error.message.includes("timeout")) {
+      if (error.name === 'TimeoutError' || error.message.includes('timeout')) {
         return NextResponse.json(
-          { error: "Request timeout - the website took too long to respond" },
-          { status: 408 }
+          { error: 'Request timeout - the website took too long to respond' },
+          { status: 408 },
         );
       }
-      if (error.message.includes("fetch")) {
+      if (error.message.includes('fetch')) {
         return NextResponse.json(
           {
             error:
-              "Failed to fetch the website. It may be down or blocking requests.",
+              'Failed to fetch the website. It may be down or blocking requests.',
           },
-          { status: 502 }
+          { status: 502 },
         );
       }
     }
 
     return NextResponse.json(
-      { error: "Failed to analyze website" },
-      { status: 500 }
+      { error: 'Failed to analyze website' },
+      { status: 500 },
     );
   }
 }

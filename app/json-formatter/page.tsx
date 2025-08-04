@@ -1,83 +1,83 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { toast } from "sonner";
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+} from '@/components/ui/card';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
 export default function JsonFormatterPage() {
-  const [inputJson, setInputJson] = useState("");
-  const [output, setOutput] = useState("");
-  const [indentSize, setIndentSize] = useState("2");
+  const [inputJson, setInputJson] = useState('');
+  const [output, setOutput] = useState('');
+  const [indentSize, setIndentSize] = useState('2');
   const [sortKeys, setSortKeys] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   const formatJson = () => {
     try {
-      setError("");
+      setError('');
       const parsed = JSON.parse(inputJson);
       const formatted = JSON.stringify(
         sortKeys ? sortObjectKeys(parsed) : parsed,
         null,
-        parseInt(indentSize)
+        parseInt(indentSize),
       );
       setOutput(formatted);
-      toast.success("JSON formatted successfully!");
+      toast.success('JSON formatted successfully!');
     } catch (err) {
-      setError("Invalid JSON: " + (err as Error).message);
-      setOutput("");
-      toast.error("Invalid JSON format");
+      setError('Invalid JSON: ' + (err as Error).message);
+      setOutput('');
+      toast.error('Invalid JSON format');
     }
   };
 
   const minifyJson = () => {
     try {
-      setError("");
+      setError('');
       const parsed = JSON.parse(inputJson);
       const minified = JSON.stringify(parsed);
       setOutput(minified);
-      toast.success("JSON minified successfully!");
+      toast.success('JSON minified successfully!');
     } catch (err) {
-      setError("Invalid JSON: " + (err as Error).message);
-      setOutput("");
-      toast.error("Invalid JSON format");
+      setError('Invalid JSON: ' + (err as Error).message);
+      setOutput('');
+      toast.error('Invalid JSON format');
     }
   };
 
   const validateJson = () => {
     try {
       JSON.parse(inputJson);
-      setError("");
-      toast.success("Valid JSON!");
+      setError('');
+      toast.success('Valid JSON!');
     } catch (err) {
-      setError("Invalid JSON: " + (err as Error).message);
-      toast.error("Invalid JSON format");
+      setError('Invalid JSON: ' + (err as Error).message);
+      toast.error('Invalid JSON format');
     }
   };
 
   const sortObjectKeys = (obj: unknown): unknown => {
     if (Array.isArray(obj)) {
       return obj.map(sortObjectKeys);
-    } else if (obj !== null && typeof obj === "object") {
+    } else if (obj !== null && typeof obj === 'object') {
       const sortedObj: Record<string, unknown> = {};
       Object.keys(obj as Record<string, unknown>)
         .sort()
         .forEach((key) => {
           sortedObj[key] = sortObjectKeys(
-            (obj as Record<string, unknown>)[key]
+            (obj as Record<string, unknown>)[key],
           );
         });
       return sortedObj;
@@ -88,17 +88,17 @@ export default function JsonFormatterPage() {
   const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      toast.success("Copied to clipboard!");
+      toast.success('Copied to clipboard!');
     } catch {
-      toast.error("Failed to copy to clipboard");
+      toast.error('Failed to copy to clipboard');
     }
   };
 
   const clearAll = () => {
-    setInputJson("");
-    setOutput("");
-    setError("");
-    toast.info("Cleared all fields");
+    setInputJson('');
+    setOutput('');
+    setError('');
+    toast.info('Cleared all fields');
   };
 
   return (
@@ -215,7 +215,7 @@ export default function JsonFormatterPage() {
 
             {output && (
               <div className="text-xs text-muted-foreground">
-                Characters: {output.length} | Lines: {output.split("\n").length}
+                Characters: {output.length} | Lines: {output.split('\n').length}
               </div>
             )}
           </CardContent>

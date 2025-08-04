@@ -1,22 +1,22 @@
-"use client";
+'use client';
 
 import {
-  Home,
-  Settings,
-  Cable,
-  Zap,
-  FileText,
-  Key,
-  Wifi,
-  Code2,
-  Braces,
-  Palette,
   BarChart3,
-  StickyNote,
+  Braces,
+  Cable,
+  Code2,
+  FileText,
+  Home,
+  Key,
+  Palette,
   SearchCode,
-} from "lucide-react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+  Settings,
+  StickyNote,
+  Wifi,
+  Zap,
+} from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 import {
   Sidebar,
@@ -27,68 +27,68 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar";
+} from '@/components/ui/sidebar';
 
 // Menu items.
 const items = [
   {
-    title: "Home",
-    url: "/",
+    title: 'Home',
+    url: '/',
     icon: Home,
   },
   {
-    title: "Basic APIs",
-    url: "/basic-apis",
+    title: 'Basic APIs',
+    url: '/basic-apis',
     icon: Code2,
   },
   {
-    title: "SSE",
-    url: "/sse",
+    title: 'SSE',
+    url: '/sse',
     icon: Zap,
   },
   {
-    title: "WebSockets",
-    url: "/websockets",
+    title: 'WebSockets',
+    url: '/websockets',
     icon: Cable,
   },
   {
-    title: "WebTransport",
-    url: "/webtransport",
+    title: 'WebTransport',
+    url: '/webtransport',
     icon: Wifi,
   },
   {
-    title: "Website Analysis",
-    url: "/website-analysis",
+    title: 'Website Analysis',
+    url: '/website-analysis',
     icon: BarChart3,
   },
   {
-    title: "Base64",
-    url: "/base64",
+    title: 'Base64',
+    url: '/base64',
     icon: FileText,
   },
   {
-    title: "JSON Formatter",
-    url: "/json-formatter",
+    title: 'JSON Formatter',
+    url: '/json-formatter',
     icon: Braces,
   },
   {
-    title: "Regex Tester",
-    url: "/regex",
+    title: 'Regex Tester',
+    url: '/regex',
     icon: SearchCode,
   },
   {
-    title: "Color Picker",
-    url: "/color-picker",
+    title: 'Color Picker',
+    url: '/color-picker',
     icon: Palette,
   },
   {
-    title: "JWT Decoder",
-    url: "/jwt",
+    title: 'JWT Decoder',
+    url: '/jwt',
     icon: Key,
   },
   {
-    title: "Notepad",
-    url: "/notepad",
+    title: 'Notepad',
+    url: '/notepad',
     icon: StickyNote,
   },
 ];

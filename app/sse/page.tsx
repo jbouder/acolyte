@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useRef } from "react";
-import { toast } from "sonner";
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 interface SSEMessage {
   id: string;
@@ -21,13 +21,13 @@ interface SSEMessage {
 
 export default function SSEPage() {
   const [endpoint, setEndpoint] = useState(
-    "https://demo.mercure.rocks/.well-known/mercure?topic=https://example.com/books/1"
+    'https://demo.mercure.rocks/.well-known/mercure?topic=https://example.com/books/1',
   );
   const [isConnected, setIsConnected] = useState(false);
   const [messages, setMessages] = useState<SSEMessage[]>([]);
   const [messageCount, setMessageCount] = useState(0);
   const [connectionTime, setConnectionTime] = useState(0);
-  const [filter, setFilter] = useState("");
+  const [filter, setFilter] = useState('');
 
   const eventSourceRef = useRef<EventSource | null>(null);
   const connectionStartRef = useRef<number>(0);
@@ -57,26 +57,26 @@ export default function SSEPage() {
       // Start connection timer
       timerRef.current = window.setInterval(() => {
         setConnectionTime(
-          Math.floor((Date.now() - connectionStartRef.current) / 1000)
+          Math.floor((Date.now() - connectionStartRef.current) / 1000),
         );
       }, 1000);
 
       eventSourceRef.current.onopen = () => {
-        toast.success("SSE connection established!");
+        toast.success('SSE connection established!');
       };
 
       eventSourceRef.current.onmessage = (event) => {
-        handleMessage("message", event.data, event.lastEventId);
+        handleMessage('message', event.data, event.lastEventId);
       };
 
       eventSourceRef.current.onerror = (error) => {
-        console.error("SSE Error:", error);
-        toast.error("SSE connection error");
+        console.error('SSE Error:', error);
+        toast.error('SSE connection error');
         disconnect();
       };
     } catch (error) {
-      toast.error("Failed to connect to SSE endpoint");
-      console.error("Connection error:", error);
+      toast.error('Failed to connect to SSE endpoint');
+      console.error('Connection error:', error);
     }
   };
 
@@ -94,12 +94,12 @@ export default function SSEPage() {
       setMessageCount((prev) => prev + 1);
 
       // Handle special events
-      if (eventType === "end") {
-        toast.info("Stream ended by server");
+      if (eventType === 'end') {
+        toast.info('Stream ended by server');
         disconnect();
       }
     } catch (error) {
-      console.error("Failed to parse message:", error);
+      console.error('Failed to parse message:', error);
       // Handle non-JSON messages
       const message: SSEMessage = {
         id: id || Date.now().toString(),
@@ -122,27 +122,27 @@ export default function SSEPage() {
       timerRef.current = null;
     }
     setIsConnected(false);
-    toast.info("SSE connection closed");
+    toast.info('SSE connection closed');
   };
 
   const clearMessages = () => {
     setMessages([]);
     setMessageCount(0);
-    toast.info("Messages cleared");
+    toast.info('Messages cleared');
   };
 
   const exportMessages = () => {
     const dataStr = JSON.stringify(messages, null, 2);
-    const dataBlob = new Blob([dataStr], { type: "application/json" });
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
     const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement("a");
+    const link = document.createElement('a');
     link.href = url;
     link.download = `sse-messages-${
-      new Date().toISOString().split("T")[0]
+      new Date().toISOString().split('T')[0]
     }.json`;
     link.click();
     URL.revokeObjectURL(url);
-    toast.success("Messages exported!");
+    toast.success('Messages exported!');
   };
 
   const filteredMessages = messages.filter((msg) => {
@@ -155,23 +155,23 @@ export default function SSEPage() {
   });
 
   const formatData = (data: unknown): string => {
-    if (typeof data === "string") return data;
+    if (typeof data === 'string') return data;
     return JSON.stringify(data, null, 2);
   };
 
   const getEventColor = (event: string): string => {
     const colors: Record<string, string> = {
-      connect: "text-green-600",
-      demo: "text-blue-600",
-      counter: "text-purple-600",
-      random: "text-orange-600",
-      system: "text-red-600",
-      stock: "text-emerald-600",
-      chat: "text-pink-600",
-      end: "text-gray-600",
-      message: "text-gray-800",
+      connect: 'text-green-600',
+      demo: 'text-blue-600',
+      counter: 'text-purple-600',
+      random: 'text-orange-600',
+      system: 'text-red-600',
+      stock: 'text-emerald-600',
+      chat: 'text-pink-600',
+      end: 'text-gray-600',
+      message: 'text-gray-800',
     };
-    return colors[event] || "text-gray-600";
+    return colors[event] || 'text-gray-600';
   };
 
   return (
@@ -209,7 +209,7 @@ export default function SSEPage() {
                   disabled={isConnected}
                   className="flex-1"
                 >
-                  {isConnected ? "Connected" : "Connect"}
+                  {isConnected ? 'Connected' : 'Connect'}
                 </Button>
                 <Button
                   onClick={disconnect}
@@ -236,11 +236,11 @@ export default function SSEPage() {
               <div className="flex items-center gap-2">
                 <div
                   className={`h-2 w-2 rounded-full ${
-                    isConnected ? "bg-green-500" : "bg-red-500"
+                    isConnected ? 'bg-green-500' : 'bg-red-500'
                   }`}
                 ></div>
                 <span className="text-sm">
-                  {isConnected ? "Connected" : "Disconnected"}
+                  {isConnected ? 'Connected' : 'Disconnected'}
                 </span>
               </div>
               <div className="text-sm text-muted-foreground">
@@ -285,8 +285,8 @@ export default function SSEPage() {
                 {filteredMessages.length === 0 ? (
                   <p className="text-sm text-muted-foreground">
                     {isConnected
-                      ? "Waiting for messages..."
-                      : "Connect to an SSE endpoint to see events here..."}
+                      ? 'Waiting for messages...'
+                      : 'Connect to an SSE endpoint to see events here...'}
                   </p>
                 ) : (
                   <div className="space-y-2">
@@ -298,7 +298,7 @@ export default function SSEPage() {
                         <div className="flex items-center justify-between mb-2">
                           <span
                             className={`text-xs font-mono font-semibold ${getEventColor(
-                              message.event
+                              message.event,
                             )}`}
                           >
                             {message.event}

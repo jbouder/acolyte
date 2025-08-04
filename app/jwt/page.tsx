@@ -1,46 +1,46 @@
-"use client";
+'use client';
 
-import { useState } from "react";
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+} from '@/components/ui/card';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 import {
   decodeJWT,
-  generateSampleJWT,
   formatTimestamp,
+  generateSampleJWT,
   isTokenExpired,
   verifySignature,
   type DecodedJWT,
-} from "@/lib/jwt-utils";
-import { Copy, CheckCircle, XCircle, AlertCircle } from "lucide-react";
-import { toast } from "sonner";
+} from '@/lib/jwt-utils';
+import { AlertCircle, CheckCircle, Copy, XCircle } from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
 export default function JWTPage() {
-  const [token, setToken] = useState("");
+  const [token, setToken] = useState('');
   const [decodedJWT, setDecodedJWT] = useState<DecodedJWT | null>(null);
-  const [secretKey, setSecretKey] = useState("");
-  const [algorithm, setAlgorithm] = useState("HS256");
+  const [secretKey, setSecretKey] = useState('');
+  const [algorithm, setAlgorithm] = useState('HS256');
   const [isVerifying, setIsVerifying] = useState(false);
   const [verificationResult, setVerificationResult] = useState<
-    "pending" | "valid" | "invalid" | null
+    'pending' | 'valid' | 'invalid' | null
   >(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleDecodeJWT = () => {
     if (!token.trim()) {
-      setError("Please enter a JWT token");
+      setError('Please enter a JWT token');
       setDecodedJWT(null);
       setVerificationResult(null);
       return;
@@ -51,20 +51,20 @@ export default function JWTPage() {
       setDecodedJWT(decoded);
       setError(null);
       setVerificationResult(null);
-      toast.success("JWT decoded successfully!");
+      toast.success('JWT decoded successfully!');
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to decode JWT");
+      setError(err instanceof Error ? err.message : 'Failed to decode JWT');
       setDecodedJWT(null);
       setVerificationResult(null);
     }
   };
 
   const handleClear = () => {
-    setToken("");
+    setToken('');
     setDecodedJWT(null);
     setError(null);
     setVerificationResult(null);
-    setSecretKey("");
+    setSecretKey('');
   };
 
   const handleGenerateSample = () => {
@@ -75,35 +75,35 @@ export default function JWTPage() {
       setDecodedJWT(decoded);
       setError(null);
       setVerificationResult(null);
-      toast.success("Sample JWT generated and decoded!");
+      toast.success('Sample JWT generated and decoded!');
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to decode sample JWT"
+        err instanceof Error ? err.message : 'Failed to decode sample JWT',
       );
     }
   };
 
   const handleVerifySignature = async () => {
     if (!token.trim()) {
-      toast.error("Please enter a JWT token first");
+      toast.error('Please enter a JWT token first');
       return;
     }
 
     if (!secretKey.trim()) {
-      toast.error("Please enter a secret key");
+      toast.error('Please enter a secret key');
       return;
     }
 
     setIsVerifying(true);
-    setVerificationResult("pending");
+    setVerificationResult('pending');
 
     try {
       const isValid = await verifySignature(token.trim(), secretKey, algorithm);
-      setVerificationResult(isValid ? "valid" : "invalid");
-      toast.success(isValid ? "Signature is valid!" : "Signature is invalid!");
+      setVerificationResult(isValid ? 'valid' : 'invalid');
+      toast.success(isValid ? 'Signature is valid!' : 'Signature is invalid!');
     } catch (err) {
-      setVerificationResult("invalid");
-      toast.error(err instanceof Error ? err.message : "Verification failed");
+      setVerificationResult('invalid');
+      toast.error(err instanceof Error ? err.message : 'Verification failed');
     } finally {
       setIsVerifying(false);
     }
@@ -114,27 +114,27 @@ export default function JWTPage() {
       await navigator.clipboard.writeText(text);
       toast.success(`${label} copied to clipboard!`);
     } catch {
-      toast.error("Failed to copy to clipboard");
+      toast.error('Failed to copy to clipboard');
     }
   };
 
   const getTokenStatus = () => {
-    if (!decodedJWT) return { status: "Not decoded", color: "bg-gray-500" };
+    if (!decodedJWT) return { status: 'Not decoded', color: 'bg-gray-500' };
 
     if (isTokenExpired(decodedJWT.payload.exp)) {
-      return { status: "Expired", color: "bg-red-500" };
+      return { status: 'Expired', color: 'bg-red-500' };
     }
 
-    return { status: "Valid", color: "bg-green-500" };
+    return { status: 'Valid', color: 'bg-green-500' };
   };
 
   const getVerificationStatusIcon = () => {
     switch (verificationResult) {
-      case "valid":
+      case 'valid':
         return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case "invalid":
+      case 'invalid':
         return <XCircle className="h-4 w-4 text-red-500" />;
-      case "pending":
+      case 'pending':
         return <AlertCircle className="h-4 w-4 text-yellow-500" />;
       default:
         return <div className="h-2 w-2 rounded-full bg-gray-500" />;
@@ -143,14 +143,14 @@ export default function JWTPage() {
 
   const getVerificationStatusText = () => {
     switch (verificationResult) {
-      case "valid":
-        return "Signature is valid";
-      case "invalid":
-        return "Signature is invalid";
-      case "pending":
-        return "Verifying...";
+      case 'valid':
+        return 'Signature is valid';
+      case 'invalid':
+        return 'Signature is invalid';
+      case 'pending':
+        return 'Verifying...';
       default:
-        return "Signature not verified";
+        return 'Signature not verified';
     }
   };
 
@@ -237,7 +237,7 @@ export default function JWTPage() {
                   decodedJWT &&
                   copyToClipboard(
                     JSON.stringify(decodedJWT.header, null, 2),
-                    "Header"
+                    'Header',
                   )
                 }
                 disabled={!decodedJWT}
@@ -277,7 +277,7 @@ export default function JWTPage() {
                   decodedJWT &&
                   copyToClipboard(
                     JSON.stringify(decodedJWT.payload, null, 2),
-                    "Payload"
+                    'Payload',
                   )
                 }
                 disabled={!decodedJWT}
@@ -344,7 +344,7 @@ export default function JWTPage() {
                 onClick={handleVerifySignature}
                 disabled={isVerifying || !token.trim() || !secretKey.trim()}
               >
-                {isVerifying ? "Verifying..." : "Verify Signature"}
+                {isVerifying ? 'Verifying...' : 'Verify Signature'}
               </Button>
               <div className="flex items-center gap-2 p-2 rounded-md bg-muted">
                 {getVerificationStatusIcon()}
@@ -367,13 +367,13 @@ export default function JWTPage() {
                 <div className="flex justify-between">
                   <span className="text-sm font-medium">Token Type:</span>
                   <span className="text-sm text-muted-foreground">
-                    {decodedJWT?.header.typ || "-"}
+                    {decodedJWT?.header.typ || '-'}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm font-medium">Algorithm:</span>
                   <span className="text-sm text-muted-foreground">
-                    {decodedJWT?.header.alg || "-"}
+                    {decodedJWT?.header.alg || '-'}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -391,13 +391,13 @@ export default function JWTPage() {
                 <div className="flex justify-between">
                   <span className="text-sm font-medium">Subject:</span>
                   <span className="text-sm text-muted-foreground">
-                    {decodedJWT?.payload.sub || "-"}
+                    {decodedJWT?.payload.sub || '-'}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm font-medium">Issuer:</span>
                   <span className="text-sm text-muted-foreground">
-                    {decodedJWT?.payload.iss || "-"}
+                    {decodedJWT?.payload.iss || '-'}
                   </span>
                 </div>
               </div>

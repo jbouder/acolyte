@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
 // Network Information API interface (experimental)
 interface NetworkInformation {
@@ -38,7 +38,7 @@ export default function Home() {
           region: data.region,
           country: data.country_name,
           org: data.org,
-          timezone: data.timezone
+          timezone: data.timezone,
         });
       } catch (error) {
         console.error('Failed to fetch IP info:', error);
@@ -68,34 +68,34 @@ export default function Home() {
             <h3 className="font-semibold mb-2">Browser Stats</h3>
             <div className="space-y-1 text-sm text-muted-foreground">
               <div>
-                User Agent:{" "}
-                {typeof navigator !== "undefined"
-                  ? navigator.userAgent.substring(0, 50) + "..."
-                  : "N/A"}
+                User Agent:{' '}
+                {typeof navigator !== 'undefined'
+                  ? navigator.userAgent.substring(0, 50) + '...'
+                  : 'N/A'}
               </div>
               <div>
-                Language:{" "}
-                {typeof navigator !== "undefined" ? navigator.language : "N/A"}
+                Language:{' '}
+                {typeof navigator !== 'undefined' ? navigator.language : 'N/A'}
               </div>
               <div>
-                Platform:{" "}
-                {typeof navigator !== "undefined" ? navigator.platform : "N/A"}
+                Platform:{' '}
+                {typeof navigator !== 'undefined' ? navigator.platform : 'N/A'}
               </div>
               <div>
-                Cookies:{" "}
-                {typeof navigator !== "undefined"
+                Cookies:{' '}
+                {typeof navigator !== 'undefined'
                   ? navigator.cookieEnabled
-                    ? "Enabled"
-                    : "Disabled"
-                  : "N/A"}
+                    ? 'Enabled'
+                    : 'Disabled'
+                  : 'N/A'}
               </div>
               <div>
-                Online:{" "}
-                {typeof navigator !== "undefined"
+                Online:{' '}
+                {typeof navigator !== 'undefined'
                   ? navigator.onLine
-                    ? "Yes"
-                    : "No"
-                  : "N/A"}
+                    ? 'Yes'
+                    : 'No'
+                  : 'N/A'}
               </div>
             </div>
           </div>
@@ -111,8 +111,8 @@ export default function Home() {
               </div>
               <div>UTC Offset: {new Date().getTimezoneOffset() / -60}h</div>
               <div>
-                Locale:{" "}
-                {typeof navigator !== "undefined" ? navigator.language : "N/A"}
+                Locale:{' '}
+                {typeof navigator !== 'undefined' ? navigator.language : 'N/A'}
               </div>
             </div>
           </div>
@@ -122,37 +122,39 @@ export default function Home() {
             <h3 className="font-semibold mb-2">Network & IP Info</h3>
             <div className="space-y-1 text-sm text-muted-foreground">
               <div>
-                IP Address:{" "}
-                {loading ? "Loading..." : ipInfo.ip || "N/A"}
+                IP Address: {loading ? 'Loading...' : ipInfo.ip || 'N/A'}
               </div>
               <div>
-                Location:{" "}
-                {loading ? "Loading..." : 
-                  ipInfo.city && ipInfo.country 
+                Location:{' '}
+                {loading
+                  ? 'Loading...'
+                  : ipInfo.city && ipInfo.country
                     ? `${ipInfo.city}, ${ipInfo.country}`
-                    : "N/A"}
+                    : 'N/A'}
+              </div>
+              <div>ISP: {loading ? 'Loading...' : ipInfo.org || 'N/A'}</div>
+              <div>
+                Connection Type:{' '}
+                {typeof navigator !== 'undefined' &&
+                (navigator as NavigatorWithConnection).connection
+                  ? (navigator as NavigatorWithConnection).connection
+                      ?.effectiveType || 'Unknown'
+                  : 'N/A'}
               </div>
               <div>
-                ISP:{" "}
-                {loading ? "Loading..." : ipInfo.org || "N/A"}
+                Download Speed:{' '}
+                {typeof navigator !== 'undefined' &&
+                (navigator as NavigatorWithConnection).connection
+                  ? `${(navigator as NavigatorWithConnection).connection?.downlink || 'Unknown'} Mbps`
+                  : 'N/A'}
               </div>
               <div>
-                Connection Type:{" "}
-                {typeof navigator !== "undefined" && (navigator as NavigatorWithConnection).connection
-                  ? (navigator as NavigatorWithConnection).connection?.effectiveType || "Unknown"
-                  : "N/A"}
-              </div>
-              <div>
-                Download Speed:{" "}
-                {typeof navigator !== "undefined" && (navigator as NavigatorWithConnection).connection
-                  ? `${(navigator as NavigatorWithConnection).connection?.downlink || "Unknown"} Mbps`
-                  : "N/A"}
-              </div>
-              <div>
-                Online Status:{" "}
-                {typeof navigator !== "undefined"
-                  ? navigator.onLine ? "Online" : "Offline"
-                  : "N/A"}
+                Online Status:{' '}
+                {typeof navigator !== 'undefined'
+                  ? navigator.onLine
+                    ? 'Online'
+                    : 'Offline'
+                  : 'N/A'}
               </div>
             </div>
           </div>

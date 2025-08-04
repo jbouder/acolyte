@@ -1,111 +1,111 @@
-"use client";
+'use client';
 
-import { useState, useRef } from "react";
-import { toast } from "sonner";
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+} from '@/components/ui/card';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
+import { useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 export default function Base64Page() {
-  const [inputText, setInputText] = useState("");
-  const [base64Input, setBase64Input] = useState("");
-  const [output, setOutput] = useState("");
+  const [inputText, setInputText] = useState('');
+  const [base64Input, setBase64Input] = useState('');
+  const [output, setOutput] = useState('');
   const [isUrlSafe, setIsUrlSafe] = useState(false);
   const [addLineBreaks, setAddLineBreaks] = useState(true);
   const [removePadding, setRemovePadding] = useState(false);
-  const [charEncoding, setCharEncoding] = useState("utf8");
-  const [error, setError] = useState("");
+  const [charEncoding, setCharEncoding] = useState('utf8');
+  const [error, setError] = useState('');
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const encodeToBase64 = () => {
     try {
-      setError("");
+      setError('');
       let encoded = btoa(inputText);
 
       if (isUrlSafe) {
-        encoded = encoded.replace(/\+/g, "-").replace(/\//g, "_");
+        encoded = encoded.replace(/\+/g, '-').replace(/\//g, '_');
       }
 
       if (removePadding) {
-        encoded = encoded.replace(/=/g, "");
+        encoded = encoded.replace(/=/g, '');
       }
 
       if (addLineBreaks) {
-        encoded = encoded.match(/.{1,76}/g)?.join("\n") || encoded;
+        encoded = encoded.match(/.{1,76}/g)?.join('\n') || encoded;
       }
 
       setOutput(encoded);
-      toast.success("Text successfully encoded to Base64!");
+      toast.success('Text successfully encoded to Base64!');
     } catch {
-      setError("Failed to encode text. Please check your input.");
+      setError('Failed to encode text. Please check your input.');
     }
   };
 
   const decodeFromBase64 = () => {
     try {
-      setError("");
-      let input = base64Input.replace(/\n/g, "").replace(/\s/g, "");
+      setError('');
+      let input = base64Input.replace(/\n/g, '').replace(/\s/g, '');
 
       if (isUrlSafe) {
-        input = input.replace(/-/g, "+").replace(/_/g, "/");
+        input = input.replace(/-/g, '+').replace(/_/g, '/');
       }
 
       // Add padding if needed
       while (input.length % 4) {
-        input += "=";
+        input += '=';
       }
 
       const decoded = atob(input);
       setOutput(decoded);
-      toast.success("Base64 successfully decoded!");
+      toast.success('Base64 successfully decoded!');
     } catch {
-      setError("Failed to decode Base64. Please check your input format.");
+      setError('Failed to decode Base64. Please check your input format.');
     }
   };
 
   const clearInput = () => {
-    setInputText("");
-    setError("");
+    setInputText('');
+    setError('');
   };
 
   const clearBase64Input = () => {
-    setBase64Input("");
-    setError("");
+    setBase64Input('');
+    setError('');
   };
 
   const clearOutput = () => {
-    setOutput("");
-    setError("");
+    setOutput('');
+    setError('');
   };
 
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(output);
-      toast.success("Copied to clipboard!");
+      toast.success('Copied to clipboard!');
     } catch {
-      toast.error("Failed to copy to clipboard");
+      toast.error('Failed to copy to clipboard');
     }
   };
 
   const downloadAsFile = () => {
-    const blob = new Blob([output], { type: "text/plain" });
+    const blob = new Blob([output], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
+    const a = document.createElement('a');
     a.href = url;
-    a.download = "base64-output.txt";
+    a.download = 'base64-output.txt';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -122,16 +122,16 @@ export default function Base64Page() {
   const processFile = (file: File) => {
     if (file.size > 10 * 1024 * 1024) {
       // 10MB limit
-      setError("File size must be less than 10MB");
+      setError('File size must be less than 10MB');
       return;
     }
 
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
-        setError("");
+        setError('');
         const result = e.target?.result;
-        if (typeof result === "string") {
+        if (typeof result === 'string') {
           // For text files
           setInputText(result);
           toast.success(`Text file "${file.name}" loaded for encoding!`);
@@ -139,19 +139,19 @@ export default function Base64Page() {
           // For binary files
           const bytes = new Uint8Array(result);
           const binary = Array.from(bytes, (byte) =>
-            String.fromCharCode(byte)
-          ).join("");
+            String.fromCharCode(byte),
+          ).join('');
           const encoded = btoa(binary);
           setOutput(encoded);
           toast.success(`File "${file.name}" encoded to Base64!`);
         }
       } catch {
-        setError("Failed to process file");
+        setError('Failed to process file');
       }
     };
 
     // Read as text first, fallback to binary if needed
-    if (file.type.startsWith("text/")) {
+    if (file.type.startsWith('text/')) {
       reader.readAsText(file);
     } else {
       reader.readAsArrayBuffer(file);
@@ -316,8 +316,8 @@ export default function Base64Page() {
               <div
                 className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
                   isDragging
-                    ? "border-blue-400 bg-blue-50"
-                    : "border-gray-300 hover:border-gray-400"
+                    ? 'border-blue-400 bg-blue-50'
+                    : 'border-gray-300 hover:border-gray-400'
                 }`}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
@@ -326,8 +326,8 @@ export default function Base64Page() {
                 <div className="space-y-2">
                   <p className="text-sm text-muted-foreground">
                     {isDragging
-                      ? "Drop the file here..."
-                      : "Drag and drop a file here, or click to select"}
+                      ? 'Drop the file here...'
+                      : 'Drag and drop a file here, or click to select'}
                   </p>
                   <Button
                     variant="outline"

@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
@@ -8,8 +8,8 @@ export async function POST(request: NextRequest) {
     // Validate required fields
     if (!url || !method) {
       return NextResponse.json(
-        { error: "URL and method are required" },
-        { status: 400 }
+        { error: 'URL and method are required' },
+        { status: 400 },
       );
     }
 
@@ -18,18 +18,18 @@ export async function POST(request: NextRequest) {
     if (headers) {
       try {
         // Handle both object and string formats
-        if (typeof headers === "string") {
-          headers.split("\n").forEach((line: string) => {
-            const [key, ...valueParts] = line.split(":");
+        if (typeof headers === 'string') {
+          headers.split('\n').forEach((line: string) => {
+            const [key, ...valueParts] = line.split(':');
             if (key && valueParts.length > 0) {
-              parsedHeaders[key.trim()] = valueParts.join(":").trim();
+              parsedHeaders[key.trim()] = valueParts.join(':').trim();
             }
           });
         } else {
           parsedHeaders = headers;
         }
       } catch (error) {
-        console.warn("Failed to parse headers:", error);
+        console.warn('Failed to parse headers:', error);
       }
     }
 
@@ -37,26 +37,26 @@ export async function POST(request: NextRequest) {
     const fetchOptions: RequestInit = {
       method: method.toUpperCase(),
       headers: {
-        "User-Agent": "Web-Tools-Basic",
+        'User-Agent': 'Web-Tools-Basic',
         ...parsedHeaders,
       },
     };
 
     // Add body for methods that support it
     if (
-      ["POST", "PUT", "PATCH"].includes(method.toUpperCase()) &&
+      ['POST', 'PUT', 'PATCH'].includes(method.toUpperCase()) &&
       requestBody
     ) {
       fetchOptions.body =
-        typeof requestBody === "string"
+        typeof requestBody === 'string'
           ? requestBody
           : JSON.stringify(requestBody);
 
       // Set content-type if not already set
-      if (!parsedHeaders["Content-Type"] && !parsedHeaders["content-type"]) {
+      if (!parsedHeaders['Content-Type'] && !parsedHeaders['content-type']) {
         fetchOptions.headers = {
           ...fetchOptions.headers,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         };
       }
     }
@@ -70,10 +70,10 @@ export async function POST(request: NextRequest) {
     const responseTime = endTime - startTime;
 
     // Get response data
-    const contentType = response.headers.get("content-type");
+    const contentType = response.headers.get('content-type');
     let responseData;
 
-    if (contentType?.includes("application/json")) {
+    if (contentType?.includes('application/json')) {
       try {
         responseData = await response.json();
       } catch {
@@ -96,20 +96,20 @@ export async function POST(request: NextRequest) {
       data: responseData,
       responseTime,
       contentLength:
-        response.headers.get("content-length") ||
+        response.headers.get('content-length') ||
         responseData.toString().length,
     });
   } catch (error) {
-    console.error("Basic API request failed:", error);
+    console.error('Basic API request failed:', error);
 
     return NextResponse.json(
       {
-        error: "Request failed",
-        message: error instanceof Error ? error.message : "Unknown error",
+        error: 'Request failed',
+        message: error instanceof Error ? error.message : 'Unknown error',
         status: 0,
         responseTime: 0,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
