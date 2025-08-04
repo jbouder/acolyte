@@ -13,6 +13,7 @@ import {
   Palette,
   BarChart3,
   Database,
+  StickyNote,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -84,6 +85,11 @@ const items = [
     title: "JWT Decoder",
     url: "/jwt",
     icon: Key,
+  },
+  {
+    title: "Notepad",
+    url: "/notepad",
+    icon: StickyNote,
   },
 ];
 
