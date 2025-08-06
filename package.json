@@ -8,7 +8,9 @@
     "start": "next start",
     "test": "jest",
     "lint": "next lint --fix",
-    "lint:ci": "next lint"
+    "lint:ci": "next lint",
+    "format": "prettier --write .",
+    "format:ci": "prettier --check ."
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.14",

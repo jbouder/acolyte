@@ -1,35 +1,35 @@
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: 'npm'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "08:00"
-      timezone: "US/Eastern"
+      interval: 'weekly'
+      day: 'monday'
+      time: '08:00'
+      timezone: 'US/Eastern'
     open-pull-requests-limit: 10
     labels:
-      - "dependencies"
+      - 'dependencies'
     groups:
       minor-and-patch:
         patterns:
-          - "*"
+          - '*'
         update-types:
-          - "minor"
-          - "patch"
+          - 'minor'
+          - 'patch'
     ignore:
       - dependency-name: react
         versions:
-          - ">=19.1.0"
+          - '>=19.1.0'
       - dependency-name: react-dom
         versions:
-          - ">=19.1.0"
-      - dependency-name: "@types/node"
+          - '>=19.1.0'
+      - dependency-name: '@types/node'
         versions:
-          - ">20.0.0"
-      - dependency-name: "@types/react"
+          - '>20.0.0'
+      - dependency-name: '@types/react'
         versions:
-          - ">19.0.0"
-      - dependency-name: "@types/react-dom"
+          - '>19.0.0'
+      - dependency-name: '@types/react-dom'
         versions:
-          - ">=19.0.0"
+          - '>=19.0.0'
