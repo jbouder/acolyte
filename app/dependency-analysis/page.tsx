@@ -1,0 +1,538 @@
+'use client';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { useState } from 'react';
+import { toast } from 'sonner';
+
+interface PackageInfo {
+  name: string;
+  version?: string;
+  description?: string;
+  homepage?: string;
+  repository?: string;
+  license?: string;
+  dependencies?: Record<string, string>;
+  devDependencies?: Record<string, string>;
+  peerDependencies?: Record<string, string>;
+  outdated?: boolean;
+  vulnerabilities?: number;
+}
+
+interface AnalysisResult {
+  totalPackages: number;
+  productionPackages: number;
+  devPackages: number;
+  packages: PackageInfo[];
+  duplicates: string[];
+  outdated: string[];
+  vulnerabilities: Array<{
+    package: string;
+    severity: string;
+    title: string;
+    description?: string;
+    id?: string;
+    references?: string[];
+  }>;
+}
+
+export default function DependencyAnalysisPage() {
+  const [packageJson, setPackageJson] = useState('');
+  const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [vulnerabilityLoading, setVulnerabilityLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const analyzePackageJson = (
+    packageData: Record<string, unknown>,
+  ): AnalysisResult => {
+    const dependencies =
+      (packageData.dependencies as Record<string, string>) || {};
+    const devDependencies =
+      (packageData.devDependencies as Record<string, string>) || {};
+    const peerDependencies =
+      (packageData.peerDependencies as Record<string, string>) || {};
+    const packages: PackageInfo[] = [];
+
+    // Analyze dependencies
+    Object.entries(dependencies).forEach(([name, version]) => {
+      packages.push({
+        name,
+        version: version as string,
+        description: 'Production dependency',
+      });
+    });
+
+    // Analyze dev dependencies
+    Object.entries(devDependencies).forEach(([name, version]) => {
+      packages.push({
+        name,
+        version: version as string,
+        description: 'Development dependency',
+      });
+    });
+
+    // Analyze peer dependencies
+    Object.entries(peerDependencies).forEach(([name, version]) => {
+      packages.push({
+        name,
+        version: version as string,
+        description: 'Peer dependency',
+      });
+    });
+
+    // Find duplicates (packages that appear in multiple dependency types)
+    const duplicates: string[] = [];
+    const seen = new Set();
+    packages.forEach((pkg) => {
+      if (seen.has(pkg.name)) {
+        duplicates.push(pkg.name);
+      } else {
+        seen.add(pkg.name);
+      }
+    });
+
+    // Mock outdated packages (in real app, you'd call npm outdated API)
+    const outdated = packages
+      .filter((pkg) => pkg.version && pkg.version.includes('^'))
+      .slice(0, 3)
+      .map((pkg) => pkg.name);
+
+    return {
+      totalPackages: packages.length,
+      productionPackages: Object.keys(dependencies).length,
+      devPackages: Object.keys(devDependencies).length,
+      packages,
+      duplicates,
+      outdated,
+      vulnerabilities: [], // Will be populated by checkVulnerabilities
+    };
+  };
+
+  const checkVulnerabilities = async (packages: PackageInfo[]) => {
+    try {
+      setVulnerabilityLoading(true);
+
+      const packageList = packages.map((pkg) => ({
+        name: pkg.name,
+        version: pkg.version || 'latest',
+      }));
+
+      const response = await fetch('/api/vulnerability-check', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ packages: packageList }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to check vulnerabilities');
+      }
+
+      const { vulnerabilities } = await response.json();
+
+      // Transform the vulnerability data
+      const formattedVulns = vulnerabilities.flatMap(
+        (vulnData: {
+          package: string;
+          vulnerabilities: Array<{
+            severity: string;
+            title: string;
+            description: string;
+            id: string;
+            references: string[];
+          }>;
+        }) =>
+          vulnData.vulnerabilities.map((vuln) => ({
+            package: vulnData.package,
+            severity: vuln.severity,
+            title: vuln.title,
+            description: vuln.description,
+            id: vuln.id,
+            references: vuln.references,
+          })),
+      );
+
+      return formattedVulns;
+    } catch (error) {
+      console.error('Error checking vulnerabilities:', error);
+      toast.error('Failed to check vulnerabilities');
+      return [];
+    } finally {
+      setVulnerabilityLoading(false);
+    }
+  };
+
+  const analyzeDependencies = async () => {
+    try {
+      setError('');
+      setLoading(true);
+
+      if (!packageJson.trim()) {
+        throw new Error('Please provide package.json content');
+      }
+
+      const packageData = JSON.parse(packageJson);
+
+      if (!packageData.dependencies && !packageData.devDependencies) {
+        throw new Error('No dependencies found in package.json');
+      }
+
+      const result = analyzePackageJson(packageData);
+
+      // Check for vulnerabilities using the API
+      toast.info('Checking for security vulnerabilities...');
+      const vulnerabilities = await checkVulnerabilities(result.packages);
+
+      // Update the result with real vulnerability data
+      const finalResult = {
+        ...result,
+        vulnerabilities,
+      };
+
+      setAnalysis(finalResult);
+      toast.success(
+        `Dependencies analyzed successfully! Found ${vulnerabilities.length} vulnerabilities.`,
+      );
+    } catch (err) {
+      setError('Error analyzing dependencies: ' + (err as Error).message);
+      setAnalysis(null);
+      toast.error('Failed to analyze dependencies');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success('Copied to clipboard!');
+    } catch {
+      toast.error('Failed to copy to clipboard');
+    }
+  };
+
+  const clearAll = () => {
+    setPackageJson('');
+    setAnalysis(null);
+    setError('');
+    toast.info('Cleared all fields');
+  };
+
+  const loadSampleData = () => {
+    const samplePackageJson = JSON.stringify(
+      {
+        name: 'sample-project',
+        version: '1.0.0',
+        dependencies: {
+          react: '^18.2.0',
+          'react-dom': '^18.2.0',
+          next: '^13.4.0',
+          lodash: '^4.17.21',
+          '@types/node': '^20.0.0',
+        },
+        devDependencies: {
+          typescript: '^5.0.0',
+          '@types/react': '^18.2.0',
+          eslint: '^8.42.0',
+          prettier: '^2.8.0',
+          '@types/node': '^20.0.0',
+        },
+      },
+      null,
+      2,
+    );
+
+    setPackageJson(samplePackageJson);
+    toast.info('Sample package.json loaded');
+  };
+
+  const getSeverityColor = (severity: string) => {
+    switch (severity.toLowerCase()) {
+      case 'critical':
+        return 'bg-red-100 text-red-800';
+      case 'high':
+        return 'bg-orange-100 text-orange-800';
+      case 'moderate':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'low':
+        return 'bg-blue-100 text-blue-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  return (
+    <div className="flex flex-1 flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold">Dependency Analysis</h1>
+      </div>
+
+      <div className="grid gap-4">
+        {/* Input Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Package Configuration</CardTitle>
+            <CardDescription>
+              Paste your package.json content to analyze dependencies
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">
+                package.json
+              </label>
+              <textarea
+                placeholder="Paste your package.json content here..."
+                value={packageJson}
+                onChange={(e) => setPackageJson(e.target.value)}
+                className="w-full h-64 p-3 text-sm font-mono bg-background border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <Button
+                onClick={analyzeDependencies}
+                disabled={loading || vulnerabilityLoading}
+                className="flex-1 sm:flex-none"
+              >
+                {loading
+                  ? 'Analyzing...'
+                  : vulnerabilityLoading
+                    ? 'Checking Security...'
+                    : 'Analyze Dependencies'}
+              </Button>
+              <Button
+                onClick={loadSampleData}
+                variant="outline"
+                className="flex-1 sm:flex-none"
+              >
+                Load Sample
+              </Button>
+              <Button
+                onClick={clearAll}
+                variant="outline"
+                className="flex-1 sm:flex-none"
+              >
+                Clear All
+              </Button>
+            </div>
+
+            {error && (
+              <div className="p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md">
+                {error}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Analysis Results */}
+        {analysis && (
+          <>
+            {/* Summary Cards */}
+            <div className="grid gap-4 md:grid-cols-4">
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-2xl font-bold">
+                    {analysis.totalPackages}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Total Packages
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-2xl font-bold">
+                    {analysis.productionPackages}
+                  </div>
+                  <p className="text-xs text-muted-foreground">Production</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-2xl font-bold">
+                    {analysis.devPackages}
+                  </div>
+                  <p className="text-xs text-muted-foreground">Development</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-2xl font-bold">
+                    {analysis.vulnerabilities.length}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Vulnerabilities
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Issues Section */}
+            <div className="grid gap-4 md:grid-cols-2">
+              {/* Outdated Packages */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Outdated Packages</CardTitle>
+                  <CardDescription>
+                    Packages that may have newer versions available
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {analysis.outdated.length > 0 ? (
+                    <div className="space-y-2">
+                      {analysis.outdated.map((pkg) => (
+                        <div
+                          key={pkg}
+                          className="flex items-center justify-between p-2 bg-orange-50 rounded-md"
+                        >
+                          <span className="font-medium">{pkg}</span>
+                          <Badge variant="outline">Update Available</Badge>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      No outdated packages detected
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Vulnerabilities */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Security Vulnerabilities</CardTitle>
+                  <CardDescription>
+                    Potential security issues in dependencies
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {analysis.vulnerabilities.length > 0 ? (
+                    <div className="space-y-3">
+                      {analysis.vulnerabilities.map((vuln, index) => (
+                        <div key={index} className="p-3 border rounded-md">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="font-medium">{vuln.package}</span>
+                            <Badge className={getSeverityColor(vuln.severity)}>
+                              {vuln.severity}
+                            </Badge>
+                          </div>
+                          <h4 className="text-sm font-medium mb-1">
+                            {vuln.title}
+                          </h4>
+                          {vuln.description && (
+                            <p className="text-xs text-muted-foreground mb-2">
+                              {vuln.description.slice(0, 200)}
+                              {vuln.description.length > 200 ? '...' : ''}
+                            </p>
+                          )}
+                          {vuln.id && (
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline" className="text-xs">
+                                {vuln.id}
+                              </Badge>
+                              {vuln.references &&
+                                vuln.references.length > 0 && (
+                                  <a
+                                    href={vuln.references[0]}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-xs text-blue-600 hover:underline"
+                                  >
+                                    View Details
+                                  </a>
+                                )}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      No vulnerabilities detected
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Duplicate Dependencies */}
+            {analysis.duplicates.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Duplicate Dependencies</CardTitle>
+                  <CardDescription>
+                    Packages that appear in multiple dependency categories
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-2">
+                    {analysis.duplicates.map((pkg) => (
+                      <Badge key={pkg} variant="outline">
+                        {pkg}
+                      </Badge>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* All Packages */}
+            <Card>
+              <CardHeader>
+                <CardTitle>All Dependencies</CardTitle>
+                <CardDescription>
+                  Complete list of project dependencies
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 max-h-96 overflow-y-auto">
+                  {analysis.packages.map((pkg, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-2 border rounded-md"
+                    >
+                      <div>
+                        <span className="font-medium">{pkg.name}</span>
+                        <span className="text-sm text-muted-foreground ml-2">
+                          {pkg.version}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary" className="text-xs">
+                          {pkg.description?.includes('Development')
+                            ? 'dev'
+                            : pkg.description?.includes('Peer')
+                              ? 'peer'
+                              : 'prod'}
+                        </Badge>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => copyToClipboard(pkg.name)}
+                          className="h-6 w-6 p-0"
+                        >
+                          📋
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}

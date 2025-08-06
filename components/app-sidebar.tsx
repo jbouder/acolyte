@@ -6,6 +6,7 @@ import {
   Cable,
   Code2,
   FileText,
+  GitBranch,
   Home,
   Key,
   Palette,
@@ -60,6 +61,11 @@ const items = [
     title: 'Website Analysis',
     url: '/website-analysis',
     icon: BarChart3,
+  },
+  {
+    title: 'Dependency Analysis',
+    url: '/dependency-analysis',
+    icon: GitBranch,
   },
   {
     title: 'Base64',
