@@ -68,7 +68,7 @@ const items = [
     icon: GitBranch,
   },
   {
-    title: 'Base64',
+    title: 'Base64 Encoding',
     url: '/base64',
     icon: FileText,
   },
