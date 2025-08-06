@@ -254,49 +254,7 @@ export default function NotepadPage() {
               <Textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                placeholder="Start writing your markdown notes here...
-
-# Example Markdown
-
-## Headers
-Use # for headers (h1), ## for h2, etc.
-
-## Text Formatting
-- **Bold text**
-- *Italic text*
-- `Inline code`
-- ~~Strikethrough~~
-
-## Lists
-1. Numbered list item
-2. Another item
-
-- Bullet point
-- Another bullet
-
-## Links and Images
-[Link text](https://example.com)
-![Alt text](image-url)
-
-## Code Blocks
-```javascript
-function hello() {
-  console.log('Hello, World!');
-}
-```
-
-## Tables
-| Column 1 | Column 2 |
-|----------|----------|
-| Cell 1   | Cell 2   |
-
-## Quotes
-> This is a blockquote
-> - Author
-
----
-
-Happy note-taking! 📝"
+                placeholder="Start writing your markdown notes here..."
                 className="min-h-[500px] font-mono text-sm resize-y"
               />
             </div>
