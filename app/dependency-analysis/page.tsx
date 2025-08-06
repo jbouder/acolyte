@@ -26,6 +26,16 @@ interface PackageInfo {
   vulnerabilities?: number;
 }
 
+interface DependencyNode {
+  name: string;
+  version: string;
+  dependencies: DependencyNode[];
+  isDev?: boolean;
+  isPeer?: boolean;
+  isCircular?: boolean;
+  depth: number;
+}
+
 interface AnalysisResult {
   totalPackages: number;
   productionPackages: number;
@@ -33,6 +43,7 @@ interface AnalysisResult {
   packages: PackageInfo[];
   duplicates: string[];
   outdated: string[];
+  dependencyTree: DependencyNode[];
   vulnerabilities: Array<{
     package: string;
     severity: string;
@@ -48,6 +59,11 @@ export default function DependencyAnalysisPage() {
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [vulnerabilityLoading, setVulnerabilityLoading] = useState(false);
+  const [treeLoading, setTreeLoading] = useState(false);
+  const [selectedPackage, setSelectedPackage] = useState<string>('');
+  const [packageTrees, setPackageTrees] = useState<Map<string, DependencyNode>>(
+    new Map(),
+  );
   const [error, setError] = useState('');
 
   const analyzePackageJson = (
@@ -112,10 +128,59 @@ export default function DependencyAnalysisPage() {
       packages,
       duplicates,
       outdated,
+      dependencyTree: [], // Will be populated individually per package
       vulnerabilities: [], // Will be populated by checkVulnerabilities
     };
   };
 
+  const buildDependencyTree = async (packageName: string, version: string) => {
+    try {
+      setTreeLoading(true);
+
+      // Check if we already have this tree cached
+      if (packageTrees.has(packageName)) {
+        return packageTrees.get(packageName)!;
+      }
+
+      const response = await fetch('/api/dependency-tree', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          packages: [
+            {
+              name: packageName,
+              version: version || 'latest',
+              isDev: false,
+              isPeer: false,
+            },
+          ],
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to build dependency tree');
+      }
+
+      const { dependencyTrees } = await response.json();
+      const tree = dependencyTrees[0];
+
+      if (tree) {
+        // Cache the result
+        setPackageTrees((prev) => new Map(prev).set(packageName, tree));
+        return tree;
+      }
+
+      return null;
+    } catch (error) {
+      console.error('Error building dependency tree:', error);
+      toast.error('Failed to build dependency tree');
+      return null;
+    } finally {
+      setTreeLoading(false);
+    }
+  };
   const checkVulnerabilities = async (packages: PackageInfo[]) => {
     try {
       setVulnerabilityLoading(true);
@@ -211,6 +276,41 @@ export default function DependencyAnalysisPage() {
     }
   };
 
+  const handlePackageSelection = async (packageName: string) => {
+    setSelectedPackage(packageName);
+
+    if (!packageName || !analysis) {
+      return;
+    }
+
+    // Find the selected package info
+    const selectedPkg = analysis.packages.find(
+      (pkg) => pkg.name === packageName,
+    );
+    if (!selectedPkg) {
+      return;
+    }
+
+    // Build dependency tree for the selected package
+    toast.info(`Building dependency tree for ${packageName}...`);
+    const tree = await buildDependencyTree(
+      packageName,
+      selectedPkg.version || 'latest',
+    );
+
+    if (tree) {
+      // Update the analysis with the new tree
+      setAnalysis((prev) =>
+        prev
+          ? {
+              ...prev,
+              dependencyTree: [tree],
+            }
+          : null,
+      );
+    }
+  };
+
   const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -223,6 +323,8 @@ export default function DependencyAnalysisPage() {
   const clearAll = () => {
     setPackageJson('');
     setAnalysis(null);
+    setSelectedPackage('');
+    setPackageTrees(new Map());
     setError('');
     toast.info('Cleared all fields');
   };
@@ -487,6 +589,64 @@ export default function DependencyAnalysisPage() {
               </Card>
             )}
 
+            {/* Dependency Tree */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Dependency Tree</CardTitle>
+                <CardDescription>
+                  Hierarchical view of package dependencies
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <label className="text-sm font-medium">
+                      Select package to view:
+                    </label>
+                    <select
+                      value={selectedPackage}
+                      onChange={(e) => handlePackageSelection(e.target.value)}
+                      className="px-3 py-1 border rounded-md text-sm"
+                    >
+                      <option value="">Select a package...</option>
+                      {analysis.packages.map((pkg) => (
+                        <option key={pkg.name} value={pkg.name}>
+                          {pkg.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="border rounded-md p-4 bg-muted/20">
+                    {selectedPackage && analysis.dependencyTree.length > 0 ? (
+                      <div className="space-y-2">
+                        {analysis.dependencyTree.map((tree) => (
+                          <DependencyTreeNode key={tree.name} node={tree} />
+                        ))}
+                      </div>
+                    ) : selectedPackage ? (
+                      <div className="flex items-center justify-center py-8">
+                        <div className="text-center">
+                          <div className="text-sm text-muted-foreground mb-2">
+                            {treeLoading
+                              ? 'Loading dependency tree...'
+                              : 'Building dependency tree...'}
+                          </div>
+                          {treeLoading && (
+                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto"></div>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground text-center py-8">
+                        Select a package above to view its dependency tree
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* All Packages */}
             <Card>
               <CardHeader>
@@ -533,6 +693,78 @@ export default function DependencyAnalysisPage() {
           </>
         )}
       </div>
+    </div>
+  );
+}
+
+// Component for rendering dependency tree nodes
+function DependencyTreeNode({ node }: { node: DependencyNode }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const getIndentStyle = (depth: number) => ({
+    marginLeft: `${depth * 20}px`,
+  });
+
+  const getNodeTypeColor = (node: DependencyNode) => {
+    if (node.isCircular) return 'text-red-600';
+    if (node.isDev) return 'text-blue-600';
+    if (node.isPeer) return 'text-purple-600';
+    return 'text-gray-800';
+  };
+
+  const getNodeTypeLabel = (node: DependencyNode) => {
+    if (node.isCircular) return '🔄';
+    if (node.isDev) return '🔧';
+    if (node.isPeer) return '🤝';
+    return '📦';
+  };
+
+  return (
+    <div style={getIndentStyle(node.depth)}>
+      <div className="flex items-center gap-2 py-1">
+        {node.dependencies.length > 0 && (
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="w-4 h-4 flex items-center justify-center text-xs border rounded hover:bg-gray-100"
+          >
+            {isExpanded ? '−' : '+'}
+          </button>
+        )}
+
+        <span className="text-sm">{getNodeTypeLabel(node)}</span>
+
+        <span className={`font-medium text-sm ${getNodeTypeColor(node)}`}>
+          {node.name}
+        </span>
+
+        <span className="text-xs text-muted-foreground">@{node.version}</span>
+
+        {node.isCircular && (
+          <Badge variant="destructive" className="text-xs">
+            Circular
+          </Badge>
+        )}
+
+        {node.isDev && (
+          <Badge variant="outline" className="text-xs">
+            Dev
+          </Badge>
+        )}
+
+        {node.isPeer && (
+          <Badge variant="outline" className="text-xs">
+            Peer
+          </Badge>
+        )}
+      </div>
+
+      {isExpanded && node.dependencies.length > 0 && (
+        <div className="ml-4 border-l-2 border-gray-200 pl-2">
+          {node.dependencies.map((child, index) => (
+            <DependencyTreeNode key={`${child.name}-${index}`} node={child} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
