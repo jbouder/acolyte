@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 interface WebSocketMessage {
@@ -41,11 +41,40 @@ export default function WebSocketsPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const sessionIdRef = useRef<string>(Date.now().toString());
 
+  const disconnect = useCallback(() => {
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
+      eventSourceRef.current = null;
+    }
+    if (timerRef.current) {
+      window.clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+
+    // Send disconnect signal to server
+    if (isConnected) {
+      fetch('/api/websockets', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sessionId: sessionIdRef.current,
+          action: 'disconnect',
+        }),
+      }).catch((error) => {
+        console.error('Error disconnecting WebSocket:', error);
+      });
+    }
+
+    setIsConnected(false);
+  }, [isConnected]);
+
   useEffect(() => {
     return () => {
       disconnect();
     };
-  }, []);
+  }, [disconnect]);
 
   useEffect(() => {
     if (autoScroll && messagesEndRef.current) {
@@ -69,9 +98,11 @@ export default function WebSocketsPage() {
     try {
       // Generate a new session ID for this connection
       sessionIdRef.current = Date.now().toString();
-      
+
       // Create proxy URL for WebSocket connection
-      const protocolParam = protocols ? `&protocols=${encodeURIComponent(protocols)}` : '';
+      const protocolParam = protocols
+        ? `&protocols=${encodeURIComponent(protocols)}`
+        : '';
       const proxyUrl = `/api/websockets?url=${encodeURIComponent(url)}&sessionId=${sessionIdRef.current}${protocolParam}`;
 
       eventSourceRef.current = new EventSource(proxyUrl);
@@ -91,12 +122,15 @@ export default function WebSocketsPage() {
       eventSourceRef.current.addEventListener('connection', (event) => {
         const data = JSON.parse(event.data);
         addMessage(data.type, data.content);
-        
+
         if (data.content.includes('opened')) {
           setIsConnected(true);
           setConnectionTime(0);
           toast.success('WebSocket connected!');
-        } else if (data.content.includes('closed') || data.content.includes('lost')) {
+        } else if (
+          data.content.includes('closed') ||
+          data.content.includes('lost')
+        ) {
           setIsConnected(false);
           if (timerRef.current) {
             window.clearInterval(timerRef.current);
@@ -137,35 +171,6 @@ export default function WebSocketsPage() {
       toast.error('Failed to connect to WebSocket');
       console.error('Connection error:', error);
     }
-  };
-
-  const disconnect = () => {
-    if (eventSourceRef.current) {
-      eventSourceRef.current.close();
-      eventSourceRef.current = null;
-    }
-    if (timerRef.current) {
-      window.clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-    
-    // Send disconnect signal to server
-    if (isConnected) {
-      fetch('/api/websockets', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          sessionId: sessionIdRef.current,
-          action: 'disconnect',
-        }),
-      }).catch((error) => {
-        console.error('Error disconnecting WebSocket:', error);
-      });
-    }
-    
-    setIsConnected(false);
   };
 
   const sendMessage = async () => {

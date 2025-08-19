@@ -30,8 +30,11 @@ export async function GET(request: NextRequest) {
 
   try {
     // Parse protocols if provided
-    const protocolList = protocols 
-      ? protocols.split(',').map(p => p.trim()).filter(p => p)
+    const protocolList = protocols
+      ? protocols
+          .split(',')
+          .map((p) => p.trim())
+          .filter((p) => p)
       : undefined;
 
     // Create WebSocket connection to external server
@@ -42,7 +45,7 @@ export async function GET(request: NextRequest) {
     const stream = new ReadableStream({
       start(controller) {
         // Send connection status
-        const sendEvent = (event: string, data: any) => {
+        const sendEvent = (event: string, data: Record<string, unknown>) => {
           const message = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
           controller.enqueue(new TextEncoder().encode(message));
         };
@@ -51,7 +54,7 @@ export async function GET(request: NextRequest) {
           sendEvent('connection', {
             type: 'connection',
             content: 'WebSocket connection opened',
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
           });
         };
 
@@ -59,7 +62,7 @@ export async function GET(request: NextRequest) {
           sendEvent('message', {
             type: 'received',
             content: event.data,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
           });
         };
 
@@ -67,13 +70,13 @@ export async function GET(request: NextRequest) {
           const reason = event.wasClean
             ? `Connection closed cleanly (Code: ${event.code})`
             : `Connection lost unexpectedly (Code: ${event.code})`;
-          
+
           sendEvent('connection', {
             type: 'connection',
             content: reason,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
           });
-          
+
           connections.delete(sessionId);
           controller.close();
         };
@@ -82,7 +85,7 @@ export async function GET(request: NextRequest) {
           sendEvent('error', {
             type: 'error',
             content: 'WebSocket error occurred',
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
           });
           console.error('WebSocket proxy error:', error);
         };
@@ -102,7 +105,7 @@ export async function GET(request: NextRequest) {
       headers: {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
+        Connection: 'keep-alive',
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET',
         'Access-Control-Allow-Headers': 'Cache-Control',
@@ -124,7 +127,7 @@ export async function POST(request: NextRequest) {
     if (!sessionId) {
       return NextResponse.json(
         { error: 'sessionId is required' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -132,7 +135,7 @@ export async function POST(request: NextRequest) {
     if (!ws) {
       return NextResponse.json(
         { error: 'No active WebSocket connection found for this session' },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -146,14 +149,14 @@ export async function POST(request: NextRequest) {
       if (!message) {
         return NextResponse.json(
           { error: 'Message is required for send action' },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
       if (ws.readyState !== WebSocket.OPEN) {
         return NextResponse.json(
           { error: 'WebSocket is not connected' },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -165,7 +168,7 @@ export async function POST(request: NextRequest) {
       if (ws.readyState !== WebSocket.OPEN) {
         return NextResponse.json(
           { error: 'WebSocket is not connected' },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -175,13 +178,16 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       { error: 'Invalid action. Use "send", "ping", or "disconnect"' },
-      { status: 400 }
+      { status: 400 },
     );
   } catch (error) {
     console.error('WebSocket proxy POST error:', error);
     return NextResponse.json(
-      { error: 'Failed to process request', message: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500 }
+      {
+        error: 'Failed to process request',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 500 },
     );
   }
 }
