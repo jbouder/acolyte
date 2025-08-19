@@ -35,10 +35,11 @@ export default function WebSocketsPage() {
   const [filter, setFilter] = useState('');
   const [autoScroll, setAutoScroll] = useState(true);
 
-  const wsRef = useRef<WebSocket | null>(null);
+  const eventSourceRef = useRef<EventSource | null>(null);
   const connectionStartRef = useRef<number>(0);
   const timerRef = useRef<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const sessionIdRef = useRef<string>(Date.now().toString());
 
   useEffect(() => {
     return () => {
@@ -66,16 +67,14 @@ export default function WebSocketsPage() {
     if (isConnected || !url) return;
 
     try {
-      // Parse protocols if provided
-      const protocolList = protocols
-        .split(',')
-        .map((p) => p.trim())
-        .filter((p) => p);
+      // Generate a new session ID for this connection
+      sessionIdRef.current = Date.now().toString();
+      
+      // Create proxy URL for WebSocket connection
+      const protocolParam = protocols ? `&protocols=${encodeURIComponent(protocols)}` : '';
+      const proxyUrl = `/api/websockets?url=${encodeURIComponent(url)}&sessionId=${sessionIdRef.current}${protocolParam}`;
 
-      wsRef.current = new WebSocket(
-        url,
-        protocolList.length > 0 ? protocolList : undefined,
-      );
+      eventSourceRef.current = new EventSource(proxyUrl);
       connectionStartRef.current = Date.now();
 
       // Start connection timer
@@ -85,47 +84,54 @@ export default function WebSocketsPage() {
         );
       }, 1000);
 
-      wsRef.current.onopen = () => {
-        setIsConnected(true);
-        setConnectionTime(0);
-        addMessage('connection', 'WebSocket connection opened');
-        toast.success('WebSocket connected!');
+      eventSourceRef.current.onopen = () => {
+        // Don't set connected here - wait for the actual WebSocket connection event
       };
 
-      wsRef.current.onmessage = (event) => {
+      eventSourceRef.current.addEventListener('connection', (event) => {
+        const data = JSON.parse(event.data);
+        addMessage(data.type, data.content);
+        
+        if (data.content.includes('opened')) {
+          setIsConnected(true);
+          setConnectionTime(0);
+          toast.success('WebSocket connected!');
+        } else if (data.content.includes('closed') || data.content.includes('lost')) {
+          setIsConnected(false);
+          if (timerRef.current) {
+            window.clearInterval(timerRef.current);
+            timerRef.current = null;
+          }
+          toast.info('WebSocket disconnected');
+
+          // Auto-reconnect if enabled and connection wasn't closed intentionally
+          if (autoReconnect && data.content.includes('lost')) {
+            setTimeout(() => {
+              if (!isConnected) {
+                toast.info('Attempting to reconnect...');
+                connect();
+              }
+            }, 3000);
+          }
+        }
+      });
+
+      eventSourceRef.current.addEventListener('message', (event) => {
+        const data = JSON.parse(event.data);
         setMessagesReceived((prev) => prev + 1);
-        addMessage('received', event.data);
-      };
+        addMessage(data.type, data.content);
+      });
 
-      wsRef.current.onclose = (event) => {
-        setIsConnected(false);
-        if (timerRef.current) {
-          window.clearInterval(timerRef.current);
-          timerRef.current = null;
-        }
-
-        const reason = event.wasClean
-          ? `Connection closed cleanly (Code: ${event.code})`
-          : `Connection lost unexpectedly (Code: ${event.code})`;
-
-        addMessage('connection', reason);
-        toast.info('WebSocket disconnected');
-
-        // Auto-reconnect if enabled and connection wasn't closed intentionally
-        if (autoReconnect && !event.wasClean && event.code !== 1000) {
-          setTimeout(() => {
-            if (!isConnected) {
-              toast.info('Attempting to reconnect...');
-              connect();
-            }
-          }, 3000);
-        }
-      };
-
-      wsRef.current.onerror = (error) => {
-        addMessage('error', 'WebSocket error occurred');
+      eventSourceRef.current.addEventListener('error', (event) => {
+        const data = JSON.parse(event.data);
+        addMessage(data.type, data.content);
         toast.error('WebSocket connection error');
-        console.error('WebSocket error:', error);
+      });
+
+      eventSourceRef.current.onerror = (error) => {
+        console.error('EventSource error:', error);
+        toast.error('Failed to connect to WebSocket');
+        disconnect();
       };
     } catch (error) {
       toast.error('Failed to connect to WebSocket');
@@ -134,19 +140,36 @@ export default function WebSocketsPage() {
   };
 
   const disconnect = () => {
-    if (wsRef.current) {
-      wsRef.current.close(1000, 'Manual disconnect');
-      wsRef.current = null;
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
+      eventSourceRef.current = null;
     }
     if (timerRef.current) {
       window.clearInterval(timerRef.current);
       timerRef.current = null;
     }
+    
+    // Send disconnect signal to server
+    if (isConnected) {
+      fetch('/api/websockets', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sessionId: sessionIdRef.current,
+          action: 'disconnect',
+        }),
+      }).catch((error) => {
+        console.error('Error disconnecting WebSocket:', error);
+      });
+    }
+    
     setIsConnected(false);
   };
 
-  const sendMessage = () => {
-    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+  const sendMessage = async () => {
+    if (!isConnected) {
       toast.error('WebSocket is not connected');
       return;
     }
@@ -157,7 +180,24 @@ export default function WebSocketsPage() {
     }
 
     try {
-      wsRef.current.send(message);
+      const response = await fetch('/api/websockets', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sessionId: sessionIdRef.current,
+          action: 'send',
+          message: message,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to send message');
+      }
+
       setMessagesSent((prev) => prev + 1);
       addMessage('sent', message);
       toast.success('Message sent!');
@@ -167,15 +207,30 @@ export default function WebSocketsPage() {
     }
   };
 
-  const sendPing = () => {
-    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+  const sendPing = async () => {
+    if (!isConnected) {
       toast.error('WebSocket is not connected');
       return;
     }
 
     try {
-      // Send a ping frame (note: this might not work on all servers)
-      wsRef.current.send('ping');
+      const response = await fetch('/api/websockets', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sessionId: sessionIdRef.current,
+          action: 'ping',
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to send ping');
+      }
+
       setMessagesSent((prev) => prev + 1);
       addMessage('sent', 'ping');
       toast.success('Ping sent!');
@@ -207,35 +262,31 @@ export default function WebSocketsPage() {
   };
 
   const getConnectionStatus = () => {
-    if (!wsRef.current) return 'Disconnected';
-    switch (wsRef.current.readyState) {
-      case WebSocket.CONNECTING:
-        return 'Connecting';
-      case WebSocket.OPEN:
-        return 'Connected';
-      case WebSocket.CLOSING:
-        return 'Closing';
-      case WebSocket.CLOSED:
-        return 'Disconnected';
-      default:
-        return 'Unknown';
+    if (!eventSourceRef.current) return 'Disconnected';
+    if (eventSourceRef.current.readyState === EventSource.CONNECTING) {
+      return 'Connecting';
     }
+    if (eventSourceRef.current.readyState === EventSource.OPEN && isConnected) {
+      return 'Connected';
+    }
+    if (eventSourceRef.current.readyState === EventSource.CLOSED) {
+      return 'Disconnected';
+    }
+    return 'Unknown';
   };
 
   const getStatusColor = () => {
-    if (!wsRef.current) return 'bg-red-500';
-    switch (wsRef.current.readyState) {
-      case WebSocket.CONNECTING:
-        return 'bg-yellow-500';
-      case WebSocket.OPEN:
-        return 'bg-green-500';
-      case WebSocket.CLOSING:
-        return 'bg-orange-500';
-      case WebSocket.CLOSED:
-        return 'bg-red-500';
-      default:
-        return 'bg-gray-500';
+    if (!eventSourceRef.current) return 'bg-red-500';
+    if (eventSourceRef.current.readyState === EventSource.CONNECTING) {
+      return 'bg-yellow-500';
     }
+    if (eventSourceRef.current.readyState === EventSource.OPEN && isConnected) {
+      return 'bg-green-500';
+    }
+    if (eventSourceRef.current.readyState === EventSource.CLOSED) {
+      return 'bg-red-500';
+    }
+    return 'bg-gray-500';
   };
 
   const getMessageTypeColor = (type: WebSocketMessage['type']) => {
