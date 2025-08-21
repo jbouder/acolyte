@@ -93,8 +93,8 @@ const items = [
     icon: Key,
   },
   {
-    title: 'Notepad',
-    url: '/notepad',
+    title: 'Cheat Codes',
+    url: '/cheat-codes',
     icon: StickyNote,
   },
 ];

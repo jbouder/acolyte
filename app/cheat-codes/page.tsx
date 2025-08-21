@@ -13,9 +13,9 @@ import { Download, FileText, Save, Trash2, Upload } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
-const STORAGE_KEY = 'web-tools-notepad-content';
+const STORAGE_KEY = 'web-tools-cheat-codes-content';
 
-export default function NotepadPage() {
+export default function CheatCodesPage() {
   const [content, setContent] = useState('');
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [isAutoSaving, setIsAutoSaving] = useState(false);
@@ -191,7 +191,7 @@ export default function NotepadPage() {
   return (
     <div className="flex flex-1 flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Markdown Notepad</h1>
+        <h1 className="text-3xl font-bold">Cheat Codes</h1>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           {isAutoSaving && <span>Saving...</span>}
           {!isAutoSaving && (
@@ -205,11 +205,12 @@ export default function NotepadPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileText className="h-5 w-5" />
-              Markdown Notes
+              Developer Cheat Codes
             </CardTitle>
             <CardDescription>
-              Write your notes in Markdown format. Changes are automatically
-              saved to your browser&apos;s local storage.
+              Store your coding snippets, commands, and quick references in
+              Markdown format. Perfect for keeping your development cheat codes
+              organized and accessible.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -254,7 +255,7 @@ export default function NotepadPage() {
               <Textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                placeholder="Start writing your markdown notes here..."
+                placeholder="Add your cheat codes and code snippets here..."
                 className="min-h-[500px] font-mono text-sm resize-y"
               />
             </div>
