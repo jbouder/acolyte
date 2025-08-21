@@ -33,7 +33,7 @@ export default function WebSocketsPage() {
   const [headers, setHeaders] = useState('');
   const [autoReconnect, setAutoReconnect] = useState(false);
   const [filter, setFilter] = useState('');
-  const [autoScroll, setAutoScroll] = useState(true);
+  const [autoScroll, setAutoScroll] = useState(false);
 
   const wsRef = useRef<WebSocket | null>(null);
   const connectionStartRef = useRef<number>(0);
@@ -175,9 +175,10 @@ export default function WebSocketsPage() {
 
     try {
       // Send a ping frame (note: this might not work on all servers)
-      wsRef.current.send('ping');
+      const msg = '{"type": "ping"}';
+      wsRef.current.send(msg);
       setMessagesSent((prev) => prev + 1);
-      addMessage('sent', 'ping');
+      addMessage('sent', msg);
       toast.success('Ping sent!');
     } catch (error) {
       toast.error('Failed to send ping');
@@ -453,9 +454,9 @@ export default function WebSocketsPage() {
                   </p>
                 ) : (
                   <div className="space-y-2">
-                    {filteredMessages.map((msg) => (
+                    {filteredMessages.map((msg, index) => (
                       <div
-                        key={msg.id}
+                        key={`msg-${index}`}
                         className="border border-border rounded p-3 bg-background"
                       >
                         <div className="flex items-center justify-between mb-2">
