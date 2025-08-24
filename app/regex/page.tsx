@@ -36,6 +36,7 @@ export default function RegexPage() {
   const [replacedText, setReplacedText] = useState('');
   const [error, setError] = useState('');
   const [isValid, setIsValid] = useState(false);
+  const [isFullMatch, setIsFullMatch] = useState(false);
 
   // Common regex patterns for quick selection
   const commonPatterns = [
@@ -88,6 +89,7 @@ export default function RegexPage() {
       setMatches([]);
       setError('');
       setIsValid(false);
+      setIsFullMatch(false);
       return;
     }
 
@@ -95,6 +97,14 @@ export default function RegexPage() {
       const regex = new RegExp(pattern, flags);
       setIsValid(true);
       setError('');
+
+      // Check if the entire string matches the pattern (validation mode)
+      const fullMatchRegex = new RegExp(
+        `^(?:${pattern})$`,
+        flags.replace('g', ''),
+      );
+      const fullMatch = fullMatchRegex.test(testString);
+      setIsFullMatch(fullMatch);
 
       const foundMatches: Match[] = [];
       let match;
@@ -106,7 +116,10 @@ export default function RegexPage() {
             index: match.index,
             groups: match.slice(1),
           });
-          if (match.index === regex.lastIndex) break;
+          // Prevent infinite loops with zero-length matches
+          if (match[0].length === 0) {
+            regex.lastIndex++;
+          }
         }
       } else {
         match = regex.exec(testString);
@@ -124,6 +137,7 @@ export default function RegexPage() {
       setError((err as Error).message);
       setIsValid(false);
       setMatches([]);
+      setIsFullMatch(false);
     }
   }, [pattern, flags, testString]);
 
@@ -304,10 +318,27 @@ export default function RegexPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Test String</CardTitle>
-            <CardDescription>
-              Enter text to test your regex against
-            </CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Test String</CardTitle>
+                <CardDescription>
+                  Enter text to test your regex against. The badge shows if the
+                  entire string matches the pattern.
+                </CardDescription>
+              </div>
+              {pattern && testString && (
+                <Badge
+                  variant={isFullMatch ? 'default' : 'secondary'}
+                  className={
+                    isFullMatch
+                      ? 'bg-green-500 hover:bg-green-600'
+                      : 'bg-red-500 hover:bg-red-600 text-white'
+                  }
+                >
+                  {isFullMatch ? '✓ Valid' : '✗ Invalid'}
+                </Badge>
+              )}
+            </div>
           </CardHeader>
           <CardContent>
             <Textarea
