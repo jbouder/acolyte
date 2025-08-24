@@ -22,7 +22,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Acolyte',
+  title: 'Project Acolyte',
   description:
     'A tool designed to assist web developers in their day-to-day duties.',
 };

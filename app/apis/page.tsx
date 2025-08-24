@@ -89,7 +89,7 @@ export default function BasicAPIsPage() {
   return (
     <div className="flex flex-1 flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Basic APIs</h1>
+        <h1 className="text-3xl font-bold">APIs</h1>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 md:items-start">

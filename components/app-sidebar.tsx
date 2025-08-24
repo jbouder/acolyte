@@ -38,8 +38,8 @@ const items = [
     icon: Home,
   },
   {
-    title: 'Basic APIs',
-    url: '/basic-apis',
+    title: 'APIs',
+    url: '/apis',
     icon: Code2,
   },
   {
@@ -56,6 +56,11 @@ const items = [
     title: 'WebTransport',
     url: '/webtransport',
     icon: Wifi,
+  },
+  {
+    title: 'Web Stats',
+    url: '/web-stats',
+    icon: Settings,
   },
   {
     title: 'Website Analysis',
