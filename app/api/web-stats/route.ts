@@ -160,10 +160,33 @@ export async function POST(request: NextRequest) {
       headers['x-powered-by']?.includes('Express') ||
       (html.includes('express') && html.includes('node'));
 
-    const hasTailwind =
+    // More specific Tailwind detection - check for explicit references first
+    const hasTailwindExplicit =
       html.includes('tailwind') ||
       html.includes('Tailwind') ||
-      html.match(/class="[^"]*\b(bg-|text-|p-|m-|flex|grid)/);
+      html.includes('tailwindcss') ||
+      html.includes('cdn.tailwindcss.com') ||
+      html.includes('unpkg.com/tailwindcss');
+
+    // USWDS detection - check for explicit references and usa- prefixed classes
+    const hasUSWDS =
+      html.includes('uswds') ||
+      html.includes('USWDS') ||
+      html.includes('U.S. Web Design System') ||
+      html.includes('designsystem.digital.gov') ||
+      html.match(/class="[^"]*\busa-[a-z-]+/) ||
+      html.includes('usa.css') ||
+      html.includes('uswds.css') ||
+      html.includes('uswds.min.css');
+
+    // Only check for Tailwind utility classes if USWDS is not detected and no explicit Tailwind references
+    const hasTailwindUtilities =
+      !hasUSWDS &&
+      html.match(
+        /class="[^"]*\b(bg-(red|blue|green|yellow|purple|pink|indigo|gray|slate|zinc|neutral|stone|orange|amber|lime|emerald|teal|cyan|sky|violet|fuchsia|rose)-(50|100|200|300|400|500|600|700|800|900)|text-(xs|sm|base|lg|xl|2xl|3xl|4xl|5xl|6xl|7xl|8xl|9xl)|space-(x|y)-(0|1|2|3|4|5|6|8|10|12|16|20|24|32|40|48|56|64)|rounded-(none|sm|md|lg|xl|2xl|3xl|full)|shadow-(sm|md|lg|xl|2xl|inner|none))/,
+      );
+
+    const hasTailwind = hasTailwindExplicit || hasTailwindUtilities;
 
     const hasMaterializeCSS =
       html.includes('materialize') || html.includes('Materialize');
@@ -179,20 +202,71 @@ export async function POST(request: NextRequest) {
       html.includes('withStyles') ||
       html.match(/class="[^"]*\bMui[A-Z]/);
 
-    const hasUSWDS =
-      html.includes('uswds') ||
-      html.includes('USWDS') ||
-      html.includes('usa-') ||
-      html.includes('U.S. Web Design System') ||
-      html.match(/class="[^"]*\busa-[a-z]/);
+    // Analytics and tracking detection
+    const hasGoogleAnalytics =
+      html.includes('google-analytics.com') ||
+      html.includes('googletagmanager.com') ||
+      html.includes('gtag(') ||
+      html.includes('ga(') ||
+      html.includes('gtag-') ||
+      html.includes('GA_MEASUREMENT_ID') ||
+      html.includes('GA_TRACKING_ID') ||
+      html.includes('GoogleAnalyticsObject') ||
+      html.match(/['"]gtag['"]/) ||
+      html.match(/google-analytics\.com\/gtag/) ||
+      html.match(/gtag\('config',\s*['"][^'"]+['"]\)/) ||
+      html.match(/ga\('create',\s*['"][^'"]+['"]\)/) ||
+      html.match(/\bG-[A-Z0-9]{10}\b/) || // GA4 measurement ID format
+      html.match(/\bUA-\d+-\d+\b/); // Universal Analytics tracking ID format
+
+    const hasGoogleTagManager =
+      html.includes('googletagmanager.com') ||
+      html.includes('GTM-') ||
+      html.match(/\bGTM-[A-Z0-9]+\b/);
+
+    const hasFacebookPixel =
+      html.includes('connect.facebook.net') ||
+      html.includes('fbevents.js') ||
+      html.includes('fbq(') ||
+      html.match(/fbq\('init',/) ||
+      html.includes('facebook-pixel');
+
+    const hasHotjar =
+      html.includes('hotjar.com') ||
+      html.includes('hj(') ||
+      html.match(/\bhj\(/);
+
+    const hasMatomo =
+      html.includes('matomo') ||
+      html.includes('piwik') ||
+      html.includes('_paq.push') ||
+      html.match(/_paq\.push/);
+
+    const hasAmplitude =
+      html.includes('amplitude') ||
+      html.includes('amplitude.com') ||
+      html.match(/amplitude\.getInstance/);
+
+    const hasSegment =
+      html.includes('segment.com') ||
+      html.includes('analytics.js') ||
+      html.match(/analytics\.track/) ||
+      html.match(/analytics\.page/);
+
+    const hasZendesk =
+      html.includes('zendesk') ||
+      html.includes('zdassets.com') ||
+      html.includes('zdchat') ||
+      html.match(/zE\(/);
 
     // Security headers check
     const securityHeaders = {
       'x-frame-options': headers['x-frame-options'] || null,
       'x-content-type-options': headers['x-content-type-options'] || null,
-      'x-xss-protection': headers['x-xss-protection'] || null,
       'strict-transport-security': headers['strict-transport-security'] || null,
       'content-security-policy': headers['content-security-policy'] || null,
+      'referrer-policy': headers['referrer-policy'] || null,
+      'permissions-policy': headers['permissions-policy'] || null,
     };
 
     const stats = {
@@ -258,17 +332,20 @@ export async function POST(request: NextRequest) {
         squarespace: hasSquarespace,
       },
 
+      // Analytics and tracking
+      analytics: {
+        googleAnalytics: hasGoogleAnalytics,
+        googleTagManager: hasGoogleTagManager,
+        facebookPixel: hasFacebookPixel,
+        hotjar: hasHotjar,
+        matomo: hasMatomo,
+        amplitude: hasAmplitude,
+        segment: hasSegment,
+        zendesk: hasZendesk,
+      },
+
       // Meta tags (limit to first 20 to avoid huge responses)
       metaTags: metaTags.slice(0, 20),
-
-      // Performance metrics
-      performance: {
-        responseTimeMs: responseTime,
-        contentLengthBytes: contentLength,
-        compressionRatio: headers['content-encoding']
-          ? 'Compressed'
-          : 'Not compressed',
-      },
     };
 
     return NextResponse.json(stats);

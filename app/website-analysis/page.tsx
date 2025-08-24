@@ -37,12 +37,23 @@ interface WebStats {
   headers: Record<string, string>;
   securityHeaders: Record<string, string | null>;
   frameworks: Record<string, boolean>;
-  metaTags: Array<{ name: string; content: string }>;
-  performance: {
-    responseTimeMs: number;
-    contentLengthBytes: number;
-    compressionRatio: string;
+  analytics: {
+    googleAnalytics: boolean;
+    googleTagManager: boolean;
+    facebookPixel: boolean;
+    hotjar: boolean;
+    matomo: boolean;
+    mixpanel: boolean;
+    amplitude: boolean;
+    segment: boolean;
+    intercom: boolean;
+    zendesk: boolean;
+    crazyEgg: boolean;
+    fullStory: boolean;
+    linkedInInsight: boolean;
+    twitterPixel: boolean;
   };
+  metaTags: Array<{ name: string; content: string }>;
 }
 
 export default function WebStatsPage() {
@@ -360,40 +371,40 @@ export default function WebStatsPage() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Performance Metrics</CardTitle>
+                <CardTitle>Analytics & Tracking</CardTitle>
                 <CardDescription>
-                  Website performance information
+                  Analytics platforms, tracking pixels, and monitoring tools
+                  detected
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-sm">Response Time:</span>
-                  <span
-                    className={`text-sm font-mono ${getPerformanceColor(
-                      stats.performance.responseTimeMs,
-                    )}`}
-                  >
-                    {stats.performance.responseTimeMs}ms
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm">Content Size:</span>
-                  <span className="text-sm font-mono">
-                    {(stats.performance.contentLengthBytes / 1024).toFixed(2)}{' '}
-                    KB
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm">Compression:</span>
-                  <span className="text-sm">
-                    {stats.performance.compressionRatio}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm">Analyzed:</span>
-                  <span className="text-sm">
-                    {new Date(stats.timestamp).toLocaleString()}
-                  </span>
+              <CardContent>
+                <div className="flex flex-wrap gap-2">
+                  {Object.entries(stats.analytics).map(
+                    ([service, detected]) => (
+                      <Badge
+                        key={service}
+                        variant={detected ? 'default' : 'secondary'}
+                        className={detected ? 'bg-blue-500' : ''}
+                      >
+                        {service === 'googleAnalytics'
+                          ? 'Google Analytics'
+                          : service === 'googleTagManager'
+                            ? 'Google Tag Manager'
+                            : service === 'facebookPixel'
+                              ? 'Facebook Pixel'
+                              : service === 'linkedInInsight'
+                                ? 'LinkedIn Insight'
+                                : service === 'twitterPixel'
+                                  ? 'Twitter Pixel'
+                                  : service === 'crazyEgg'
+                                    ? 'Crazy Egg'
+                                    : service === 'fullStory'
+                                      ? 'FullStory'
+                                      : service.charAt(0).toUpperCase() +
+                                        service.slice(1)}
+                      </Badge>
+                    ),
+                  )}
                 </div>
               </CardContent>
             </Card>
