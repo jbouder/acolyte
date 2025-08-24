@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     const fetchOptions: RequestInit = {
       method: method.toUpperCase(),
       headers: {
-        'User-Agent': 'Web-Tools-Basic',
+        'User-Agent': 'Acolyte-Basic',
         ...parsedHeaders,
       },
     };

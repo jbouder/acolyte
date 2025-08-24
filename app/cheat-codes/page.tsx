@@ -13,7 +13,7 @@ import { Download, FileText, Save, Trash2, Upload } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
-const STORAGE_KEY = 'web-tools-cheat-codes-content';
+const STORAGE_KEY = 'acolyte-cheat-codes-content';
 
 export default function CheatCodesPage() {
   const [content, setContent] = useState('');

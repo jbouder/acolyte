@@ -52,13 +52,12 @@ export default function Home() {
   return (
     <div className="flex flex-1 flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Web Tools</h1>
+        <h1 className="text-3xl font-bold">Project Acolyte</h1>
       </div>
       <div className="flex-1 rounded-xl bg-muted/50">
         <div className="p-6">
           <p className="text-muted-foreground">
-            A collection of web development tools to help you build and test
-            your applications.
+            A tool designed to assist web developers in their day-to-day duties.
           </p>
         </div>
       </div>

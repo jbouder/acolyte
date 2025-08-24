@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     const response = await fetch(targetUrl.toString(), {
       method: 'GET',
       headers: {
-        'User-Agent': 'Web-Tools-Stats/1.0',
+        'User-Agent': 'Acolyte-Stats/1.0',
       },
       // Set a reasonable timeout
       signal: AbortSignal.timeout(10000),

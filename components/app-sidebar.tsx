@@ -113,8 +113,8 @@ export function AppSidebar() {
             <Settings className="h-4 w-4 text-primary-foreground" />
           </div>
           <div className="flex flex-col">
-            <span className="text-sm font-semibold">Web Tools</span>
-            <span className="text-xs text-muted-foreground">Dev Utilities</span>
+            <span className="text-sm font-semibold">Project Acolyte</span>
+            <span className="text-xs text-muted-foreground">Assistant</span>
           </div>
         </Link>
       </SidebarHeader>

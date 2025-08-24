@@ -22,8 +22,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Web Tools',
-  description: 'A collection of web development tools',
+  title: 'Acolyte',
+  description:
+    'A tool designed to assist web developers in their day-to-day duties.',
 };
 
 export default function RootLayout({
@@ -38,7 +39,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               try {
-                const theme = localStorage.getItem('web-tools-theme');
+                const theme = localStorage.getItem('acolyte-theme');
                 if (theme === 'dark') {
                   document.documentElement.classList.add('dark');
                 } else if (theme === 'light') {
@@ -55,7 +56,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider defaultTheme="system" storageKey="web-tools-theme">
+        <ThemeProvider defaultTheme="system" storageKey="acolyte-theme">
           <SidebarProvider>
             <AppSidebar />
             <SidebarInset>

@@ -1,12 +1,12 @@
-# Web Tools
+# Project Acolyte
 
-The goal of this project is to provide a set of tools for web developers.
+**Acolyte** is a tool designed to assist web developers in their day-to-day duties. Whether you're testing APIs, analyzing apps, or utilizing helpful development utilities, Acolyte provides the essential features you need to be more productive and efficient.
 
-## Table of Contents
+## Features
 
-1. [Running the Project Locally](#running-the-project-locally)
-2. [Running Unit Tests](#running-unit-tests)
-3. [Running Code Quality Checks](#running-code-quality-checks)
+- 🧪 **API Testing** - Comprehensive API testing tools for REST, SSE, and WebSocket endpoints
+- 📊 **Analysis** - In-depth performance and dependency analysis
+- 🔧 **Utilities** - Essential development utilities to streamline your workflow
 
 ## Running the Project Locally
 
@@ -24,18 +24,12 @@ npm install
 npm run dev
 ```
 
-## Running Unit Tests
-
-To make sure your changes do not break any unit tests, run the following:
-
-```sh
-npm run test
-```
-
 ## Running Code Quality Checks
 
 To make sure your changes adhere to additional code quality standards, run the following:
 
 ```sh
+npm run test
 npm run lint
+npm run format
 ```
