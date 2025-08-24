@@ -437,7 +437,10 @@ export default function WebTransportPage() {
   return (
     <div className="flex flex-1 flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">WebTransport</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-3xl font-bold">WebTransport</h1>
+          <Badge variant="secondary">Experimental</Badge>
+        </div>
         {!checkWebTransportSupport() && (
           <Badge variant="destructive">Not Supported</Badge>
         )}
