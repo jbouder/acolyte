@@ -2,7 +2,23 @@ export default function Home() {
   return (
     <div className="flex flex-1 flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Project Acolyte</h1>
+        <div className="font-mono text-sm leading-tight text-foreground">
+          <pre className="whitespace-pre">
+            {`██████╗ ██████╗  ██████╗      ██╗███████╗ ██████╗████████╗
+██╔══██╗██╔══██╗██╔═══██╗     ██║██╔════╝██╔════╝╚══██╔══╝
+██████╔╝██████╔╝██║   ██║     ██║█████╗  ██║        ██║   
+██╔═══╝ ██╔══██╗██║   ██║██   ██║██╔══╝  ██║        ██║   
+██║     ██║  ██║╚██████╔╝╚█████╔╝███████╗╚██████╗   ██║   
+╚═╝     ╚═╝  ╚═╝ ╚═════╝  ╚════╝ ╚══════╝ ╚═════╝   ╚═╝   
+                                                           
+ █████╗  ██████╗ ██████╗ ██╗  ██╗   ██╗████████╗███████╗  
+██╔══██╗██╔════╝██╔═══██╗██║  ╚██╗ ██╔╝╚══██╔══╝██╔════╝  
+███████║██║     ██║   ██║██║   ╚████╔╝    ██║   █████╗    
+██╔══██║██║     ██║   ██║██║    ╚██╔╝     ██║   ██╔══╝    
+██║  ██║╚██████╗╚██████╔╝███████╗██║      ██║   ███████╗  
+╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚══════╝╚═╝      ╚═╝   ╚══════╝`}
+          </pre>
+        </div>
       </div>
       <div className="flex-1 rounded-xl bg-muted/50">
         <div className="p-6">

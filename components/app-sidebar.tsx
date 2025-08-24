@@ -2,6 +2,7 @@
 
 import {
   BarChart3,
+  Bot,
   Braces,
   Cable,
   Code2,
@@ -115,11 +116,11 @@ export function AppSidebar() {
           className="flex items-center gap-2 px-4 py-2 hover:bg-sidebar-accent rounded-md transition-colors"
         >
           <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary">
-            <Settings className="h-4 w-4 text-primary-foreground" />
+            <Bot className="h-4 w-4 text-primary-foreground" />
           </div>
           <div className="flex flex-col">
             <span className="text-sm font-semibold">Project Acolyte</span>
-            <span className="text-xs text-muted-foreground">Assistant</span>
+            <span className="text-xs text-muted-foreground">Web Tools</span>
           </div>
         </Link>
       </SidebarHeader>
