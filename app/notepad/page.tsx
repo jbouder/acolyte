@@ -13,9 +13,9 @@ import { Download, FileText, Save, Trash2, Upload } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
-const STORAGE_KEY = 'acolyte-cheat-codes-content';
+const STORAGE_KEY = 'acolyte-notepad-content';
 
-export default function CheatCodesPage() {
+export default function NotepadPage() {
   const [content, setContent] = useState('');
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [isAutoSaving, setIsAutoSaving] = useState(false);
@@ -191,7 +191,7 @@ export default function CheatCodesPage() {
   return (
     <div className="flex flex-1 flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Cheat Codes</h1>
+        <h1 className="text-3xl font-bold">Notepad</h1>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           {isAutoSaving && <span>Saving...</span>}
           {!isAutoSaving && (
@@ -205,15 +205,28 @@ export default function CheatCodesPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileText className="h-5 w-5" />
-              Developer Cheat Codes
+              Developer Notepad
             </CardTitle>
             <CardDescription>
               Store your coding snippets, commands, and quick references in
-              Markdown format. Perfect for keeping your development cheat codes
+              Markdown format. Perfect for keeping your development notes
               organized and accessible.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* Disclaimer */}
+            <div className="rounded-md border border-yellow-200 bg-yellow-50 p-3 text-sm">
+              <div className="flex items-start gap-2">
+                <div className="text-yellow-600">⚠️</div>
+                <div className="text-yellow-800">
+                  <strong>Important:</strong> Your notes are stored in your
+                  browser&apos;s local storage and may be lost when clearing
+                  browser data. Use the export button regularly to backup your
+                  important notes.
+                </div>
+              </div>
+            </div>
+
             {/* Action Buttons */}
             <div className="flex flex-wrap gap-2">
               <Button onClick={handleManualSave} variant="default" size="sm">
@@ -255,7 +268,7 @@ export default function CheatCodesPage() {
               <Textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                placeholder="Add your cheat codes and code snippets here..."
+                placeholder="Add your notes and code snippets here..."
                 className="min-h-[500px] font-mono text-sm resize-y"
               />
             </div>
