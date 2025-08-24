@@ -1,6 +1,6 @@
 # Project Acolyte
 
-**Acolyte** is a tool designed to assist web developers in their day-to-day duties. Whether you're testing APIs, analyzing apps, or utilizing helpful development utilities, Acolyte has all of the tools you need, in one helpful app.
+**Acolyte** is an app designed to assist web developers in their day-to-day duties. Whether you're testing APIs, analyzing apps, or utilizing helpful development utilities, Acolyte has all of the tools you need, in one helpful app.
 
 ## Features
 

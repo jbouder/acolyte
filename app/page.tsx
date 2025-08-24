@@ -23,10 +23,10 @@ export default function Home() {
       <div className="flex-1 rounded-xl bg-muted/50">
         <div className="p-6">
           <p className="text-muted-foreground">
-            A tool designed to assist web developers in their day-to-day duties.
-            Whether you&apos;re testing APIs, analyzing performance, or
-            utilizing helpful development utilities, Acolyte provides the
-            essential features you need to be more productive and efficient.
+            An app designed to assist web developers in their day-to-day duties.
+            Whether you&apos;re testing APIs, analyzing apps, or utilizing
+            helpful development utilities, Acolyte has all of the tools you
+            need, in one helpful app.
           </p>
         </div>
       </div>
