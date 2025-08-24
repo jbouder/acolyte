@@ -97,6 +97,95 @@ export async function POST(request: NextRequest) {
     const hasBootstrap =
       html.includes('bootstrap') || html.includes('Bootstrap');
 
+    // Check for CMS platforms
+    const hasWordPress =
+      html.includes('wp-content') ||
+      html.includes('wp-includes') ||
+      html.includes('wordpress') ||
+      html.includes('WordPress') ||
+      html.match(/\/wp-[a-z-]+\//i) ||
+      headers['x-powered-by']?.includes('WordPress') ||
+      html.includes('wp-json');
+
+    const hasDrupal =
+      html.includes('drupal') ||
+      html.includes('Drupal') ||
+      html.includes('sites/all/') ||
+      html.includes('sites/default/') ||
+      html.match(/\/sites\/[^\/]+\/files\//i) ||
+      headers['x-drupal-cache'] ||
+      headers['x-generator']?.includes('Drupal') ||
+      html.includes('drupal.js') ||
+      html.includes('misc/drupal.js');
+
+    // Check for other popular frameworks/platforms
+    const hasNextJs =
+      html.includes('_next/') ||
+      html.includes('__NEXT_DATA__') ||
+      headers['x-powered-by']?.includes('Next.js');
+
+    const hasNuxt =
+      html.includes('_nuxt/') ||
+      html.includes('__NUXT__') ||
+      headers['x-powered-by']?.includes('Nuxt');
+
+    const hasLaravel =
+      html.includes('laravel_session') ||
+      headers['set-cookie']?.includes('laravel_session') ||
+      headers['x-powered-by']?.includes('Laravel');
+
+    const hasShopify =
+      html.includes('shopify') ||
+      html.includes('Shopify') ||
+      html.includes('cdn.shopify.com') ||
+      html.includes('myshopify.com');
+
+    const hasWix =
+      html.includes('wix.com') ||
+      html.includes('_wixCIDX') ||
+      html.includes('static.parastorage.com');
+
+    const hasSquarespace =
+      html.includes('squarespace') ||
+      html.includes('Squarespace') ||
+      html.includes('static1.squarespace.com');
+
+    const hasJoomla =
+      html.includes('joomla') ||
+      html.includes('Joomla') ||
+      html.includes('/administrator/') ||
+      html.includes('option=com_');
+
+    const hasExpressJs =
+      headers['x-powered-by']?.includes('Express') ||
+      (html.includes('express') && html.includes('node'));
+
+    const hasTailwind =
+      html.includes('tailwind') ||
+      html.includes('Tailwind') ||
+      html.match(/class="[^"]*\b(bg-|text-|p-|m-|flex|grid)/);
+
+    const hasMaterializeCSS =
+      html.includes('materialize') || html.includes('Materialize');
+
+    const hasBulma = html.includes('bulma') || html.includes('Bulma');
+
+    const hasMUI =
+      html.includes('@mui/') ||
+      html.includes('material-ui') ||
+      html.includes('Material-UI') ||
+      html.includes('MuiThemeProvider') ||
+      html.includes('makeStyles') ||
+      html.includes('withStyles') ||
+      html.match(/class="[^"]*\bMui[A-Z]/);
+
+    const hasUSWDS =
+      html.includes('uswds') ||
+      html.includes('USWDS') ||
+      html.includes('usa-') ||
+      html.includes('U.S. Web Design System') ||
+      html.match(/class="[^"]*\busa-[a-z]/);
+
     // Security headers check
     const securityHeaders = {
       'x-frame-options': headers['x-frame-options'] || null,
@@ -136,11 +225,37 @@ export async function POST(request: NextRequest) {
 
       // Framework detection
       frameworks: {
-        jquery: hasJQuery,
+        // JavaScript Frameworks
         react: hasReact,
         vue: hasVue,
         angular: hasAngular,
+
+        // CSS Frameworks
+        jquery: hasJQuery,
         bootstrap: hasBootstrap,
+        tailwind: hasTailwind,
+        materialize: hasMaterializeCSS,
+        bulma: hasBulma,
+        mui: hasMUI,
+        uswds: hasUSWDS,
+
+        // Full-Stack Frameworks
+        nextjs: hasNextJs,
+        nuxt: hasNuxt,
+        express: hasExpressJs,
+        laravel: hasLaravel,
+
+        // CMS Platforms
+        wordpress: hasWordPress,
+        drupal: hasDrupal,
+        joomla: hasJoomla,
+
+        // E-commerce Platforms
+        shopify: hasShopify,
+
+        // Website Builders
+        wix: hasWix,
+        squarespace: hasSquarespace,
       },
 
       // Meta tags (limit to first 20 to avoid huge responses)

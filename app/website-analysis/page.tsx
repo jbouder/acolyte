@@ -337,7 +337,8 @@ export default function WebStatsPage() {
               <CardHeader>
                 <CardTitle>Detected Frameworks</CardTitle>
                 <CardDescription>
-                  JavaScript frameworks and libraries detected
+                  Frameworks, libraries, CMS platforms, and technologies
+                  detected
                 </CardDescription>
               </CardHeader>
               <CardContent>
