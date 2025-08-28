@@ -1,5 +1,8 @@
 # Project Acolyte
 
+[![GitHub license](https://img.shields.io/github/license/jbouder/acolyte.svg)](https://github.com/jbouder/acolyte/blob/main/LICENSE.md)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/jbouder/acolyte/code-quality.yml?branch=main)](https://github.com/jbouder/acolyte/actions)
+
 **Acolyte** is an app designed to assist web developers in their day-to-day duties. Whether you're testing APIs, analyzing apps, or utilizing helpful development utilities, Acolyte has all of the tools you need, in one helpful app.
 
 ## Features
