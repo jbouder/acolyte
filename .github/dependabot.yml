@@ -9,7 +9,7 @@ updates:
       timezone: 'US/Eastern'
     open-pull-requests-limit: 10
     labels:
-      - 'dependencies'
+      - 'security'
     groups:
       minor-and-patch:
         patterns:
