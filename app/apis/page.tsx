@@ -2,9 +2,10 @@
 
 import { ApiRequestForm } from '@/components/api-request-form';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, X } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 interface TabData {
   id: string;
@@ -27,6 +28,9 @@ export default function BasicAPIsPage() {
     },
   ]);
   const [activeTab, setActiveTab] = useState('1');
+  const [editingTabId, setEditingTabId] = useState<string | null>(null);
+  const [editingTabName, setEditingTabName] = useState<string>('');
+  const editInputRef = useRef<HTMLInputElement>(null);
 
   const addNewTab = () => {
     const newId = Date.now().toString(); // Use timestamp for unique ID
@@ -59,7 +63,7 @@ export default function BasicAPIsPage() {
 
   const updateTabData = (
     id: string,
-    updates: Partial<Omit<TabData, 'id' | 'name'>>,
+    updates: Partial<Omit<TabData, 'id'>>,
   ) => {
     setTabs((prevTabs) => {
       const newTabs = prevTabs.map((tab) =>
@@ -68,6 +72,32 @@ export default function BasicAPIsPage() {
       return newTabs;
     });
   };
+
+  const startEditingTab = (id: string, currentName: string) => {
+    setEditingTabId(id);
+    setEditingTabName(currentName);
+  };
+
+  const saveTabName = (id: string) => {
+    if (editingTabName.trim()) {
+      updateTabData(id, { name: editingTabName.trim() });
+    }
+    setEditingTabId(null);
+    setEditingTabName('');
+  };
+
+  const cancelEditingTab = () => {
+    setEditingTabId(null);
+    setEditingTabName('');
+  };
+
+  // Focus the input when editing starts
+  useEffect(() => {
+    if (editingTabId && editInputRef.current) {
+      editInputRef.current.focus();
+      editInputRef.current.select();
+    }
+  }, [editingTabId]);
 
   return (
     <div className="flex flex-1 flex-col gap-4">
@@ -84,7 +114,35 @@ export default function BasicAPIsPage() {
                 value={tab.id}
                 className="relative group"
               >
-                <span className="mr-2">{tab.name}</span>
+                {editingTabId === tab.id ? (
+                  <Input
+                    ref={editInputRef}
+                    value={editingTabName}
+                    onChange={(e) => setEditingTabName(e.target.value)}
+                    onKeyDown={(e) => {
+                      e.stopPropagation();
+                      if (e.key === 'Enter') {
+                        saveTabName(tab.id);
+                      } else if (e.key === 'Escape') {
+                        cancelEditingTab();
+                      }
+                    }}
+                    onBlur={() => saveTabName(tab.id)}
+                    className="h-6 text-xs border-none p-1 min-w-[80px] bg-transparent"
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                ) : (
+                  <span
+                    className="mr-2 cursor-pointer"
+                    onDoubleClick={(e) => {
+                      e.stopPropagation();
+                      startEditingTab(tab.id, tab.name);
+                    }}
+                    title="Double-click to edit name"
+                  >
+                    {tab.name}
+                  </span>
+                )}
                 {tabs.length > 1 && (
                   <div
                     onClick={(e) => {
