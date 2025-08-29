@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, X } from 'lucide-react';
-import { useState, useRef, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface TabData {
   id: string;
@@ -61,10 +61,7 @@ export default function BasicAPIsPage() {
     });
   };
 
-  const updateTabData = (
-    id: string,
-    updates: Partial<Omit<TabData, 'id'>>,
-  ) => {
+  const updateTabData = (id: string, updates: Partial<Omit<TabData, 'id'>>) => {
     setTabs((prevTabs) => {
       const newTabs = prevTabs.map((tab) =>
         tab.id === id ? { ...tab, ...updates } : tab,
