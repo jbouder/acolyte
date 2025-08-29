@@ -1,5 +1,9 @@
 # Project Acolyte
 
+<p>
+  <img src="https://raw.githubusercontent.com/jbouder/acolyte/main/public/logo.png" alt="Acolyte Logo" width="400" />
+</p>
+
 [![GitHub license](https://img.shields.io/github/license/jbouder/acolyte.svg)](https://github.com/jbouder/acolyte/blob/main/LICENSE.md)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/jbouder/acolyte/code-quality.yml?branch=main)](https://github.com/jbouder/acolyte/actions)
 
