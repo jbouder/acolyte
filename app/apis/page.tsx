@@ -29,35 +29,41 @@ export default function BasicAPIsPage() {
   const [activeTab, setActiveTab] = useState('1');
 
   const addNewTab = () => {
-    const newId = (tabs.length + 1).toString();
+    const newId = (Date.now()).toString(); // Use timestamp for unique ID
     const newTab: TabData = {
       id: newId,
-      name: `Request ${newId}`,
+      name: `Request ${tabs.length + 1}`,
       url: 'https://jsonplaceholder.typicode.com/posts',
       method: 'GET',
       headers: 'Content-Type: application/json',
       requestBody: '',
     };
-    setTabs([...tabs, newTab]);
+    setTabs(prevTabs => [...prevTabs, newTab]);
     setActiveTab(newId);
   };
 
   const removeTab = (id: string) => {
-    if (tabs.length <= 1) return; // Don't allow removing the last tab
+    setTabs(prevTabs => {
+      if (prevTabs.length <= 1) return prevTabs; // Don't allow removing the last tab
 
-    const newTabs = tabs.filter((tab) => tab.id !== id);
-    setTabs(newTabs);
-
-    // If we're removing the active tab, switch to the first tab
-    if (activeTab === id) {
-      setActiveTab(newTabs[0].id);
-    }
+      const newTabs = prevTabs.filter((tab) => tab.id !== id);
+      
+      // If we're removing the active tab, switch to the first tab
+      setActiveTab(prevActiveTab => 
+        prevActiveTab === id ? newTabs[0].id : prevActiveTab
+      );
+      
+      return newTabs;
+    });
   };
 
   const updateTabData = (id: string, updates: Partial<Omit<TabData, 'id' | 'name'>>) => {
-    setTabs(tabs.map(tab => 
-      tab.id === id ? { ...tab, ...updates } : tab
-    ));
+    setTabs(prevTabs => {
+      const newTabs = prevTabs.map(tab => 
+        tab.id === id ? { ...tab, ...updates } : tab
+      );
+      return newTabs;
+    });
   };
 
   return (
