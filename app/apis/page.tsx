@@ -29,7 +29,7 @@ export default function BasicAPIsPage() {
   const [activeTab, setActiveTab] = useState('1');
 
   const addNewTab = () => {
-    const newId = (Date.now()).toString(); // Use timestamp for unique ID
+    const newId = Date.now().toString(); // Use timestamp for unique ID
     const newTab: TabData = {
       id: newId,
       name: `Request ${tabs.length + 1}`,
@@ -38,29 +38,32 @@ export default function BasicAPIsPage() {
       headers: 'Content-Type: application/json',
       requestBody: '',
     };
-    setTabs(prevTabs => [...prevTabs, newTab]);
+    setTabs((prevTabs) => [...prevTabs, newTab]);
     setActiveTab(newId);
   };
 
   const removeTab = (id: string) => {
-    setTabs(prevTabs => {
+    setTabs((prevTabs) => {
       if (prevTabs.length <= 1) return prevTabs; // Don't allow removing the last tab
 
       const newTabs = prevTabs.filter((tab) => tab.id !== id);
-      
+
       // If we're removing the active tab, switch to the first tab
-      setActiveTab(prevActiveTab => 
-        prevActiveTab === id ? newTabs[0].id : prevActiveTab
+      setActiveTab((prevActiveTab) =>
+        prevActiveTab === id ? newTabs[0].id : prevActiveTab,
       );
-      
+
       return newTabs;
     });
   };
 
-  const updateTabData = (id: string, updates: Partial<Omit<TabData, 'id' | 'name'>>) => {
-    setTabs(prevTabs => {
-      const newTabs = prevTabs.map(tab => 
-        tab.id === id ? { ...tab, ...updates } : tab
+  const updateTabData = (
+    id: string,
+    updates: Partial<Omit<TabData, 'id' | 'name'>>,
+  ) => {
+    setTabs((prevTabs) => {
+      const newTabs = prevTabs.map((tab) =>
+        tab.id === id ? { ...tab, ...updates } : tab,
       );
       return newTabs;
     });
@@ -76,7 +79,11 @@ export default function BasicAPIsPage() {
         <div className="flex items-center gap-2 mb-4">
           <TabsList>
             {tabs.map((tab) => (
-              <TabsTrigger key={tab.id} value={tab.id} className="relative group">
+              <TabsTrigger
+                key={tab.id}
+                value={tab.id}
+                className="relative group"
+              >
                 <span className="mr-2">{tab.name}</span>
                 {tabs.length > 1 && (
                   <div
@@ -121,9 +128,15 @@ export default function BasicAPIsPage() {
               headers={tab.headers}
               requestBody={tab.requestBody}
               onUrlChange={(value) => updateTabData(tab.id, { url: value })}
-              onMethodChange={(value) => updateTabData(tab.id, { method: value })}
-              onHeadersChange={(value) => updateTabData(tab.id, { headers: value })}
-              onRequestBodyChange={(value) => updateTabData(tab.id, { requestBody: value })}
+              onMethodChange={(value) =>
+                updateTabData(tab.id, { method: value })
+              }
+              onHeadersChange={(value) =>
+                updateTabData(tab.id, { headers: value })
+              }
+              onRequestBodyChange={(value) =>
+                updateTabData(tab.id, { requestBody: value })
+              }
             />
           </TabsContent>
         ))}

@@ -42,7 +42,9 @@ describe('BasicAPIsPage', () => {
     // Check that API Request form is rendered
     expect(screen.getByText('API Request')).toBeInTheDocument();
     expect(screen.getByText('HTTP Method')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('https://jsonplaceholder.typicode.com/posts')).toBeInTheDocument();
+    expect(
+      screen.getByDisplayValue('https://jsonplaceholder.typicode.com/posts'),
+    ).toBeInTheDocument();
   });
 
   it('allows adding a new tab', () => {
@@ -78,11 +80,11 @@ describe('BasicAPIsPage', () => {
 
     // Click the close button for Request 2 (should be the second one)
     fireEvent.click(closeButtons[1]);
-    
+
     // Should now have only Request 1
     expect(screen.getByText('Request 1')).toBeInTheDocument();
     expect(screen.queryByText('Request 2')).not.toBeInTheDocument();
-    
+
     // Close buttons should no longer be visible (since only 1 tab remains)
     expect(screen.queryByTitle('Close tab')).not.toBeInTheDocument();
   });
@@ -121,7 +123,11 @@ describe('BasicAPIsPage', () => {
     fireEvent.click(request2Tab);
 
     // Verify default values are present
-    expect(screen.getByDisplayValue('https://jsonplaceholder.typicode.com/posts')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('Content-Type: application/json')).toBeInTheDocument();
+    expect(
+      screen.getByDisplayValue('https://jsonplaceholder.typicode.com/posts'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByDisplayValue('Content-Type: application/json'),
+    ).toBeInTheDocument();
   });
 });
