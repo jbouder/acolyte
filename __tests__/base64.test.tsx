@@ -60,20 +60,34 @@ describe('Base64Page', () => {
     expect(screen.getAllByText('Clear')).toHaveLength(2);
 
     // Check textareas
-    expect(screen.getByPlaceholderText('Enter your text here to encode to Base64...')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Enter Base64 encoded text here to decode...')).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText(
+        'Enter your text here to encode to Base64...',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText(
+        'Enter Base64 encoded text here to decode...',
+      ),
+    ).toBeInTheDocument();
 
     // Check options
     expect(screen.getByLabelText('URL-safe encoding')).toBeInTheDocument();
-    expect(screen.getByLabelText('Insert line breaks (76 chars)')).toBeInTheDocument();
-    expect(screen.getByLabelText('Remove padding characters')).toBeInTheDocument();
+    expect(
+      screen.getByLabelText('Insert line breaks (76 chars)'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText('Remove padding characters'),
+    ).toBeInTheDocument();
   });
 
   it('encodes text to Base64 correctly', async () => {
     const { toast } = require('sonner');
     render(<Base64Page />);
 
-    const inputTextarea = screen.getByPlaceholderText('Enter your text here to encode to Base64...');
+    const inputTextarea = screen.getByPlaceholderText(
+      'Enter your text here to encode to Base64...',
+    );
     const encodeButton = screen.getByText('Encode');
 
     // Enter test text
@@ -87,14 +101,18 @@ describe('Base64Page', () => {
       expect(screen.getByText('SGVsbG8gV29ybGQ=')).toBeInTheDocument();
     });
 
-    expect(toast.success).toHaveBeenCalledWith('Text successfully encoded to Base64!');
+    expect(toast.success).toHaveBeenCalledWith(
+      'Text successfully encoded to Base64!',
+    );
   });
 
   it('decodes Base64 text correctly', async () => {
     const { toast } = require('sonner');
     render(<Base64Page />);
 
-    const base64Input = screen.getByPlaceholderText('Enter Base64 encoded text here to decode...');
+    const base64Input = screen.getByPlaceholderText(
+      'Enter Base64 encoded text here to decode...',
+    );
     const decodeButton = screen.getByText('Decode');
 
     // Enter Base64 text
@@ -114,7 +132,9 @@ describe('Base64Page', () => {
   it('handles URL-safe encoding option', async () => {
     render(<Base64Page />);
 
-    const inputTextarea = screen.getByPlaceholderText('Enter your text here to encode to Base64...');
+    const inputTextarea = screen.getByPlaceholderText(
+      'Enter your text here to encode to Base64...',
+    );
     const encodeButton = screen.getByText('Encode');
     const urlSafeCheckbox = screen.getByLabelText('URL-safe encoding');
 
@@ -140,11 +160,14 @@ describe('Base64Page', () => {
   it('handles line breaks option correctly', async () => {
     render(<Base64Page />);
 
-    const inputTextarea = screen.getByPlaceholderText('Enter your text here to encode to Base64...');
+    const inputTextarea = screen.getByPlaceholderText(
+      'Enter your text here to encode to Base64...',
+    );
     const encodeButton = screen.getByText('Encode');
 
     // Enter long text to trigger line breaks
-    const longText = 'This is a very long text that should produce a Base64 string longer than 76 characters and trigger line breaks in the output when the option is enabled.';
+    const longText =
+      'This is a very long text that should produce a Base64 string longer than 76 characters and trigger line breaks in the output when the option is enabled.';
     fireEvent.change(inputTextarea, { target: { value: longText } });
 
     // Click encode button (line breaks should be enabled by default)
@@ -152,7 +175,9 @@ describe('Base64Page', () => {
 
     // Check output contains newlines
     await waitFor(() => {
-      const outputElements = screen.queryAllByText(/VGhpcyBpcyBhIHZlcnkgbG9uZyB0ZXh0/);
+      const outputElements = screen.queryAllByText(
+        /VGhpcyBpcyBhIHZlcnkgbG9uZyB0ZXh0/,
+      );
       if (outputElements.length > 0) {
         const output = outputElements[0];
         expect(output.textContent).toContain('\n');
@@ -163,9 +188,13 @@ describe('Base64Page', () => {
   it('handles remove padding option', async () => {
     render(<Base64Page />);
 
-    const inputTextarea = screen.getByPlaceholderText('Enter your text here to encode to Base64...');
+    const inputTextarea = screen.getByPlaceholderText(
+      'Enter your text here to encode to Base64...',
+    );
     const encodeButton = screen.getByText('Encode');
-    const removePaddingCheckbox = screen.getByLabelText('Remove padding characters');
+    const removePaddingCheckbox = screen.getByLabelText(
+      'Remove padding characters',
+    );
 
     // Enable remove padding
     fireEvent.click(removePaddingCheckbox);
@@ -189,7 +218,9 @@ describe('Base64Page', () => {
   it('clears input when clear button is clicked', () => {
     render(<Base64Page />);
 
-    const inputTextarea = screen.getByPlaceholderText('Enter your text here to encode to Base64...');
+    const inputTextarea = screen.getByPlaceholderText(
+      'Enter your text here to encode to Base64...',
+    );
     const clearButton = screen.getAllByText('Clear')[0]; // First clear button (for encode section)
 
     // Add some content
@@ -207,7 +238,9 @@ describe('Base64Page', () => {
     const { toast } = require('sonner');
     render(<Base64Page />);
 
-    const inputTextarea = screen.getByPlaceholderText('Enter your text here to encode to Base64...');
+    const inputTextarea = screen.getByPlaceholderText(
+      'Enter your text here to encode to Base64...',
+    );
     const encodeButton = screen.getByText('Encode');
 
     // Enter and encode text
@@ -229,7 +262,9 @@ describe('Base64Page', () => {
   it('downloads output as file when download button is clicked', async () => {
     render(<Base64Page />);
 
-    const inputTextarea = screen.getByPlaceholderText('Enter your text here to encode to Base64...');
+    const inputTextarea = screen.getByPlaceholderText(
+      'Enter your text here to encode to Base64...',
+    );
     const encodeButton = screen.getByText('Encode');
 
     // Mock document.createElement and appendChild
@@ -238,9 +273,15 @@ describe('Base64Page', () => {
       download: '',
       click: jest.fn(),
     };
-    const mockCreateElement = jest.spyOn(document, 'createElement').mockReturnValue(mockLink as any);
-    const mockAppendChild = jest.spyOn(document.body, 'appendChild').mockImplementation(() => mockLink as any);
-    const mockRemoveChild = jest.spyOn(document.body, 'removeChild').mockImplementation(() => mockLink as any);
+    const mockCreateElement = jest
+      .spyOn(document, 'createElement')
+      .mockReturnValue(mockLink as any);
+    const mockAppendChild = jest
+      .spyOn(document.body, 'appendChild')
+      .mockImplementation(() => mockLink as any);
+    const mockRemoveChild = jest
+      .spyOn(document.body, 'removeChild')
+      .mockImplementation(() => mockLink as any);
 
     // Enter and encode text
     fireEvent.change(inputTextarea, { target: { value: 'Hello' } });
@@ -269,7 +310,9 @@ describe('Base64Page', () => {
     const { toast } = require('sonner');
     render(<Base64Page />);
 
-    const base64Input = screen.getByPlaceholderText('Enter Base64 encoded text here to decode...');
+    const base64Input = screen.getByPlaceholderText(
+      'Enter Base64 encoded text here to decode...',
+    );
     const decodeButton = screen.getByText('Decode');
 
     // Enter invalid Base64
@@ -280,7 +323,11 @@ describe('Base64Page', () => {
 
     // Check error message appears
     await waitFor(() => {
-      expect(screen.getByText('Failed to decode Base64. Please check your input format.')).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          'Failed to decode Base64. Please check your input format.',
+        ),
+      ).toBeInTheDocument();
     });
   });
 
@@ -288,7 +335,9 @@ describe('Base64Page', () => {
     render(<Base64Page />);
 
     // Check file upload area is present
-    expect(screen.getByText('Drag and drop a file here, or click to select')).toBeInTheDocument();
+    expect(
+      screen.getByText('Drag and drop a file here, or click to select'),
+    ).toBeInTheDocument();
     expect(screen.getByText('Choose File')).toBeInTheDocument();
     expect(screen.getByText('Maximum file size: 10MB')).toBeInTheDocument();
   });
@@ -296,7 +345,9 @@ describe('Base64Page', () => {
   it('handles drag and drop states', () => {
     render(<Base64Page />);
 
-    const dropArea = screen.getByText('Drag and drop a file here, or click to select').closest('div');
+    const dropArea = screen
+      .getByText('Drag and drop a file here, or click to select')
+      .closest('div');
 
     // Simulate drag over
     fireEvent.dragOver(dropArea!);
@@ -304,7 +355,9 @@ describe('Base64Page', () => {
 
     // Simulate drag leave
     fireEvent.dragLeave(dropArea!);
-    expect(screen.getByText('Drag and drop a file here, or click to select')).toBeInTheDocument();
+    expect(
+      screen.getByText('Drag and drop a file here, or click to select'),
+    ).toBeInTheDocument();
   });
 
   it('changes character encoding selection', () => {
@@ -312,7 +365,7 @@ describe('Base64Page', () => {
 
     // Check encoding selector is present
     expect(screen.getByText('Character Encoding')).toBeInTheDocument();
-    
+
     // Check default UTF-8 is selected
     const encodingSelect = screen.getByRole('combobox');
     expect(encodingSelect).toBeInTheDocument();

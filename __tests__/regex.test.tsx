@@ -35,8 +35,12 @@ describe('RegexPage', () => {
     expect(screen.getByText('Test String')).toBeInTheDocument();
 
     // Check input fields
-    expect(screen.getByPlaceholderText('Enter regex pattern...')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Enter test string here...')).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText('Enter regex pattern...'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText('Enter test string here...'),
+    ).toBeInTheDocument();
     expect(screen.getByPlaceholderText('flags')).toBeInTheDocument();
 
     // Check common patterns section
@@ -52,7 +56,9 @@ describe('RegexPage', () => {
     render(<RegexPage />);
 
     const patternInput = screen.getByPlaceholderText('Enter regex pattern...');
-    const testStringInput = screen.getByPlaceholderText('Enter test string here...');
+    const testStringInput = screen.getByPlaceholderText(
+      'Enter test string here...',
+    );
 
     // Enter a simple pattern and test string
     fireEvent.change(patternInput, { target: { value: '\\d+' } });
@@ -68,11 +74,15 @@ describe('RegexPage', () => {
     render(<RegexPage />);
 
     const patternInput = screen.getByPlaceholderText('Enter regex pattern...');
-    const testStringInput = screen.getByPlaceholderText('Enter test string here...');
+    const testStringInput = screen.getByPlaceholderText(
+      'Enter test string here...',
+    );
 
     // Enter pattern and test string with matches
     fireEvent.change(patternInput, { target: { value: '\\d+' } });
-    fireEvent.change(testStringInput, { target: { value: 'Numbers: 123 and 456' } });
+    fireEvent.change(testStringInput, {
+      target: { value: 'Numbers: 123 and 456' },
+    });
 
     // Check that matches section appears
     await waitFor(() => {
@@ -83,7 +93,9 @@ describe('RegexPage', () => {
   it('shows character count for test string', async () => {
     render(<RegexPage />);
 
-    const testStringInput = screen.getByPlaceholderText('Enter test string here...');
+    const testStringInput = screen.getByPlaceholderText(
+      'Enter test string here...',
+    );
 
     // Enter test string
     fireEvent.change(testStringInput, { target: { value: 'hello' } });
@@ -98,7 +110,9 @@ describe('RegexPage', () => {
     render(<RegexPage />);
 
     const patternInput = screen.getByPlaceholderText('Enter regex pattern...');
-    const testStringInput = screen.getByPlaceholderText('Enter test string here...');
+    const testStringInput = screen.getByPlaceholderText(
+      'Enter test string here...',
+    );
 
     // Enter invalid regex
     fireEvent.change(patternInput, { target: { value: '[invalid' } });
@@ -113,7 +127,7 @@ describe('RegexPage', () => {
 
     // Check that common patterns selector is present
     expect(screen.getByText('Select a common pattern...')).toBeInTheDocument();
-    
+
     // This tests the UI exists - actual selection would need more complex mocking
     const selectTrigger = screen.getByText('Select a common pattern...');
     expect(selectTrigger).toBeInTheDocument();
@@ -133,10 +147,10 @@ describe('RegexPage', () => {
     render(<RegexPage />);
 
     const flagsInput = screen.getByPlaceholderText('flags');
-    
+
     // Change flags
     fireEvent.change(flagsInput, { target: { value: 'gi' } });
-    
+
     expect(flagsInput).toHaveValue('gi');
   });
 
@@ -145,7 +159,7 @@ describe('RegexPage', () => {
 
     const clearButton = screen.getByText('Clear All');
     expect(clearButton).toBeInTheDocument();
-    
+
     // Clear button should be clickable
     fireEvent.click(clearButton);
   });
@@ -155,7 +169,7 @@ describe('RegexPage', () => {
     render(<RegexPage />);
 
     const patternInput = screen.getByPlaceholderText('Enter regex pattern...');
-    
+
     // Enter a valid pattern
     fireEvent.change(patternInput, { target: { value: 'test' } });
 
@@ -173,7 +187,9 @@ describe('RegexPage', () => {
     render(<RegexPage />);
 
     const patternInput = screen.getByPlaceholderText('Enter regex pattern...');
-    const testStringInput = screen.getByPlaceholderText('Enter test string here...');
+    const testStringInput = screen.getByPlaceholderText(
+      'Enter test string here...',
+    );
 
     // Should render without errors even with empty inputs
     expect(patternInput).toHaveValue('');

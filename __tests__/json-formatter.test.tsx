@@ -41,10 +41,14 @@ describe('JsonFormatterPage', () => {
     expect(screen.getByText('Clear')).toBeInTheDocument();
 
     // Check input textarea
-    expect(screen.getByPlaceholderText('Paste your JSON here...')).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText('Paste your JSON here...'),
+    ).toBeInTheDocument();
 
     // Check output textarea
-    expect(screen.getByPlaceholderText('Output will appear here...')).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText('Output will appear here...'),
+    ).toBeInTheDocument();
 
     // Check indent selector
     expect(screen.getByText('Indent:')).toBeInTheDocument();
@@ -70,7 +74,9 @@ describe('JsonFormatterPage', () => {
 
     // Check output is formatted with default 2-space indentation
     await waitFor(() => {
-      expect(output).toHaveValue('{\n  "name": "John",\n  "age": 30,\n  "city": "New York"\n}');
+      expect(output).toHaveValue(
+        '{\n  "name": "John",\n  "age": 30,\n  "city": "New York"\n}',
+      );
     });
 
     // Check success toast was called
@@ -160,7 +166,9 @@ describe('JsonFormatterPage', () => {
 
     // Check output has sorted keys
     await waitFor(() => {
-      expect(output).toHaveValue('{\n  "apple": "fruit",\n  "banana": "fruit",\n  "zebra": "animal"\n}');
+      expect(output).toHaveValue(
+        '{\n  "apple": "fruit",\n  "banana": "fruit",\n  "zebra": "animal"\n}',
+      );
     });
   });
 
@@ -240,7 +248,8 @@ describe('JsonFormatterPage', () => {
     const output = screen.getByPlaceholderText('Output will appear here...');
 
     // Enter complex nested JSON
-    const complexJson = '{"users":[{"name":"John","roles":["admin","user"]},{"name":"Jane","roles":["user"]}],"config":{"theme":"dark","notifications":true}}';
+    const complexJson =
+      '{"users":[{"name":"John","roles":["admin","user"]},{"name":"Jane","roles":["user"]}],"config":{"theme":"dark","notifications":true}}';
     fireEvent.change(input, { target: { value: complexJson } });
 
     // Click format button

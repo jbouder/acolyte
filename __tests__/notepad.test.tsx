@@ -53,7 +53,7 @@ describe('NotepadPage', () => {
     jest.clearAllMocks();
     localStorageMock.getItem.mockReturnValue(null);
     (window.confirm as jest.Mock).mockReturnValue(true);
-    
+
     // Reset FileReader mock
     mockFileReader.onload = null;
     mockFileReader.onerror = null;
@@ -75,11 +75,15 @@ describe('NotepadPage', () => {
     expect(screen.getByText('Clear')).toBeInTheDocument();
 
     // Check textarea
-    expect(screen.getByPlaceholderText('Add your notes and code snippets here...')).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText('Add your notes and code snippets here...'),
+    ).toBeInTheDocument();
 
     // Check disclaimer
     expect(screen.getByText(/Important:/)).toBeInTheDocument();
-    expect(screen.getByText(/stored in your browser's local storage/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/stored in your browser's local storage/),
+    ).toBeInTheDocument();
 
     // Check markdown reference
     expect(screen.getByText('Markdown Quick Reference')).toBeInTheDocument();
@@ -100,7 +104,9 @@ describe('NotepadPage', () => {
 
     render(<NotepadPage />);
 
-    expect(localStorageMock.getItem).toHaveBeenCalledWith('acolyte-notepad-content');
+    expect(localStorageMock.getItem).toHaveBeenCalledWith(
+      'acolyte-notepad-content',
+    );
     expect(screen.getByDisplayValue('Saved note content')).toBeInTheDocument();
   });
 
@@ -115,8 +121,10 @@ describe('NotepadPage', () => {
   it('updates content and shows character count', () => {
     render(<NotepadPage />);
 
-    const textarea = screen.getByPlaceholderText('Add your notes and code snippets here...');
-    
+    const textarea = screen.getByPlaceholderText(
+      'Add your notes and code snippets here...',
+    );
+
     // Type some content
     fireEvent.change(textarea, { target: { value: 'Hello World' } });
 
@@ -142,7 +150,9 @@ describe('NotepadPage', () => {
     const { toast } = require('sonner');
     render(<NotepadPage />);
 
-    const textarea = screen.getByPlaceholderText('Add your notes and code snippets here...');
+    const textarea = screen.getByPlaceholderText(
+      'Add your notes and code snippets here...',
+    );
     const saveButton = screen.getByText('Save Now');
 
     // Enter content
@@ -155,7 +165,7 @@ describe('NotepadPage', () => {
     await waitFor(() => {
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
         'acolyte-notepad-content',
-        expect.stringContaining('Test content')
+        expect.stringContaining('Test content'),
       );
     });
 
@@ -166,7 +176,9 @@ describe('NotepadPage', () => {
     const { toast } = require('sonner');
     render(<NotepadPage />);
 
-    const textarea = screen.getByPlaceholderText('Add your notes and code snippets here...');
+    const textarea = screen.getByPlaceholderText(
+      'Add your notes and code snippets here...',
+    );
     const clearButton = screen.getByText('Clear');
 
     // Enter content
@@ -177,23 +189,27 @@ describe('NotepadPage', () => {
 
     // Check confirmation was shown and content cleared
     expect(window.confirm).toHaveBeenCalledWith(
-      'Are you sure you want to clear all notes? This action cannot be undone.'
+      'Are you sure you want to clear all notes? This action cannot be undone.',
     );
-    
+
     await waitFor(() => {
       expect(textarea).toHaveValue('');
     });
 
-    expect(localStorageMock.removeItem).toHaveBeenCalledWith('acolyte-notepad-content');
+    expect(localStorageMock.removeItem).toHaveBeenCalledWith(
+      'acolyte-notepad-content',
+    );
     expect(toast.success).toHaveBeenCalledWith('Notes cleared!');
   });
 
   it('does not clear content when confirmation is cancelled', () => {
     (window.confirm as jest.Mock).mockReturnValue(false);
-    
+
     render(<NotepadPage />);
 
-    const textarea = screen.getByPlaceholderText('Add your notes and code snippets here...');
+    const textarea = screen.getByPlaceholderText(
+      'Add your notes and code snippets here...',
+    );
     const clearButton = screen.getByText('Clear');
 
     // Enter content
@@ -210,7 +226,9 @@ describe('NotepadPage', () => {
   it('exports content as markdown file', () => {
     render(<NotepadPage />);
 
-    const textarea = screen.getByPlaceholderText('Add your notes and code snippets here...');
+    const textarea = screen.getByPlaceholderText(
+      'Add your notes and code snippets here...',
+    );
     const exportButton = screen.getByText('Export .md');
 
     // Mock document.createElement and appendChild
@@ -219,12 +237,20 @@ describe('NotepadPage', () => {
       download: '',
       click: jest.fn(),
     };
-    const mockCreateElement = jest.spyOn(document, 'createElement').mockReturnValue(mockLink as any);
-    const mockAppendChild = jest.spyOn(document.body, 'appendChild').mockImplementation(() => mockLink as any);
-    const mockRemoveChild = jest.spyOn(document.body, 'removeChild').mockImplementation(() => mockLink as any);
+    const mockCreateElement = jest
+      .spyOn(document, 'createElement')
+      .mockReturnValue(mockLink as any);
+    const mockAppendChild = jest
+      .spyOn(document.body, 'appendChild')
+      .mockImplementation(() => mockLink as any);
+    const mockRemoveChild = jest
+      .spyOn(document.body, 'removeChild')
+      .mockImplementation(() => mockLink as any);
 
     // Enter content
-    fireEvent.change(textarea, { target: { value: '# My Notes\n\nContent here' } });
+    fireEvent.change(textarea, {
+      target: { value: '# My Notes\n\nContent here' },
+    });
 
     // Click export
     fireEvent.click(exportButton);
@@ -256,7 +282,9 @@ describe('NotepadPage', () => {
     const { toast } = require('sonner');
     render(<NotepadPage />);
 
-    const textarea = screen.getByPlaceholderText('Add your notes and code snippets here...');
+    const textarea = screen.getByPlaceholderText(
+      'Add your notes and code snippets here...',
+    );
     const copyButton = screen.getByText('Copy All');
 
     // Enter content
@@ -292,14 +320,20 @@ describe('NotepadPage', () => {
     fireEvent.click(importButton);
 
     // Check hidden file input exists
-    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const fileInput = document.querySelector(
+      'input[type="file"]',
+    ) as HTMLInputElement;
     expect(fileInput).toBeInTheDocument();
 
     // Simulate file selection
-    const file = new File(['# Imported Content\n\nThis is imported'], 'test.md', {
-      type: 'text/markdown',
-    });
-    
+    const file = new File(
+      ['# Imported Content\n\nThis is imported'],
+      'test.md',
+      {
+        type: 'text/markdown',
+      },
+    );
+
     Object.defineProperty(fileInput, 'files', {
       value: [file],
     });
@@ -310,7 +344,9 @@ describe('NotepadPage', () => {
     // Simulate FileReader onload
     await waitFor(() => {
       if (mockFileReader.onload) {
-        mockFileReader.onload({ target: { result: '# Imported Content\n\nThis is imported' } });
+        mockFileReader.onload({
+          target: { result: '# Imported Content\n\nThis is imported' },
+        });
       }
     });
 
@@ -324,26 +360,32 @@ describe('NotepadPage', () => {
     const importButton = screen.getByText('Import');
     fireEvent.click(importButton);
 
-    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-    
+    const fileInput = document.querySelector(
+      'input[type="file"]',
+    ) as HTMLInputElement;
+
     // Simulate invalid file type
     const file = new File(['content'], 'test.pdf', {
       type: 'application/pdf',
     });
-    
+
     Object.defineProperty(fileInput, 'files', {
       value: [file],
     });
 
     fireEvent.change(fileInput);
 
-    expect(toast.error).toHaveBeenCalledWith('Please select a markdown (.md) or text (.txt) file!');
+    expect(toast.error).toHaveBeenCalledWith(
+      'Please select a markdown (.md) or text (.txt) file!',
+    );
   });
 
   it('shows confirmation before importing over existing content', async () => {
     render(<NotepadPage />);
 
-    const textarea = screen.getByPlaceholderText('Add your notes and code snippets here...');
+    const textarea = screen.getByPlaceholderText(
+      'Add your notes and code snippets here...',
+    );
     const importButton = screen.getByText('Import');
 
     // Add existing content
@@ -352,9 +394,13 @@ describe('NotepadPage', () => {
     // Click import
     fireEvent.click(importButton);
 
-    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-    const file = new File(['New content'], 'test.md', { type: 'text/markdown' });
-    
+    const fileInput = document.querySelector(
+      'input[type="file"]',
+    ) as HTMLInputElement;
+    const file = new File(['New content'], 'test.md', {
+      type: 'text/markdown',
+    });
+
     Object.defineProperty(fileInput, 'files', {
       value: [file],
     });
@@ -407,14 +453,16 @@ describe('NotepadPage', () => {
     // Don't use fake timers as they cause act() issues with React state
     render(<NotepadPage />);
 
-    const textarea = screen.getByPlaceholderText('Add your notes and code snippets here...');
-    
+    const textarea = screen.getByPlaceholderText(
+      'Add your notes and code snippets here...',
+    );
+
     // Enter content
     fireEvent.change(textarea, { target: { value: 'Auto-save test' } });
 
     // Just verify that the component can handle the change without crashing
     expect(textarea).toHaveValue('Auto-save test');
-    
+
     // Auto-save testing would require more complex mocking or longer waits
     // For now, we'll test that the component doesn't crash with the content
   });
