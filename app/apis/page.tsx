@@ -54,6 +54,12 @@ export default function BasicAPIsPage() {
     }
   };
 
+  const updateTabData = (id: string, updates: Partial<Omit<TabData, 'id' | 'name'>>) => {
+    setTabs(tabs.map(tab => 
+      tab.id === id ? { ...tab, ...updates } : tab
+    ));
+  };
+
   return (
     <div className="flex flex-1 flex-col gap-4">
       <div className="flex items-center justify-between">
@@ -64,42 +70,54 @@ export default function BasicAPIsPage() {
         <div className="flex items-center gap-2 mb-4">
           <TabsList>
             {tabs.map((tab) => (
-              <TabsTrigger key={tab.id} value={tab.id}>
-                {tab.name}
+              <TabsTrigger key={tab.id} value={tab.id} className="relative group">
+                <span className="mr-2">{tab.name}</span>
+                {tabs.length > 1 && (
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeTab(tab.id);
+                    }}
+                    className="ml-1 opacity-0 group-hover:opacity-100 hover:bg-destructive/20 rounded-sm p-0.5 transition-opacity cursor-pointer"
+                    title="Close tab"
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        removeTab(tab.id);
+                      }
+                    }}
+                  >
+                    <X className="h-3 w-3" />
+                  </div>
+                )}
               </TabsTrigger>
             ))}
           </TabsList>
-          <div className="flex items-center gap-1">
-            {tabs.length > 1 && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => removeTab(activeTab)}
-                className="flex items-center gap-1 text-muted-foreground hover:text-destructive"
-              >
-                <X className="h-4 w-4" />
-                Close Tab
-              </Button>
-            )}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={addNewTab}
-              className="flex items-center gap-1"
-            >
-              <Plus className="h-4 w-4" />
-              Add Tab
-            </Button>
-          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={addNewTab}
+            className="flex items-center gap-1"
+          >
+            <Plus className="h-4 w-4" />
+            Add Tab
+          </Button>
         </div>
 
         {tabs.map((tab) => (
           <TabsContent key={tab.id} value={tab.id}>
             <ApiRequestForm
-              initialUrl={tab.url}
-              initialMethod={tab.method}
-              initialHeaders={tab.headers}
-              initialRequestBody={tab.requestBody}
+              url={tab.url}
+              method={tab.method}
+              headers={tab.headers}
+              requestBody={tab.requestBody}
+              onUrlChange={(value) => updateTabData(tab.id, { url: value })}
+              onMethodChange={(value) => updateTabData(tab.id, { method: value })}
+              onHeadersChange={(value) => updateTabData(tab.id, { headers: value })}
+              onRequestBodyChange={(value) => updateTabData(tab.id, { requestBody: value })}
             />
           </TabsContent>
         ))}

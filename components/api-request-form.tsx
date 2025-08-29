@@ -27,22 +27,26 @@ interface RequestStatus {
 }
 
 interface ApiRequestFormProps {
-  initialUrl?: string;
-  initialMethod?: string;
-  initialHeaders?: string;
-  initialRequestBody?: string;
+  url: string;
+  method: string;
+  headers: string;
+  requestBody: string;
+  onUrlChange: (value: string) => void;
+  onMethodChange: (value: string) => void;
+  onHeadersChange: (value: string) => void;
+  onRequestBodyChange: (value: string) => void;
 }
 
 export const ApiRequestForm = ({
-  initialUrl = 'https://jsonplaceholder.typicode.com/posts',
-  initialMethod = 'GET',
-  initialHeaders = 'Content-Type: application/json',
-  initialRequestBody = '',
+  url,
+  method,
+  headers,
+  requestBody,
+  onUrlChange,
+  onMethodChange,
+  onHeadersChange,
+  onRequestBodyChange,
 }: ApiRequestFormProps) => {
-  const [selectedMethod, setSelectedMethod] = useState<string>(initialMethod);
-  const [url, setUrl] = useState<string>(initialUrl);
-  const [headers, setHeaders] = useState<string>(initialHeaders);
-  const [requestBody, setRequestBody] = useState<string>(initialRequestBody);
   const [status, setStatus] = useState<RequestStatus>({
     loading: false,
     error: null,
@@ -60,7 +64,7 @@ export const ApiRequestForm = ({
         },
         body: JSON.stringify({
           url,
-          method: selectedMethod,
+          method: method,
           headers,
           requestBody: requestBody || undefined,
         }),
@@ -110,44 +114,44 @@ export const ApiRequestForm = ({
               <Input
                 placeholder="https://jsonplaceholder.typicode.com/posts"
                 value={url}
-                onChange={(e) => setUrl(e.target.value)}
+                onChange={(e) => onUrlChange(e.target.value)}
               />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">HTTP Method</label>
               <div className="flex gap-2">
                 <Button
-                  variant={selectedMethod === 'GET' ? 'default' : 'outline'}
+                  variant={method === 'GET' ? 'default' : 'outline'}
                   size="sm"
-                  onClick={() => setSelectedMethod('GET')}
+                  onClick={() => onMethodChange('GET')}
                 >
                   GET
                 </Button>
                 <Button
-                  variant={selectedMethod === 'POST' ? 'default' : 'outline'}
+                  variant={method === 'POST' ? 'default' : 'outline'}
                   size="sm"
-                  onClick={() => setSelectedMethod('POST')}
+                  onClick={() => onMethodChange('POST')}
                 >
                   POST
                 </Button>
                 <Button
-                  variant={selectedMethod === 'PUT' ? 'default' : 'outline'}
+                  variant={method === 'PUT' ? 'default' : 'outline'}
                   size="sm"
-                  onClick={() => setSelectedMethod('PUT')}
+                  onClick={() => onMethodChange('PUT')}
                 >
                   PUT
                 </Button>
                 <Button
-                  variant={selectedMethod === 'DELETE' ? 'default' : 'outline'}
+                  variant={method === 'DELETE' ? 'default' : 'outline'}
                   size="sm"
-                  onClick={() => setSelectedMethod('DELETE')}
+                  onClick={() => onMethodChange('DELETE')}
                 >
                   DELETE
                 </Button>
                 <Button
-                  variant={selectedMethod === 'PATCH' ? 'default' : 'outline'}
+                  variant={method === 'PATCH' ? 'default' : 'outline'}
                   size="sm"
-                  onClick={() => setSelectedMethod('PATCH')}
+                  onClick={() => onMethodChange('PATCH')}
                 >
                   PATCH
                 </Button>
@@ -159,7 +163,7 @@ export const ApiRequestForm = ({
                 className="min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 placeholder="Content-Type: application/json&#10;Authorization: Bearer your-token"
                 value={headers}
-                onChange={(e) => setHeaders(e.target.value)}
+                onChange={(e) => onHeadersChange(e.target.value)}
               />
             </div>
             <div className="space-y-2">
@@ -168,7 +172,7 @@ export const ApiRequestForm = ({
                 className="min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 placeholder='{"title": "Test Post", "body": "This is a test", "userId": 1}'
                 value={requestBody}
-                onChange={(e) => setRequestBody(e.target.value)}
+                onChange={(e) => onRequestBodyChange(e.target.value)}
               />
             </div>
             <Button

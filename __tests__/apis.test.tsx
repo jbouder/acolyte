@@ -72,19 +72,19 @@ describe('BasicAPIsPage', () => {
     expect(screen.getByText('Request 1')).toBeInTheDocument();
     expect(screen.getByText('Request 2')).toBeInTheDocument();
 
-    // Since we have 2 tabs, the Close Tab button should be visible
-    expect(screen.getByText('Close Tab')).toBeInTheDocument();
+    // Since we have 2 tabs, the close buttons should be visible (look for close button by title)
+    const closeButtons = screen.getAllByTitle('Close tab');
+    expect(closeButtons.length).toBeGreaterThan(0);
 
-    // Click the Close Tab button (this will close the active tab, which should be Request 2)
-    const closeTabButton = screen.getByText('Close Tab');
-    fireEvent.click(closeTabButton);
+    // Click the close button for Request 2 (should be the second one)
+    fireEvent.click(closeButtons[1]);
     
     // Should now have only Request 1
     expect(screen.getByText('Request 1')).toBeInTheDocument();
     expect(screen.queryByText('Request 2')).not.toBeInTheDocument();
     
-    // Close Tab button should no longer be visible
-    expect(screen.queryByText('Close Tab')).not.toBeInTheDocument();
+    // Close buttons should no longer be visible (since only 1 tab remains)
+    expect(screen.queryByTitle('Close tab')).not.toBeInTheDocument();
   });
 
   it('switches between tabs', () => {
