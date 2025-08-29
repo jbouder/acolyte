@@ -25,7 +25,7 @@ export default function Home() {
       <div className="grid auto-rows-min gap-4 md:grid-cols-2 lg:grid-cols-3">
         <div className="aspect-video rounded-xl bg-muted/50 p-4 flex flex-col justify-between">
           <div>
-            <h3 className="font-semibold mb-2">🧪 API Testing</h3>
+            <h3 className="font-semibold mb-2">API Testing</h3>
             <p className="text-sm text-muted-foreground mb-3">
               Comprehensive API testing tools for REST, SSE, and WebSocket
               endpoints. Test and debug your APIs with ease.
@@ -54,7 +54,7 @@ export default function Home() {
         </div>
         <div className="aspect-video rounded-xl bg-muted/50 p-4 flex flex-col justify-between">
           <div>
-            <h3 className="font-semibold mb-2">📊 Analysis</h3>
+            <h3 className="font-semibold mb-2">Analysis</h3>
             <p className="text-sm text-muted-foreground mb-3">
               In-depth performance and dependency analysis tools to help you
               optimize your applications and understand your codebase.
@@ -83,7 +83,7 @@ export default function Home() {
         </div>
         <div className="aspect-video rounded-xl bg-muted/50 p-4 flex flex-col justify-between">
           <div>
-            <h3 className="font-semibold mb-2">🔧 Utilities</h3>
+            <h3 className="font-semibold mb-2">Utilities</h3>
             <p className="text-sm text-muted-foreground mb-3">
               Essential development utilities including JSON formatting, regex
               testing, Base64 encoding, and more to streamline your workflow.
