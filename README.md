@@ -1,5 +1,3 @@
-# Project Acolyte
-
 <p>
   <img src="https://raw.githubusercontent.com/jbouder/acolyte/main/public/logo.png" alt="Acolyte Logo" width="400" />
 </p>
