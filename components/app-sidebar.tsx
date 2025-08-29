@@ -2,7 +2,6 @@
 
 import {
   BarChart3,
-  Bot,
   Braces,
   Cable,
   Code2,
@@ -17,6 +16,7 @@ import {
   Wifi,
   Zap,
 } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -115,8 +115,14 @@ export function AppSidebar() {
           href="/"
           className="flex items-center gap-2 px-4 py-2 hover:bg-sidebar-accent rounded-md transition-colors"
         >
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary">
-            <Bot className="h-4 w-4 text-primary-foreground" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-md">
+            <Image
+              src="/logo_sm.png"
+              alt="Acolyte Logo"
+              width={32}
+              height={32}
+              className="h-8 w-8 object-contain"
+            />
           </div>
           <div className="flex flex-col">
             <span className="text-sm font-semibold">Project Acolyte</span>

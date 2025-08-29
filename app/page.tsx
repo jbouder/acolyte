@@ -1,34 +1,25 @@
+import Image from 'next/image';
+
 export default function Home() {
   return (
     <div className="flex flex-1 flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <div className="font-mono text-sm leading-tight text-foreground">
-          <pre className="whitespace-pre">
-            {`██████╗ ██████╗  ██████╗      ██╗███████╗ ██████╗████████╗
-██╔══██╗██╔══██╗██╔═══██╗     ██║██╔════╝██╔════╝╚══██╔══╝
-██████╔╝██████╔╝██║   ██║     ██║█████╗  ██║        ██║   
-██╔═══╝ ██╔══██╗██║   ██║██   ██║██╔══╝  ██║        ██║   
-██║     ██║  ██║╚██████╔╝╚█████╔╝███████╗╚██████╗   ██║   
-╚═╝     ╚═╝  ╚═╝ ╚═════╝  ╚════╝ ╚══════╝ ╚═════╝   ╚═╝   
-                                                           
- █████╗  ██████╗ ██████╗ ██╗  ██╗   ██╗████████╗███████╗  
-██╔══██╗██╔════╝██╔═══██╗██║  ╚██╗ ██╔╝╚══██╔══╝██╔════╝  
-███████║██║     ██║   ██║██║   ╚████╔╝    ██║   █████╗    
-██╔══██║██║     ██║   ██║██║    ╚██╔╝     ██║   ██╔══╝    
-██║  ██║╚██████╗╚██████╔╝███████╗██║      ██║   ███████╗  
-╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚══════╝╚═╝      ╚═╝   ╚══════╝`}
-          </pre>
-        </div>
+      <div className="rounded-xl bg-muted/50 p-6 flex items-center justify-start">
+        <Image
+          src="/logo.png"
+          alt="Acolyte Logo"
+          width={700}
+          height={400}
+          priority
+          className="h-auto max-w-full"
+        />
       </div>
-      <div className="flex-1 rounded-xl bg-muted/50">
-        <div className="p-6">
-          <p className="text-muted-foreground">
-            An app designed to assist web developers in their day-to-day duties.
-            Whether you&apos;re testing APIs, analyzing apps, or utilizing
-            helpful development utilities, Acolyte has all of the tools you
-            need, in one helpful app.
-          </p>
-        </div>
+      <div className="rounded-xl bg-muted/50 p-6">
+        <p className="text-muted-foreground text-lg">
+          An app designed to assist web developers in their day-to-day duties.
+          Whether you&apos;re testing APIs, analyzing apps, or utilizing helpful
+          development utilities, Acolyte has all of the tools you need, in one
+          helpful app.
+        </p>
       </div>
       <div className="grid auto-rows-min gap-4 md:grid-cols-2 lg:grid-cols-3">
         <div className="aspect-video rounded-xl bg-muted/50 p-4 flex flex-col justify-between">
