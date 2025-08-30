@@ -50,8 +50,7 @@ describe('Base64Page', () => {
     // Check card titles
     expect(screen.getByText('Encode to Base64')).toBeInTheDocument();
     expect(screen.getByText('Decode from Base64')).toBeInTheDocument();
-    expect(screen.getByText('Output')).toBeInTheDocument();
-    expect(screen.getByText('File Upload')).toBeInTheDocument();
+    expect(screen.getAllByText('Output')).toHaveLength(2); // Card title and label
     expect(screen.getByText('Encoding Options')).toBeInTheDocument();
 
     // Check buttons
@@ -334,12 +333,15 @@ describe('Base64Page', () => {
   it('handles file upload functionality', () => {
     render(<Base64Page />);
 
-    // Check file upload area is present
+    // Check file upload area is present (now integrated in the encode card)
+    expect(screen.getByText('Or Upload File')).toBeInTheDocument();
     expect(
       screen.getByText('Drag and drop a file here, or click to select'),
     ).toBeInTheDocument();
     expect(screen.getByText('Choose File')).toBeInTheDocument();
-    expect(screen.getByText('Maximum file size: 10MB')).toBeInTheDocument();
+    expect(
+      screen.getByText('All file types (images, text, binary) • Max 10MB'),
+    ).toBeInTheDocument();
   });
 
   it('handles drag and drop states', () => {
@@ -385,5 +387,60 @@ describe('Base64Page', () => {
 
     // Should not crash or show errors for empty input
     expect(screen.getByText('Output will appear here...')).toBeInTheDocument();
+  });
+
+  it('displays download as image button when image data is detected', async () => {
+    const { toast } = require('sonner');
+    render(<Base64Page />);
+
+    const base64Input = screen.getByPlaceholderText(
+      'Enter Base64 encoded text here to decode...',
+    );
+    const decodeButton = screen.getByText('Decode');
+
+    // Enter PNG image Base64 (starts with iVBORw0KGgo)
+    fireEvent.change(base64Input, {
+      target: {
+        value:
+          'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==',
+      },
+    });
+
+    // Click decode button
+    fireEvent.click(decodeButton);
+
+    // Check that image detection works and download button appears
+    await waitFor(() => {
+      expect(screen.getByText('Download as Image')).toBeInTheDocument();
+    });
+
+    expect(toast.success).toHaveBeenCalledWith(
+      'Base64 successfully decoded! (Image detected)',
+    );
+  });
+
+  it('shows Base64 image data label when image data is available', async () => {
+    render(<Base64Page />);
+
+    const base64Input = screen.getByPlaceholderText(
+      'Enter Base64 encoded text here to decode...',
+    );
+    const decodeButton = screen.getByText('Decode');
+
+    // Enter PNG image Base64 (starts with iVBORw0KGgo)
+    fireEvent.change(base64Input, {
+      target: {
+        value:
+          'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==',
+      },
+    });
+
+    // Click decode button
+    fireEvent.click(decodeButton);
+
+    // Check that Base64 image data label appears (but no image preview)
+    await waitFor(() => {
+      expect(screen.getByText('Base64 Image Data')).toBeInTheDocument();
+    });
   });
 });

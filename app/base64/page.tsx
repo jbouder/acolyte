@@ -28,7 +28,24 @@ export default function Base64Page() {
   const [charEncoding, setCharEncoding] = useState('utf8');
   const [error, setError] = useState('');
   const [isDragging, setIsDragging] = useState(false);
+  const [originalFileType, setOriginalFileType] = useState('');
+  const [isImageData, setIsImageData] = useState(false);
+  const [originalBase64, setOriginalBase64] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const isImageFile = (file: File): boolean => {
+    return file.type.startsWith('image/');
+  };
+
+  const getImageMimeType = (base64Data: string): string | null => {
+    // Common image data URL prefixes
+    if (base64Data.startsWith('/9j/')) return 'image/jpeg';
+    if (base64Data.startsWith('iVBORw0KGgo')) return 'image/png';
+    if (base64Data.startsWith('R0lGODlh')) return 'image/gif';
+    if (base64Data.startsWith('UklGR')) return 'image/webp';
+    if (base64Data.startsWith('PHN2Zw')) return 'image/svg+xml';
+    return null;
+  };
 
   const encodeToBase64 = () => {
     try {
@@ -70,7 +87,21 @@ export default function Base64Page() {
 
       const decoded = atob(input);
       setOutput(decoded);
-      toast.success('Base64 successfully decoded!');
+
+      // Store the clean Base64 for image downloads
+      setOriginalBase64(input);
+
+      // Check if the decoded data looks like an image
+      const detectedMimeType = getImageMimeType(input);
+      if (detectedMimeType) {
+        setIsImageData(true);
+        setOriginalFileType(detectedMimeType);
+        toast.success('Base64 successfully decoded! (Image detected)');
+      } else {
+        setIsImageData(false);
+        setOriginalFileType('');
+        toast.success('Base64 successfully decoded!');
+      }
     } catch {
       setError('Failed to decode Base64. Please check your input format.');
     }
@@ -89,6 +120,9 @@ export default function Base64Page() {
   const clearOutput = () => {
     setOutput('');
     setError('');
+    setIsImageData(false);
+    setOriginalFileType('');
+    setOriginalBase64('');
   };
 
   const copyToClipboard = async () => {
@@ -112,6 +146,47 @@ export default function Base64Page() {
     URL.revokeObjectURL(url);
   };
 
+  const downloadAsImage = () => {
+    try {
+      // Use the stored original Base64 data instead of the output
+      const base64Data =
+        originalBase64 || output.replace(/\n/g, '').replace(/\s/g, '');
+
+      // Convert Base64 to binary
+      const binaryString = atob(base64Data);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+
+      // Determine MIME type and file extension
+      const mimeType =
+        originalFileType || getImageMimeType(base64Data) || 'image/png';
+      let extension = mimeType.split('/')[1] || 'png';
+
+      // Handle special cases
+      if (extension === 'svg+xml') extension = 'svg';
+      if (extension === 'jpeg') extension = 'jpg';
+
+      const blob = new Blob([bytes], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `decoded-image.${extension}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast.success('Image downloaded successfully!');
+    } catch {
+      setError(
+        'Failed to download image. Please ensure the Base64 data represents a valid image.',
+      );
+      toast.error('Failed to download image');
+    }
+  };
+
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -126,6 +201,10 @@ export default function Base64Page() {
       return;
     }
 
+    const isImage = isImageFile(file);
+    setOriginalFileType(file.type);
+    setIsImageData(isImage);
+
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
@@ -136,14 +215,20 @@ export default function Base64Page() {
           setInputText(result);
           toast.success(`Text file "${file.name}" loaded for encoding!`);
         } else if (result instanceof ArrayBuffer) {
-          // For binary files
+          // For binary files (including images)
           const bytes = new Uint8Array(result);
           const binary = Array.from(bytes, (byte) =>
             String.fromCharCode(byte),
           ).join('');
           const encoded = btoa(binary);
           setOutput(encoded);
-          toast.success(`File "${file.name}" encoded to Base64!`);
+          setOriginalBase64(encoded);
+
+          if (isImage) {
+            toast.success(`Image "${file.name}" encoded to Base64!`);
+          } else {
+            toast.success(`File "${file.name}" encoded to Base64!`);
+          }
         }
       } catch {
         setError('Failed to process file');
@@ -194,7 +279,7 @@ export default function Base64Page() {
           <CardHeader>
             <CardTitle>Encode to Base64</CardTitle>
             <CardDescription>
-              Convert plain text or binary data to Base64 format
+              Convert plain text, images, or binary files to Base64 format
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -204,9 +289,47 @@ export default function Base64Page() {
                 <textarea
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
-                  className="min-h-[200px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  className="min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                   placeholder="Enter your text here to encode to Base64..."
                 />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Or Upload File</label>
+                <div
+                  className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors ${
+                    isDragging
+                      ? 'border-blue-400 bg-blue-50'
+                      : 'border-gray-300 hover:border-gray-400'
+                  }`}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                >
+                  <div className="space-y-2">
+                    <p className="text-xs text-muted-foreground">
+                      {isDragging
+                        ? 'Drop the file here...'
+                        : 'Drag and drop a file here, or click to select'}
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      Choose File
+                    </Button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                      accept="*/*"
+                    />
+                  </div>
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  <p>All file types (images, text, binary) • Max 10MB</p>
+                </div>
               </div>
               <div className="flex gap-2">
                 <Button onClick={encodeToBase64} className="flex-1">
@@ -237,6 +360,7 @@ export default function Base64Page() {
                 <label className="text-sm font-medium">Base64 Input</label>
                 <textarea
                   value={base64Input}
+                  rows={14}
                   onChange={(e) => setBase64Input(e.target.value)}
                   className="min-h-[200px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                   placeholder="Enter Base64 encoded text here to decode..."
@@ -267,12 +391,17 @@ export default function Base64Page() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="min-h-[200px] rounded-md border p-4 bg-muted font-mono text-sm whitespace-pre-wrap break-all">
-                {output || (
-                  <p className="text-muted-foreground">
-                    Output will appear here...
-                  </p>
-                )}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">
+                  {isImageData ? 'Base64 Image Data' : 'Output'}
+                </label>
+                <div className="min-h-[200px] rounded-md border p-4 bg-muted font-mono text-sm whitespace-pre-wrap break-all">
+                  {output || (
+                    <p className="text-muted-foreground">
+                      Output will appear here...
+                    </p>
+                  )}
+                </div>
               </div>
               <div className="flex gap-2">
                 <Button
@@ -291,6 +420,16 @@ export default function Base64Page() {
                 >
                   Download as File
                 </Button>
+                {isImageData && (
+                  <Button
+                    onClick={downloadAsImage}
+                    variant="outline"
+                    size="sm"
+                    disabled={!output}
+                  >
+                    Download as Image
+                  </Button>
+                )}
                 <Button
                   onClick={clearOutput}
                   variant="outline"
@@ -304,56 +443,7 @@ export default function Base64Page() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>File Upload</CardTitle>
-            <CardDescription>
-              Upload a file to encode it to Base64
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div
-                className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
-                  isDragging
-                    ? 'border-blue-400 bg-blue-50'
-                    : 'border-gray-300 hover:border-gray-400'
-                }`}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-              >
-                <div className="space-y-2">
-                  <p className="text-sm text-muted-foreground">
-                    {isDragging
-                      ? 'Drop the file here...'
-                      : 'Drag and drop a file here, or click to select'}
-                  </p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    Choose File
-                  </Button>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                    accept="*/*"
-                  />
-                </div>
-              </div>
-              <div className="text-xs text-muted-foreground">
-                <p>Supported file types: All file types</p>
-                <p>Maximum file size: 10MB</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
+        <Card className="md:col-span-2">
           <CardHeader>
             <CardTitle>Encoding Options</CardTitle>
             <CardDescription>
