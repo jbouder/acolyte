@@ -360,6 +360,7 @@ export default function Base64Page() {
                 <label className="text-sm font-medium">Base64 Input</label>
                 <textarea
                   value={base64Input}
+                  rows={14}
                   onChange={(e) => setBase64Input(e.target.value)}
                   className="min-h-[200px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                   placeholder="Enter Base64 encoded text here to decode..."
