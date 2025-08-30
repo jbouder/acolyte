@@ -279,7 +279,7 @@ export default function Base64Page() {
           <CardHeader>
             <CardTitle>Encode to Base64</CardTitle>
             <CardDescription>
-              Convert plain text or binary data to Base64 format
+              Convert plain text, images, or binary files to Base64 format
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -289,9 +289,47 @@ export default function Base64Page() {
                 <textarea
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
-                  className="min-h-[200px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  className="min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                   placeholder="Enter your text here to encode to Base64..."
                 />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Or Upload File</label>
+                <div
+                  className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors ${
+                    isDragging
+                      ? 'border-blue-400 bg-blue-50'
+                      : 'border-gray-300 hover:border-gray-400'
+                  }`}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                >
+                  <div className="space-y-2">
+                    <p className="text-xs text-muted-foreground">
+                      {isDragging
+                        ? 'Drop the file here...'
+                        : 'Drag and drop a file here, or click to select'}
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      Choose File
+                    </Button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                      accept="*/*"
+                    />
+                  </div>
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  <p>All file types (images, text, binary) • Max 10MB</p>
+                </div>
               </div>
               <div className="flex gap-2">
                 <Button onClick={encodeToBase64} className="flex-1">
@@ -420,59 +458,7 @@ export default function Base64Page() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>File Upload</CardTitle>
-            <CardDescription>
-              Upload a file to encode it to Base64. Images will show a preview
-              when uploaded.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div
-                className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
-                  isDragging
-                    ? 'border-blue-400 bg-blue-50'
-                    : 'border-gray-300 hover:border-gray-400'
-                }`}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-              >
-                <div className="space-y-2">
-                  <p className="text-sm text-muted-foreground">
-                    {isDragging
-                      ? 'Drop the file here...'
-                      : 'Drag and drop a file here, or click to select'}
-                  </p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    Choose File
-                  </Button>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                    accept="*/*"
-                  />
-                </div>
-              </div>
-              <div className="text-xs text-muted-foreground">
-                <p>
-                  Supported file types: All file types (images, text, binary)
-                </p>
-                <p>Maximum file size: 10MB</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
+        <Card className="md:col-span-2">
           <CardHeader>
             <CardTitle>Encoding Options</CardTitle>
             <CardDescription>

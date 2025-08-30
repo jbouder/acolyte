@@ -51,7 +51,6 @@ describe('Base64Page', () => {
     expect(screen.getByText('Encode to Base64')).toBeInTheDocument();
     expect(screen.getByText('Decode from Base64')).toBeInTheDocument();
     expect(screen.getAllByText('Output')).toHaveLength(2); // Card title and label
-    expect(screen.getByText('File Upload')).toBeInTheDocument();
     expect(screen.getByText('Encoding Options')).toBeInTheDocument();
 
     // Check buttons
@@ -334,12 +333,15 @@ describe('Base64Page', () => {
   it('handles file upload functionality', () => {
     render(<Base64Page />);
 
-    // Check file upload area is present
+    // Check file upload area is present (now integrated in the encode card)
+    expect(screen.getByText('Or Upload File')).toBeInTheDocument();
     expect(
       screen.getByText('Drag and drop a file here, or click to select'),
     ).toBeInTheDocument();
     expect(screen.getByText('Choose File')).toBeInTheDocument();
-    expect(screen.getByText('Maximum file size: 10MB')).toBeInTheDocument();
+    expect(
+      screen.getByText('All file types (images, text, binary) • Max 10MB'),
+    ).toBeInTheDocument();
   });
 
   it('handles drag and drop states', () => {
