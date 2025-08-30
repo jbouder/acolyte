@@ -23,11 +23,17 @@ interface APIProjectsDB extends DBSchema {
     key: string;
     value: APIProject;
   };
+  settings: {
+    key: string;
+    value: string;
+  };
 }
 
 const DB_NAME = 'acolyte-api-projects';
 const DB_VERSION = 1;
-const STORE_NAME = 'projects';
+const PROJECTS_STORE = 'projects';
+const SETTINGS_STORE = 'settings';
+const CURRENT_PROJECT_KEY = 'currentProject';
 
 let dbPromise: Promise<IDBPDatabase<APIProjectsDB>> | null = null;
 
@@ -35,8 +41,11 @@ const getDB = (): Promise<IDBPDatabase<APIProjectsDB>> => {
   if (!dbPromise) {
     dbPromise = openDB<APIProjectsDB>(DB_NAME, DB_VERSION, {
       upgrade(db) {
-        if (!db.objectStoreNames.contains(STORE_NAME)) {
-          db.createObjectStore(STORE_NAME);
+        if (!db.objectStoreNames.contains(PROJECTS_STORE)) {
+          db.createObjectStore(PROJECTS_STORE);
+        }
+        if (!db.objectStoreNames.contains(SETTINGS_STORE)) {
+          db.createObjectStore(SETTINGS_STORE);
         }
       },
     });
@@ -52,13 +61,13 @@ export const apiProjectsStorage = {
       ...project,
       lastModified: now,
     };
-    await db.put(STORE_NAME, projectToSave, project.id);
+    await db.put(PROJECTS_STORE, projectToSave, project.id);
   },
 
   async load(projectId: string): Promise<APIProject | null> {
     try {
       const db = await getDB();
-      const result = await db.get(STORE_NAME, projectId);
+      const result = await db.get(PROJECTS_STORE, projectId);
       return result || null;
     } catch (error) {
       console.warn('Failed to load project from IndexedDB:', error);
@@ -69,7 +78,7 @@ export const apiProjectsStorage = {
   async list(): Promise<APIProject[]> {
     try {
       const db = await getDB();
-      const projects = await db.getAll(STORE_NAME);
+      const projects = await db.getAll(PROJECTS_STORE);
       // Sort by last modified date, newest first
       return projects.sort(
         (a, b) =>
@@ -84,12 +93,50 @@ export const apiProjectsStorage = {
 
   async delete(projectId: string): Promise<void> {
     const db = await getDB();
-    await db.delete(STORE_NAME, projectId);
+    await db.delete(PROJECTS_STORE, projectId);
+
+    // If this was the current project, clear it
+    const currentProjectId = await this.getCurrentProjectId();
+    if (currentProjectId === projectId) {
+      await this.setCurrentProjectId(null);
+    }
   },
 
   async clear(): Promise<void> {
     const db = await getDB();
-    await db.clear(STORE_NAME);
+    await db.clear(PROJECTS_STORE);
+    await this.setCurrentProjectId(null);
+  },
+
+  // Current project management
+  async getCurrentProjectId(): Promise<string | null> {
+    try {
+      const db = await getDB();
+      const result = await db.get(SETTINGS_STORE, CURRENT_PROJECT_KEY);
+      return result || null;
+    } catch (error) {
+      console.warn('Failed to get current project ID:', error);
+      return null;
+    }
+  },
+
+  async setCurrentProjectId(projectId: string | null): Promise<void> {
+    try {
+      const db = await getDB();
+      if (projectId) {
+        await db.put(SETTINGS_STORE, projectId, CURRENT_PROJECT_KEY);
+      } else {
+        await db.delete(SETTINGS_STORE, CURRENT_PROJECT_KEY);
+      }
+    } catch (error) {
+      console.warn('Failed to set current project ID:', error);
+    }
+  },
+
+  async getCurrentProject(): Promise<APIProject | null> {
+    const currentProjectId = await this.getCurrentProjectId();
+    if (!currentProjectId) return null;
+    return await this.load(currentProjectId);
   },
 
   // Helper function to create a new project from current tabs
@@ -105,6 +152,24 @@ export const apiProjectsStorage = {
       description,
       tabs: JSON.parse(JSON.stringify(tabs)), // Deep copy to avoid mutations
       savedAt: now,
+      lastModified: now,
+    };
+  },
+
+  // Helper function to update an existing project with new tabs
+  updateProject(
+    project: APIProject,
+    tabs: TabData[],
+    name?: string,
+    description?: string,
+  ): APIProject {
+    const now = new Date().toISOString();
+    return {
+      ...project,
+      name: name || project.name,
+      description:
+        description !== undefined ? description : project.description,
+      tabs: JSON.parse(JSON.stringify(tabs)), // Deep copy to avoid mutations
       lastModified: now,
     };
   },

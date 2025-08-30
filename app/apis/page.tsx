@@ -14,7 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { APIProject, apiProjectsStorage } from '@/lib/api-projects-storage';
-import { FolderOpen, Plus, Save, Trash2, X } from 'lucide-react';
+import { FileX, FolderOpen, Plus, Save, Trash2, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -45,6 +45,7 @@ export default function BasicAPIsPage() {
 
   // Project management state
   const [savedProjects, setSavedProjects] = useState<APIProject[]>([]);
+  const [currentProject, setCurrentProject] = useState<APIProject | null>(null);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [loadDialogOpen, setLoadDialogOpen] = useState(false);
   const [newProjectName, setNewProjectName] = useState('');
@@ -114,22 +115,55 @@ export default function BasicAPIsPage() {
     }
   }, [editingTabId]);
 
-  // Load saved projects on component mount
+  // Load saved projects and current project on component mount
   useEffect(() => {
-    const loadProjects = async () => {
+    const loadProjectsAndCurrent = async () => {
       try {
+        // Load all projects
         const projects = await apiProjectsStorage.list();
         setSavedProjects(projects);
+
+        // Load current project if it exists
+        const current = await apiProjectsStorage.getCurrentProject();
+        if (current) {
+          setCurrentProject(current);
+          setTabs(current.tabs);
+          setActiveTab(current.tabs[0]?.id || '1');
+        }
       } catch (error) {
         console.warn('Failed to load projects:', error);
         toast.error('Failed to load saved projects');
       }
     };
-    loadProjects();
+    loadProjectsAndCurrent();
   }, []);
 
   // Project management functions
   const saveCurrentProject = async () => {
+    // If we have a current project, update it
+    if (currentProject) {
+      try {
+        const updatedProject = apiProjectsStorage.updateProject(
+          currentProject,
+          tabs,
+        );
+
+        await apiProjectsStorage.save(updatedProject);
+        setCurrentProject(updatedProject);
+
+        // Update the projects list
+        const updatedProjects = await apiProjectsStorage.list();
+        setSavedProjects(updatedProjects);
+
+        toast.success(`Project "${updatedProject.name}" updated successfully!`);
+      } catch (error) {
+        console.error('Failed to update project:', error);
+        toast.error('Failed to update project');
+      }
+      return;
+    }
+
+    // Otherwise, create a new project
     if (!newProjectName.trim()) {
       toast.error('Please enter a project name');
       return;
@@ -143,6 +177,41 @@ export default function BasicAPIsPage() {
       );
 
       await apiProjectsStorage.save(project);
+      await apiProjectsStorage.setCurrentProjectId(project.id);
+      setCurrentProject(project);
+
+      // Update the projects list
+      const updatedProjects = await apiProjectsStorage.list();
+      setSavedProjects(updatedProjects);
+
+      // Reset dialog state
+      setNewProjectName('');
+      setNewProjectDescription('');
+      setSaveDialogOpen(false);
+
+      toast.success(`Project "${project.name}" saved successfully!`);
+    } catch (error) {
+      console.error('Failed to save project:', error);
+      toast.error('Failed to save project');
+    }
+  };
+
+  const saveAsNewProject = async () => {
+    if (!newProjectName.trim()) {
+      toast.error('Please enter a project name');
+      return;
+    }
+
+    try {
+      const project = apiProjectsStorage.createProject(
+        newProjectName.trim(),
+        tabs,
+        newProjectDescription.trim() || undefined,
+      );
+
+      await apiProjectsStorage.save(project);
+      await apiProjectsStorage.setCurrentProjectId(project.id);
+      setCurrentProject(project);
 
       // Update the projects list
       const updatedProjects = await apiProjectsStorage.list();
@@ -171,6 +240,8 @@ export default function BasicAPIsPage() {
       // Replace current tabs with project tabs
       setTabs(project.tabs);
       setActiveTab(project.tabs[0]?.id || '1');
+      setCurrentProject(project);
+      await apiProjectsStorage.setCurrentProjectId(project.id);
       setLoadDialogOpen(false);
 
       toast.success(`Project "${project.name}" loaded successfully!`);
@@ -180,10 +251,26 @@ export default function BasicAPIsPage() {
     }
   };
 
+  const clearCurrentProject = async () => {
+    try {
+      await apiProjectsStorage.setCurrentProjectId(null);
+      setCurrentProject(null);
+      toast.success('Current project cleared');
+    } catch (error) {
+      console.error('Failed to clear current project:', error);
+      toast.error('Failed to clear current project');
+    }
+  };
+
   const deleteProject = async (projectId: string) => {
     try {
       const project = savedProjects.find((p) => p.id === projectId);
       await apiProjectsStorage.delete(projectId);
+
+      // If this was the current project, clear it
+      if (currentProject?.id === projectId) {
+        setCurrentProject(null);
+      }
 
       // Update the projects list
       const updatedProjects = await apiProjectsStorage.list();
@@ -199,24 +286,46 @@ export default function BasicAPIsPage() {
   return (
     <div className="flex flex-1 flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">APIs</h1>
+        <div>
+          <h1 className="text-3xl font-bold">APIs</h1>
+          {currentProject && (
+            <p className="text-sm text-muted-foreground mt-1">
+              Current project:{' '}
+              <span className="font-medium">{currentProject.name}</span>
+              {currentProject.description && (
+                <span className="ml-2">• {currentProject.description}</span>
+              )}
+            </p>
+          )}
+        </div>
 
         {/* Project Management Controls */}
         <div className="flex items-center gap-2">
+          {/* Quick Save Button (only show if current project exists) */}
+          {currentProject && (
+            <Button variant="default" size="sm" onClick={saveCurrentProject}>
+              <Save className="h-4 w-4 mr-2" />
+              Save
+            </Button>
+          )}
+
           {/* Save Project Dialog */}
           <Dialog open={saveDialogOpen} onOpenChange={setSaveDialogOpen}>
             <DialogTrigger asChild>
               <Button variant="outline" size="sm">
                 <Save className="h-4 w-4 mr-2" />
-                Save Project
+                {currentProject ? 'Save As New' : 'Save Project'}
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Save API Project</DialogTitle>
+                <DialogTitle>
+                  {currentProject ? 'Save As New Project' : 'Save API Project'}
+                </DialogTitle>
                 <DialogDescription>
-                  Save your current API configuration as a project for later
-                  use.
+                  {currentProject
+                    ? 'Save your current API configuration as a new project.'
+                    : 'Save your current API configuration as a project for later use.'}
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
@@ -256,7 +365,13 @@ export default function BasicAPIsPage() {
                 >
                   Cancel
                 </Button>
-                <Button onClick={saveCurrentProject}>Save Project</Button>
+                <Button
+                  onClick={
+                    currentProject ? saveAsNewProject : saveCurrentProject
+                  }
+                >
+                  Save Project
+                </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -291,7 +406,14 @@ export default function BasicAPIsPage() {
                         className="flex items-center justify-between p-3 border rounded-md hover:bg-muted/50"
                       >
                         <div className="flex-1">
-                          <h4 className="font-medium">{project.name}</h4>
+                          <h4 className="font-medium flex items-center gap-2">
+                            {project.name}
+                            {currentProject?.id === project.id && (
+                              <span className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded">
+                                Current
+                              </span>
+                            )}
+                          </h4>
                           {project.description && (
                             <p className="text-sm text-muted-foreground">
                               {project.description}
@@ -306,6 +428,7 @@ export default function BasicAPIsPage() {
                           <Button
                             size="sm"
                             onClick={() => loadProject(project.id)}
+                            disabled={currentProject?.id === project.id}
                           >
                             Load
                           </Button>
@@ -332,6 +455,18 @@ export default function BasicAPIsPage() {
               </DialogFooter>
             </DialogContent>
           </Dialog>
+
+          {/* Clear Current Project Button (only show if current project exists) */}
+          {currentProject && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={clearCurrentProject}
+              title="Clear current project"
+            >
+              <FileX className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </div>
 

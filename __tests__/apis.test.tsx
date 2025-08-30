@@ -17,6 +17,16 @@ jest.mock('../lib/api-projects-storage', () => ({
       savedAt: '2024-01-01T00:00:00.000Z',
       lastModified: '2024-01-01T00:00:00.000Z',
     })),
+    updateProject: jest.fn((project, tabs, name, description) => ({
+      ...project,
+      name: name || project.name,
+      description: description !== undefined ? description : project.description,
+      tabs,
+      lastModified: new Date().toISOString(),
+    })),
+    getCurrentProjectId: jest.fn(() => Promise.resolve(null)),
+    setCurrentProjectId: jest.fn(() => Promise.resolve()),
+    getCurrentProject: jest.fn(() => Promise.resolve(null)),
   },
 }));
 

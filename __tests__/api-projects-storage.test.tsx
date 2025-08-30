@@ -165,4 +165,89 @@ describe('apiProjectsStorage', () => {
     expect(project.tabs[0].name).toBe('Test Request 1');
     expect(originalTab.name).toBe('Modified Name');
   });
+
+  it('manages current project ID', async () => {
+    // Initially no current project
+    expect(await apiProjectsStorage.getCurrentProjectId()).toBeNull();
+    expect(await apiProjectsStorage.getCurrentProject()).toBeNull();
+
+    // Set a current project ID
+    await apiProjectsStorage.setCurrentProjectId('test-project-id');
+    expect(await apiProjectsStorage.getCurrentProjectId()).toBe(
+      'test-project-id',
+    );
+
+    // Clear current project ID
+    await apiProjectsStorage.setCurrentProjectId(null);
+    expect(await apiProjectsStorage.getCurrentProjectId()).toBeNull();
+  });
+
+  it('returns current project when it exists', async () => {
+    const project = apiProjectsStorage.createProject(
+      'Current Project',
+      mockTabData,
+    );
+
+    await apiProjectsStorage.save(project);
+    await apiProjectsStorage.setCurrentProjectId(project.id);
+
+    const currentProject = await apiProjectsStorage.getCurrentProject();
+    expect(currentProject).not.toBeNull();
+    expect(currentProject?.name).toBe('Current Project');
+  });
+
+  it('clears current project ID when deleting the current project', async () => {
+    const project = apiProjectsStorage.createProject(
+      'Project to Delete',
+      mockTabData,
+    );
+
+    await apiProjectsStorage.save(project);
+    await apiProjectsStorage.setCurrentProjectId(project.id);
+
+    // Verify current project is set
+    expect(await apiProjectsStorage.getCurrentProjectId()).toBe(project.id);
+
+    // Delete the project
+    await apiProjectsStorage.delete(project.id);
+
+    // Current project ID should be cleared
+    expect(await apiProjectsStorage.getCurrentProjectId()).toBeNull();
+  });
+
+  it('updates an existing project correctly', async () => {
+    const originalProject = apiProjectsStorage.createProject(
+      'Original Name',
+      mockTabData,
+      'Original description',
+    );
+
+    // Wait a bit to ensure different timestamp
+    await new Promise((resolve) => setTimeout(resolve, 10));
+
+    const newTabs = [
+      {
+        id: '2',
+        name: 'Updated Request',
+        url: 'https://api.example.com/updated',
+        method: 'POST',
+        headers: 'Authorization: Bearer token',
+        requestBody: '{"updated": true}',
+      },
+    ];
+
+    const updatedProject = apiProjectsStorage.updateProject(
+      originalProject,
+      newTabs,
+      'Updated Name',
+      'Updated description',
+    );
+
+    expect(updatedProject.id).toBe(originalProject.id);
+    expect(updatedProject.name).toBe('Updated Name');
+    expect(updatedProject.description).toBe('Updated description');
+    expect(updatedProject.tabs).toEqual(newTabs);
+    expect(updatedProject.savedAt).toBe(originalProject.savedAt);
+    expect(updatedProject.lastModified).not.toBe(originalProject.lastModified);
+  });
 });
