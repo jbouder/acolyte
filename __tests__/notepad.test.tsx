@@ -121,7 +121,9 @@ describe('NotepadPage', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByDisplayValue('Saved note content')).toBeInTheDocument();
+      expect(
+        screen.getByDisplayValue('Saved note content'),
+      ).toBeInTheDocument();
     });
   });
 
