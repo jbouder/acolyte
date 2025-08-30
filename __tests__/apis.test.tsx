@@ -20,7 +20,8 @@ jest.mock('../lib/api-projects-storage', () => ({
     updateProject: jest.fn((project, tabs, name, description) => ({
       ...project,
       name: name || project.name,
-      description: description !== undefined ? description : project.description,
+      description:
+        description !== undefined ? description : project.description,
       tabs,
       lastModified: new Date().toISOString(),
     })),
