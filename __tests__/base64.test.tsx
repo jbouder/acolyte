@@ -419,7 +419,7 @@ describe('Base64Page', () => {
     );
   });
 
-  it('shows image preview label when image data is available', async () => {
+  it('shows Base64 image data label when image data is available', async () => {
     render(<Base64Page />);
 
     const base64Input = screen.getByPlaceholderText(
@@ -438,9 +438,8 @@ describe('Base64Page', () => {
     // Click decode button
     fireEvent.click(decodeButton);
 
-    // Check that image preview section appears
+    // Check that Base64 image data label appears (but no image preview)
     await waitFor(() => {
-      expect(screen.getByText('Image Preview')).toBeInTheDocument();
       expect(screen.getByText('Base64 Image Data')).toBeInTheDocument();
     });
   });

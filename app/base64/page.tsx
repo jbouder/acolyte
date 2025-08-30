@@ -390,22 +390,6 @@ export default function Base64Page() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {isImageData && output && (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Image Preview</label>
-                  <div className="border rounded-lg p-4 bg-muted/50 flex justify-center">
-                    <img
-                      src={`data:${originalFileType || 'image/png'};base64,${originalBase64 || output.replace(/\n/g, '').replace(/\s/g, '')}`}
-                      alt="Decoded image preview"
-                      className="max-w-full max-h-64 object-contain"
-                      onError={(e) => {
-                        console.warn('Failed to load image preview');
-                        e.currentTarget.style.display = 'none';
-                      }}
-                    />
-                  </div>
-                </div>
-              )}
               <div className="space-y-2">
                 <label className="text-sm font-medium">
                   {isImageData ? 'Base64 Image Data' : 'Output'}
