@@ -397,8 +397,11 @@ describe('Base64Page', () => {
     const decodeButton = screen.getByText('Decode');
 
     // Enter PNG image Base64 (starts with iVBORw0KGgo)
-    fireEvent.change(base64Input, { 
-      target: { value: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==' } 
+    fireEvent.change(base64Input, {
+      target: {
+        value:
+          'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==',
+      },
     });
 
     // Click decode button
@@ -409,7 +412,9 @@ describe('Base64Page', () => {
       expect(screen.getByText('Download as Image')).toBeInTheDocument();
     });
 
-    expect(toast.success).toHaveBeenCalledWith('Base64 successfully decoded! (Image detected)');
+    expect(toast.success).toHaveBeenCalledWith(
+      'Base64 successfully decoded! (Image detected)',
+    );
   });
 
   it('shows image preview label when image data is available', async () => {
@@ -421,8 +426,11 @@ describe('Base64Page', () => {
     const decodeButton = screen.getByText('Decode');
 
     // Enter PNG image Base64 (starts with iVBORw0KGgo)
-    fireEvent.change(base64Input, { 
-      target: { value: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==' } 
+    fireEvent.change(base64Input, {
+      target: {
+        value:
+          'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==',
+      },
     });
 
     // Click decode button

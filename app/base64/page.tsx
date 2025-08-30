@@ -87,10 +87,10 @@ export default function Base64Page() {
 
       const decoded = atob(input);
       setOutput(decoded);
-      
+
       // Store the clean Base64 for image downloads
       setOriginalBase64(input);
-      
+
       // Check if the decoded data looks like an image
       const detectedMimeType = getImageMimeType(input);
       if (detectedMimeType) {
@@ -149,8 +149,9 @@ export default function Base64Page() {
   const downloadAsImage = () => {
     try {
       // Use the stored original Base64 data instead of the output
-      const base64Data = originalBase64 || output.replace(/\n/g, '').replace(/\s/g, '');
-      
+      const base64Data =
+        originalBase64 || output.replace(/\n/g, '').replace(/\s/g, '');
+
       // Convert Base64 to binary
       const binaryString = atob(base64Data);
       const bytes = new Uint8Array(binaryString.length);
@@ -159,9 +160,10 @@ export default function Base64Page() {
       }
 
       // Determine MIME type and file extension
-      let mimeType = originalFileType || getImageMimeType(base64Data) || 'image/png';
+      const mimeType =
+        originalFileType || getImageMimeType(base64Data) || 'image/png';
       let extension = mimeType.split('/')[1] || 'png';
-      
+
       // Handle special cases
       if (extension === 'svg+xml') extension = 'svg';
       if (extension === 'jpeg') extension = 'jpg';
@@ -175,10 +177,12 @@ export default function Base64Page() {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      
+
       toast.success('Image downloaded successfully!');
-    } catch (error) {
-      setError('Failed to download image. Please ensure the Base64 data represents a valid image.');
+    } catch {
+      setError(
+        'Failed to download image. Please ensure the Base64 data represents a valid image.',
+      );
       toast.error('Failed to download image');
     }
   };
@@ -219,7 +223,7 @@ export default function Base64Page() {
           const encoded = btoa(binary);
           setOutput(encoded);
           setOriginalBase64(encoded);
-          
+
           if (isImage) {
             toast.success(`Image "${file.name}" encoded to Base64!`);
           } else {
@@ -420,7 +424,8 @@ export default function Base64Page() {
           <CardHeader>
             <CardTitle>File Upload</CardTitle>
             <CardDescription>
-              Upload a file to encode it to Base64. Images will show a preview when uploaded.
+              Upload a file to encode it to Base64. Images will show a preview
+              when uploaded.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -458,7 +463,9 @@ export default function Base64Page() {
                 </div>
               </div>
               <div className="text-xs text-muted-foreground">
-                <p>Supported file types: All file types (images, text, binary)</p>
+                <p>
+                  Supported file types: All file types (images, text, binary)
+                </p>
                 <p>Maximum file size: 10MB</p>
               </div>
             </div>
