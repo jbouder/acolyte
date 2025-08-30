@@ -2,8 +2,6 @@
 
 import { ApiRequestForm } from '@/components/api-request-form';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Dialog,
   DialogContent,
@@ -13,15 +11,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { apiProjectsStorage, APIProject } from '@/lib/api-projects-storage';
-import { Plus, X, Save, FolderOpen, Trash2 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { APIProject, apiProjectsStorage } from '@/lib/api-projects-storage';
+import { FolderOpen, Plus, Save, Trash2, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -146,20 +139,20 @@ export default function BasicAPIsPage() {
       const project = apiProjectsStorage.createProject(
         newProjectName.trim(),
         tabs,
-        newProjectDescription.trim() || undefined
+        newProjectDescription.trim() || undefined,
       );
-      
+
       await apiProjectsStorage.save(project);
-      
+
       // Update the projects list
       const updatedProjects = await apiProjectsStorage.list();
       setSavedProjects(updatedProjects);
-      
+
       // Reset dialog state
       setNewProjectName('');
       setNewProjectDescription('');
       setSaveDialogOpen(false);
-      
+
       toast.success(`Project "${project.name}" saved successfully!`);
     } catch (error) {
       console.error('Failed to save project:', error);
@@ -179,7 +172,7 @@ export default function BasicAPIsPage() {
       setTabs(project.tabs);
       setActiveTab(project.tabs[0]?.id || '1');
       setLoadDialogOpen(false);
-      
+
       toast.success(`Project "${project.name}" loaded successfully!`);
     } catch (error) {
       console.error('Failed to load project:', error);
@@ -189,13 +182,13 @@ export default function BasicAPIsPage() {
 
   const deleteProject = async (projectId: string) => {
     try {
-      const project = savedProjects.find(p => p.id === projectId);
+      const project = savedProjects.find((p) => p.id === projectId);
       await apiProjectsStorage.delete(projectId);
-      
+
       // Update the projects list
       const updatedProjects = await apiProjectsStorage.list();
       setSavedProjects(updatedProjects);
-      
+
       toast.success(`Project "${project?.name}" deleted successfully!`);
     } catch (error) {
       console.error('Failed to delete project:', error);
@@ -207,7 +200,7 @@ export default function BasicAPIsPage() {
     <div className="flex flex-1 flex-col gap-4">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">APIs</h1>
-        
+
         {/* Project Management Controls */}
         <div className="flex items-center gap-2">
           {/* Save Project Dialog */}
@@ -222,12 +215,16 @@ export default function BasicAPIsPage() {
               <DialogHeader>
                 <DialogTitle>Save API Project</DialogTitle>
                 <DialogDescription>
-                  Save your current API configuration as a project for later use.
+                  Save your current API configuration as a project for later
+                  use.
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
                 <div>
-                  <label htmlFor="project-name" className="text-sm font-medium mb-2 block">
+                  <label
+                    htmlFor="project-name"
+                    className="text-sm font-medium mb-2 block"
+                  >
                     Project Name *
                   </label>
                   <Input
@@ -238,7 +235,10 @@ export default function BasicAPIsPage() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="project-description" className="text-sm font-medium mb-2 block">
+                  <label
+                    htmlFor="project-description"
+                    className="text-sm font-medium mb-2 block"
+                  >
                     Description (optional)
                   </label>
                   <Input
@@ -250,12 +250,13 @@ export default function BasicAPIsPage() {
                 </div>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setSaveDialogOpen(false)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setSaveDialogOpen(false)}
+                >
                   Cancel
                 </Button>
-                <Button onClick={saveCurrentProject}>
-                  Save Project
-                </Button>
+                <Button onClick={saveCurrentProject}>Save Project</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -272,13 +273,15 @@ export default function BasicAPIsPage() {
               <DialogHeader>
                 <DialogTitle>Load API Project</DialogTitle>
                 <DialogDescription>
-                  Select a saved project to load. This will replace your current tabs.
+                  Select a saved project to load. This will replace your current
+                  tabs.
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
                 {savedProjects.length === 0 ? (
                   <p className="text-sm text-muted-foreground text-center py-4">
-                    No saved projects found. Save your current configuration as a project first.
+                    No saved projects found. Save your current configuration as
+                    a project first.
                   </p>
                 ) : (
                   <div className="space-y-2 max-h-96 overflow-y-auto">
@@ -290,10 +293,13 @@ export default function BasicAPIsPage() {
                         <div className="flex-1">
                           <h4 className="font-medium">{project.name}</h4>
                           {project.description && (
-                            <p className="text-sm text-muted-foreground">{project.description}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {project.description}
+                            </p>
                           )}
                           <p className="text-xs text-muted-foreground">
-                            {project.tabs.length} tabs • Saved {new Date(project.savedAt).toLocaleDateString()}
+                            {project.tabs.length} tabs • Saved{' '}
+                            {new Date(project.savedAt).toLocaleDateString()}
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
@@ -317,7 +323,10 @@ export default function BasicAPIsPage() {
                 )}
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setLoadDialogOpen(false)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setLoadDialogOpen(false)}
+                >
                   Cancel
                 </Button>
               </DialogFooter>

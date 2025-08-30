@@ -182,7 +182,9 @@ describe('BasicAPIsPage', () => {
     // Check dialog content
     expect(screen.getByText('Project Name *')).toBeInTheDocument();
     expect(screen.getByText('Description (optional)')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Enter project name...')).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText('Enter project name...'),
+    ).toBeInTheDocument();
   });
 
   it('opens load project dialog when Load Project button is clicked', async () => {
@@ -198,6 +200,10 @@ describe('BasicAPIsPage', () => {
     });
 
     // Check dialog content shows no saved projects message
-    expect(screen.getByText('No saved projects found. Save your current configuration as a project first.')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'No saved projects found. Save your current configuration as a project first.',
+      ),
+    ).toBeInTheDocument();
   });
 });

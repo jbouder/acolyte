@@ -71,8 +71,10 @@ export const apiProjectsStorage = {
       const db = await getDB();
       const projects = await db.getAll(STORE_NAME);
       // Sort by last modified date, newest first
-      return projects.sort((a, b) => 
-        new Date(b.lastModified).getTime() - new Date(a.lastModified).getTime()
+      return projects.sort(
+        (a, b) =>
+          new Date(b.lastModified).getTime() -
+          new Date(a.lastModified).getTime(),
       );
     } catch (error) {
       console.warn('Failed to list projects from IndexedDB:', error);
@@ -91,7 +93,11 @@ export const apiProjectsStorage = {
   },
 
   // Helper function to create a new project from current tabs
-  createProject(name: string, tabs: TabData[], description?: string): APIProject {
+  createProject(
+    name: string,
+    tabs: TabData[],
+    description?: string,
+  ): APIProject {
     const now = new Date().toISOString();
     return {
       id: `project-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
