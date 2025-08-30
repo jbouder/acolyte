@@ -293,7 +293,7 @@ export default function Base64Page() {
                   placeholder="Enter your text here to encode to Base64..."
                 />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 mb-[30px]">
                 <label className="text-sm font-medium">Or Upload File</label>
                 <div
                   className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors ${
