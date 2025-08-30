@@ -157,12 +157,12 @@ export default function JWTPage() {
   const tokenStatus = getTokenStatus();
 
   return (
-    <div className="flex flex-1 flex-col gap-4 min-w-0">
+    <div className="flex flex-1 flex-col gap-4">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">JWT Decoder</h1>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 min-w-0">
+      <div className="grid gap-4 md:grid-cols-2">
         <Card className="md:col-span-2">
           <CardHeader>
             <CardTitle>JWT Token Input</CardTitle>
@@ -177,7 +177,7 @@ export default function JWTPage() {
                 <textarea
                   value={token}
                   onChange={(e) => setToken(e.target.value)}
-                  className="min-h-[120px] w-full max-w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono resize-none"
+                  className="min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono resize-none focus:outline-none focus:ring-2 focus:ring-ring"
                   placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
                 />
               </div>
@@ -218,9 +218,9 @@ export default function JWTPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="min-h-[200px] rounded-md border p-4 bg-muted font-mono text-sm overflow-auto break-words">
+              <div className="min-h-[200px] rounded-md border p-4 bg-muted font-mono text-sm overflow-auto">
                 {decodedJWT ? (
-                  <pre className="whitespace-pre-wrap break-words">
+                  <pre className="whitespace-pre-wrap">
                     {JSON.stringify(decodedJWT.header, null, 2)}
                   </pre>
                 ) : (
@@ -258,9 +258,9 @@ export default function JWTPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="min-h-[200px] rounded-md border p-4 bg-muted font-mono text-sm overflow-auto break-words">
+              <div className="min-h-[200px] rounded-md border p-4 bg-muted font-mono text-sm overflow-auto">
                 {decodedJWT ? (
-                  <pre className="whitespace-pre-wrap break-words">
+                  <pre className="whitespace-pre-wrap">
                     {JSON.stringify(decodedJWT.payload, null, 2)}
                   </pre>
                 ) : (
@@ -304,14 +304,14 @@ export default function JWTPage() {
                   type="password"
                   value={secretKey}
                   onChange={(e) => setSecretKey(e.target.value)}
-                  className="w-full max-w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                   placeholder="Enter secret key for verification..."
                 />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">Algorithm</label>
                 <Select value={algorithm} onValueChange={setAlgorithm}>
-                  <SelectTrigger className="w-full min-w-0">
+                  <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>

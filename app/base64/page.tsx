@@ -178,7 +178,7 @@ export default function Base64Page() {
     }
   };
   return (
-    <div className="flex flex-1 flex-col gap-4 min-w-0">
+    <div className="flex flex-1 flex-col gap-4">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Base64 Encoder/Decoder</h1>
       </div>
@@ -189,7 +189,7 @@ export default function Base64Page() {
         </div>
       )}
 
-      <div className="grid gap-4 md:grid-cols-2 min-w-0">
+      <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>Encode to Base64</CardTitle>
@@ -204,7 +204,7 @@ export default function Base64Page() {
                 <textarea
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
-                  className="min-h-[200px] w-full max-w-full rounded-md border border-input bg-background px-3 py-2 text-sm resize-none"
+                  className="min-h-[200px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring"
                   placeholder="Enter your text here to encode to Base64..."
                 />
               </div>
@@ -238,7 +238,7 @@ export default function Base64Page() {
                 <textarea
                   value={base64Input}
                   onChange={(e) => setBase64Input(e.target.value)}
-                  className="min-h-[200px] w-full max-w-full rounded-md border border-input bg-background px-3 py-2 text-sm resize-none"
+                  className="min-h-[200px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring"
                   placeholder="Enter Base64 encoded text here to decode..."
                 />
               </div>
@@ -267,7 +267,7 @@ export default function Base64Page() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="min-h-[200px] rounded-md border p-4 bg-muted font-mono text-sm whitespace-pre-wrap break-words overflow-hidden">
+              <div className="min-h-[200px] rounded-md border p-4 bg-muted font-mono text-sm whitespace-pre-wrap break-all">
                 {output || (
                   <p className="text-muted-foreground">
                     Output will appear here...
@@ -400,7 +400,7 @@ export default function Base64Page() {
                   Character Encoding
                 </label>
                 <Select value={charEncoding} onValueChange={setCharEncoding}>
-                  <SelectTrigger className="w-full min-w-0">
+                  <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
