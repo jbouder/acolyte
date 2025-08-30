@@ -1,6 +1,20 @@
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+
+// Mock the notepad storage module completely
+jest.mock('../lib/notepad-storage', () => ({
+  notepadStorage: {
+    save: jest.fn(),
+    load: jest.fn(),
+    clear: jest.fn(),
+    migrateFromLocalStorage: jest.fn(),
+  },
+}));
+
+// Now import the component after the mock is set up
 import NotepadPage from '../app/notepad/page';
+// Import the mocked module to access the mock functions
+import { notepadStorage } from '../lib/notepad-storage';
 
 // Mock navigator.clipboard
 const mockClipboard = {
@@ -19,15 +33,8 @@ jest.mock('sonner', () => ({
   },
 }));
 
-// Mock localStorage
-const localStorageMock = {
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-  removeItem: jest.fn(),
-};
-Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock,
-});
+// Create typed mock for better TypeScript support
+const mockNotepadStorage = notepadStorage as jest.Mocked<typeof notepadStorage>;
 
 // Mock window.confirm
 Object.defineProperty(window, 'confirm', {
@@ -51,7 +58,10 @@ global.FileReader = jest.fn(() => mockFileReader) as any;
 describe('NotepadPage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    localStorageMock.getItem.mockReturnValue(null);
+    mockNotepadStorage.load.mockResolvedValue(null);
+    mockNotepadStorage.save.mockResolvedValue(undefined);
+    mockNotepadStorage.clear.mockResolvedValue(undefined);
+    mockNotepadStorage.migrateFromLocalStorage.mockResolvedValue(false);
     (window.confirm as jest.Mock).mockReturnValue(true);
 
     // Reset FileReader mock
@@ -82,7 +92,7 @@ describe('NotepadPage', () => {
     // Check disclaimer
     expect(screen.getByText(/Important:/)).toBeInTheDocument();
     expect(
-      screen.getByText(/stored in your browser's local storage/),
+      screen.getByText(/stored in your browser's IndexedDB/),
     ).toBeInTheDocument();
 
     // Check markdown reference
@@ -95,27 +105,46 @@ describe('NotepadPage', () => {
     expect(screen.getByText('Auto-save enabled')).toBeInTheDocument();
   });
 
-  it('loads content from localStorage on mount', () => {
-    const savedContent = JSON.stringify({
+  it('loads content from IndexedDB on mount', async () => {
+    const savedData = {
       content: 'Saved note content',
       lastSaved: new Date().toISOString(),
-    });
-    localStorageMock.getItem.mockReturnValue(savedContent);
+    };
+    mockNotepadStorage.load.mockResolvedValue(savedData);
 
     render(<NotepadPage />);
 
-    expect(localStorageMock.getItem).toHaveBeenCalledWith(
-      'acolyte-notepad-content',
-    );
-    expect(screen.getByDisplayValue('Saved note content')).toBeInTheDocument();
+    // Wait for the async load to complete
+    await waitFor(() => {
+      expect(mockNotepadStorage.migrateFromLocalStorage).toHaveBeenCalled();
+      expect(mockNotepadStorage.load).toHaveBeenCalled();
+    });
+
+    await waitFor(() => {
+      expect(
+        screen.getByDisplayValue('Saved note content'),
+      ).toBeInTheDocument();
+    });
   });
 
-  it('handles legacy string storage format', () => {
-    localStorageMock.getItem.mockReturnValue('Legacy content');
+  it('handles migration from localStorage', async () => {
+    mockNotepadStorage.migrateFromLocalStorage.mockResolvedValue(true);
+    const migratedData = {
+      content: 'Migrated content',
+      lastSaved: new Date().toISOString(),
+    };
+    mockNotepadStorage.load.mockResolvedValue(migratedData);
 
     render(<NotepadPage />);
 
-    expect(screen.getByDisplayValue('Legacy content')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(mockNotepadStorage.migrateFromLocalStorage).toHaveBeenCalled();
+      expect(mockNotepadStorage.load).toHaveBeenCalled();
+    });
+
+    await waitFor(() => {
+      expect(screen.getByDisplayValue('Migrated content')).toBeInTheDocument();
+    });
   });
 
   it('updates content and shows character count', () => {
@@ -161,15 +190,17 @@ describe('NotepadPage', () => {
     // Click save
     fireEvent.click(saveButton);
 
-    // Check localStorage was called
+    // Check IndexedDB save was called
     await waitFor(() => {
-      expect(localStorageMock.setItem).toHaveBeenCalledWith(
-        'acolyte-notepad-content',
-        expect.stringContaining('Test content'),
+      expect(mockNotepadStorage.save).toHaveBeenCalledWith(
+        expect.objectContaining({
+          content: 'Test content',
+          lastSaved: expect.any(String),
+        }),
       );
     });
 
-    expect(toast.success).toHaveBeenCalledWith('Notes saved to local storage!');
+    expect(toast.success).toHaveBeenCalledWith('Notes saved successfully!');
   });
 
   it('clears content when clear button is clicked with confirmation', async () => {
@@ -196,9 +227,7 @@ describe('NotepadPage', () => {
       expect(textarea).toHaveValue('');
     });
 
-    expect(localStorageMock.removeItem).toHaveBeenCalledWith(
-      'acolyte-notepad-content',
-    );
+    expect(mockNotepadStorage.clear).toHaveBeenCalled();
     expect(toast.success).toHaveBeenCalledWith('Notes cleared!');
   });
 
@@ -220,7 +249,7 @@ describe('NotepadPage', () => {
 
     // Check content is not cleared
     expect(textarea).toHaveValue('Content to keep');
-    expect(localStorageMock.removeItem).not.toHaveBeenCalled();
+    expect(mockNotepadStorage.clear).not.toHaveBeenCalled();
   });
 
   it('exports content as markdown file', () => {
@@ -429,18 +458,25 @@ describe('NotepadPage', () => {
     expect(screen.getByText('`Inline code`')).toBeInTheDocument();
   });
 
-  it('formats last saved time correctly', () => {
+  it('formats last saved time correctly', async () => {
     const now = new Date();
-    const savedContent = JSON.stringify({
+    const savedData = {
       content: 'Test content',
       lastSaved: now.toISOString(),
-    });
-    localStorageMock.getItem.mockReturnValue(savedContent);
+    };
+    mockNotepadStorage.load.mockResolvedValue(savedData);
 
     render(<NotepadPage />);
 
+    // Wait for the component to load the data
+    await waitFor(() => {
+      expect(mockNotepadStorage.load).toHaveBeenCalled();
+    });
+
     // Should show "Just now" for recent saves
-    expect(screen.getByText('Last saved: Just now')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Last saved: Just now')).toBeInTheDocument();
+    });
   });
 
   it('shows "Never" for last saved when no previous save exists', () => {

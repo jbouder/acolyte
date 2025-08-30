@@ -9,11 +9,10 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
+import { notepadStorage } from '@/lib/notepad-storage';
 import { Download, FileText, Save, Trash2, Upload } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
-
-const STORAGE_KEY = 'acolyte-notepad-content';
 
 export default function NotepadPage() {
   const [content, setContent] = useState('');
@@ -21,63 +20,83 @@ export default function NotepadPage() {
   const [isAutoSaving, setIsAutoSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Load content from localStorage on component mount
+  // Load content from IndexedDB on component mount
   useEffect(() => {
-    const savedContent = localStorage.getItem(STORAGE_KEY);
-    if (savedContent) {
+    const loadContent = async () => {
       try {
-        const parsed = JSON.parse(savedContent);
-        setContent(parsed.content || '');
-        setLastSaved(parsed.lastSaved ? new Date(parsed.lastSaved) : null);
-      } catch {
-        // Fallback for legacy string storage
-        setContent(savedContent);
+        // First try to migrate from localStorage if needed
+        await notepadStorage.migrateFromLocalStorage();
+
+        // Load from IndexedDB
+        const savedData = await notepadStorage.load();
+        if (savedData) {
+          setContent(savedData.content || '');
+          setLastSaved(
+            savedData.lastSaved ? new Date(savedData.lastSaved) : null,
+          );
+        }
+      } catch (error) {
+        console.warn('Failed to load notepad content:', error);
+        toast.error('Failed to load saved notes');
       }
-    }
+    };
+
+    loadContent();
   }, []);
 
-  // Auto-save to localStorage with debouncing
+  // Auto-save to IndexedDB with debouncing
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
+    const timeoutId = setTimeout(async () => {
       if (!content.trim()) return;
 
       setIsAutoSaving(true);
-      const saveData = {
-        content,
-        lastSaved: new Date().toISOString(),
-      };
+      try {
+        const saveData = {
+          content,
+          lastSaved: new Date().toISOString(),
+        };
 
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData));
-      setLastSaved(new Date());
-      setIsAutoSaving(false);
+        await notepadStorage.save(saveData);
+        setLastSaved(new Date());
+      } catch (error) {
+        console.warn('Auto-save failed:', error);
+      } finally {
+        setIsAutoSaving(false);
+      }
     }, 1000); // Auto-save after 1 second of inactivity
 
     return () => clearTimeout(timeoutId);
   }, [content]);
 
-  // Save content to localStorage
-  const saveToLocalStorage = () => {
+  // Save content to IndexedDB
+  const saveToIndexedDB = async () => {
     if (!content.trim()) return;
 
     setIsAutoSaving(true);
-    const saveData = {
-      content,
-      lastSaved: new Date().toISOString(),
-    };
+    try {
+      const saveData = {
+        content,
+        lastSaved: new Date().toISOString(),
+      };
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData));
-    setLastSaved(new Date());
-    setIsAutoSaving(false);
+      await notepadStorage.save(saveData);
+      setLastSaved(new Date());
+    } catch (error) {
+      console.warn('Save failed:', error);
+      toast.error('Failed to save notes');
+    } finally {
+      setIsAutoSaving(false);
+    }
   };
 
   // Manual save
-  const handleManualSave = () => {
-    saveToLocalStorage();
-    toast.success('Notes saved to local storage!');
+  const handleManualSave = async () => {
+    await saveToIndexedDB();
+    toast.success('Notes saved successfully!');
   };
 
   // Clear all content
-  const handleClear = () => {
+  const handleClear = async () => {
     if (
       content.trim() &&
       !confirm(
@@ -89,8 +108,13 @@ export default function NotepadPage() {
 
     setContent('');
     setLastSaved(null);
-    localStorage.removeItem(STORAGE_KEY);
-    toast.success('Notes cleared!');
+    try {
+      await notepadStorage.clear();
+      toast.success('Notes cleared!');
+    } catch (error) {
+      console.warn('Failed to clear notes:', error);
+      toast.error('Failed to clear notes');
+    }
   };
 
   // Export notes to markdown file
@@ -220,9 +244,9 @@ export default function NotepadPage() {
                 <div className="text-yellow-600">⚠️</div>
                 <div className="text-yellow-800">
                   <strong>Important:</strong> Your notes are stored in your
-                  browser&apos;s local storage and may be lost when clearing
-                  browser data. Use the export button regularly to backup your
-                  important notes.
+                  browser&apos;s IndexedDB for better data persistence and may
+                  be lost when clearing browser data. Use the export button
+                  regularly to backup your important notes.
                 </div>
               </div>
             </div>

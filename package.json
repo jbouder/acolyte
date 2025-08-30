@@ -23,6 +23,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "idb": "^8.0.3",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.542.0",
     "next": "15.5.2",
