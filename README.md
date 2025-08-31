@@ -40,7 +40,7 @@
 
 ### 📊 Analysis Tools
 
-- **Web Statistics** - Analyze website performance, framework detection, and technology stack identification
+- **Web Stats** - Provides detailed information about the current web client, including IP address, browser details, location, and system specifications
 - **Website Analysis** - In-depth analysis of web applications including security headers, performance metrics, and best practices
 - **Dependency Analysis** - Package.json analysis with vulnerability scanning, outdated package detection, and dependency tree visualization
 
