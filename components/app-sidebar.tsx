@@ -6,6 +6,7 @@ import {
   Cable,
   Code2,
   FileText,
+  Gamepad2,
   GitBranch,
   Home,
   Key,
@@ -102,6 +103,11 @@ const items = [
     title: 'Notepad',
     url: '/notepad',
     icon: StickyNote,
+  },
+  {
+    title: 'Games',
+    url: '/games',
+    icon: Gamepad2,
   },
 ];
 
