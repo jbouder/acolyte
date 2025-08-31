@@ -28,13 +28,13 @@ const games = [
     description:
       'Break all the bricks with a bouncing ball controlled by a paddle.',
     url: '/games/breakout',
-    status: 'Coming Soon',
+    status: 'Available',
   },
   {
     title: 'Pac-Man',
     description: 'Navigate through a maze, eating dots while avoiding ghosts.',
     url: '/games/pacman',
-    status: 'Coming Soon',
+    status: 'Available',
   },
 ];
 
