@@ -12,6 +12,7 @@
 - 🧪 **API Testing** - Comprehensive API testing tools for REST, SSE, and WebSocket endpoints
 - 📊 **Analysis** - In-depth performance and dependency analysis
 - 🔧 **Utilities** - Essential development utilities to streamline your workflow
+- 🎮 **Games** - Fun browser games like Snake and Sudoku
 
 ## Running the Project Locally
 
