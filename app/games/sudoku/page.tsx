@@ -208,8 +208,11 @@ const isBoardComplete = (board: Cell[][]): boolean => {
   return true;
 };
 
-// Initialize with a random puzzle
-const initialPuzzleData = getRandomPuzzle();
+// Initialize with the first puzzle (consistent starting puzzle)
+const initialPuzzleData = {
+  puzzle: easyPuzzles[0],
+  difficulty: 'easy' as const,
+};
 
 const initialGameState: GameState = {
   board: createBoard(initialPuzzleData.puzzle),
@@ -222,6 +225,9 @@ const initialGameState: GameState = {
 
 export default function SudokuPage() {
   const [gameState, setGameState] = useState<GameState>(initialGameState);
+  const [currentPuzzle, setCurrentPuzzle] = useState<number[][]>(
+    initialPuzzleData.puzzle,
+  );
 
   const handleCellClick = useCallback(
     (row: number, col: number) => {
@@ -317,24 +323,35 @@ export default function SudokuPage() {
   }, [gameState.isPlaying]);
 
   const startGame = () => {
+    setGameState({
+      board: createBoard(currentPuzzle),
+      selectedCell: null,
+      isComplete: false,
+      difficulty: 'easy',
+      timer: 0,
+      isPlaying: true,
+    });
+  };
+
+  const newPuzzle = () => {
     const newPuzzleData = getRandomPuzzle();
+    setCurrentPuzzle(newPuzzleData.puzzle);
     setGameState({
       board: createBoard(newPuzzleData.puzzle),
       selectedCell: null,
       isComplete: false,
       difficulty: newPuzzleData.difficulty,
       timer: 0,
-      isPlaying: true,
+      isPlaying: false,
     });
   };
 
   const resetGame = () => {
-    const newPuzzleData = getRandomPuzzle();
     setGameState({
-      board: createBoard(newPuzzleData.puzzle),
+      board: createBoard(currentPuzzle),
       selectedCell: null,
       isComplete: false,
-      difficulty: newPuzzleData.difficulty,
+      difficulty: 'easy',
       timer: 0,
       isPlaying: false,
     });
@@ -428,15 +445,30 @@ export default function SudokuPage() {
 
               <div className="flex gap-2">
                 {!gameState.isPlaying && !gameState.isComplete && (
-                  <Button onClick={startGame}>Start Game</Button>
+                  <>
+                    <Button onClick={startGame}>Start Game</Button>
+                    <Button variant="outline" onClick={newPuzzle}>
+                      New Puzzle
+                    </Button>
+                  </>
                 )}
                 {gameState.isComplete && (
-                  <Button onClick={startGame}>Play Again</Button>
+                  <>
+                    <Button onClick={startGame}>Play Again</Button>
+                    <Button variant="outline" onClick={newPuzzle}>
+                      New Puzzle
+                    </Button>
+                  </>
                 )}
                 {gameState.isPlaying && (
-                  <Button variant="outline" onClick={resetGame}>
-                    Reset Game
-                  </Button>
+                  <>
+                    <Button variant="outline" onClick={resetGame}>
+                      Reset Game
+                    </Button>
+                    <Button variant="outline" onClick={newPuzzle}>
+                      New Puzzle
+                    </Button>
+                  </>
                 )}
               </div>
             </CardContent>

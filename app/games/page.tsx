@@ -14,27 +14,18 @@ const games = [
     description:
       'Classic snake game where you control a growing snake to eat food while avoiding walls and yourself.',
     url: '/games/snake',
-    status: 'Available',
   },
   {
     title: 'Breakout',
     description:
       'Break all the bricks with a bouncing ball controlled by a paddle.',
     url: '/games/breakout',
-    status: 'Available',
-  },
-  {
-    title: 'Pac-Man',
-    description: 'Navigate through a maze, eating dots while avoiding ghosts.',
-    url: '/games/pacman',
-    status: 'Available',
   },
   {
     title: 'Sudoku',
     description:
       'Fill the 9×9 grid so each row, column, and 3×3 box contains digits 1-9 exactly once.',
     url: '/games/sudoku',
-    status: 'Available',
   },
 ];
 
@@ -56,38 +47,16 @@ export default function GamesPage() {
             className="transition-colors hover:bg-muted/50 flex flex-col"
           >
             <CardHeader className="flex-1">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-xl">{game.title}</CardTitle>
-                <div className="flex gap-2">
-                  <span
-                    className={`text-xs px-2 py-1 rounded-full ${
-                      game.status === 'Available'
-                        ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                        : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
-                    }`}
-                  >
-                    {game.status}
-                  </span>
-                </div>
-              </div>
+              <CardTitle className="text-xl">{game.title}</CardTitle>
               <CardDescription>{game.description}</CardDescription>
             </CardHeader>
             <CardContent className="mt-auto">
-              {game.status === 'Available' ? (
-                <Link
-                  href={game.url}
-                  className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
-                >
-                  Play Game
-                </Link>
-              ) : (
-                <button
-                  disabled
-                  className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full opacity-50 cursor-not-allowed"
-                >
-                  Coming Soon
-                </button>
-              )}
+              <Link
+                href={game.url}
+                className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
+              >
+                Play Game
+              </Link>
             </CardContent>
           </Card>
         ))}
