@@ -22,42 +22,7 @@ export default function Home() {
           helpful app.
         </p>
       </div>
-      <div className="grid auto-rows-min gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <div className="aspect-video rounded-xl bg-muted/50 p-4 flex flex-col justify-between">
-          <div>
-            <h3 className="font-semibold mb-2">Games</h3>
-            <p className="text-sm text-muted-foreground mb-3">
-              Take a break from development with classic games built with modern
-              web technologies. Relax and have fun!
-            </p>
-            <div className="flex flex-wrap gap-2">
-              <Link
-                href="/games"
-                className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90 transition-colors"
-              >
-                All Games
-              </Link>
-              <Link
-                href="/games/snake"
-                className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90 transition-colors"
-              >
-                Snake
-              </Link>
-              <Link
-                href="/games/breakout"
-                className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90 transition-colors"
-              >
-                Breakout
-              </Link>
-              <Link
-                href="/games/pacman"
-                className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90 transition-colors"
-              >
-                Pac-Man
-              </Link>
-            </div>
-          </div>
-        </div>
+      <div className="grid auto-rows-min gap-4 md:grid-cols-2 lg:grid-cols-3">
         <div className="aspect-video rounded-xl bg-muted/50 p-4 flex flex-col justify-between">
           <div>
             <h3 className="font-semibold mb-2">API Testing</h3>

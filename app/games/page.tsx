@@ -17,13 +17,6 @@ const games = [
     status: 'Available',
   },
   {
-    title: 'Tetris',
-    description:
-      'The classic falling block puzzle game where you arrange shapes to clear lines.',
-    url: '/games/tetris',
-    status: 'Coming Soon',
-  },
-  {
     title: 'Breakout',
     description:
       'Break all the bricks with a bouncing ball controlled by a paddle.',
@@ -34,6 +27,13 @@ const games = [
     title: 'Pac-Man',
     description: 'Navigate through a maze, eating dots while avoiding ghosts.',
     url: '/games/pacman',
+    status: 'Available',
+  },
+  {
+    title: 'Sudoku',
+    description:
+      'Fill the 9×9 grid so each row, column, and 3×3 box contains digits 1-9 exactly once.',
+    url: '/games/sudoku',
     status: 'Available',
   },
 ];
@@ -53,9 +53,9 @@ export default function GamesPage() {
         {games.map((game) => (
           <Card
             key={game.title}
-            className="transition-colors hover:bg-muted/50"
+            className="transition-colors hover:bg-muted/50 flex flex-col"
           >
-            <CardHeader>
+            <CardHeader className="flex-1">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-xl">{game.title}</CardTitle>
                 <div className="flex gap-2">
@@ -72,7 +72,7 @@ export default function GamesPage() {
               </div>
               <CardDescription>{game.description}</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="mt-auto">
               {game.status === 'Available' ? (
                 <Link
                   href={game.url}
