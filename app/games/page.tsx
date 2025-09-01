@@ -84,7 +84,7 @@ export default function GamesPage() {
       <Dialog open={showModal} onOpenChange={() => {}}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Password Required</DialogTitle>
+            <DialogTitle>What&apos;s the password?</DialogTitle>
             <DialogDescription>
               Enter the password to access games
             </DialogDescription>

@@ -33,7 +33,7 @@ describe('GamesPage Password Protection', () => {
     render(<GamesPage />);
     
     // Should show password modal
-    expect(screen.getByText('Password Required')).toBeInTheDocument();
+    expect(screen.getByText("What's the password?")).toBeInTheDocument();
     expect(screen.getByText('Enter the password to access games')).toBeInTheDocument();
     expect(screen.getByLabelText('Password')).toBeInTheDocument();
     
@@ -53,7 +53,7 @@ describe('GamesPage Password Protection', () => {
     
     // Modal should disappear and games should be visible
     await waitFor(() => {
-      expect(screen.queryByText('Password Required')).not.toBeInTheDocument();
+      expect(screen.queryByText("What's the password?")).not.toBeInTheDocument();
     });
     
     expect(screen.getByText('Snake')).toBeInTheDocument();
@@ -76,7 +76,7 @@ describe('GamesPage Password Protection', () => {
       expect(screen.getByText('Incorrect password. Please try again.')).toBeInTheDocument();
     });
     
-    expect(screen.getByText('Password Required')).toBeInTheDocument();
+    expect(screen.getByText("What's the password?")).toBeInTheDocument();
     expect(screen.queryByText('Snake')).not.toBeInTheDocument();
   });
 
@@ -91,7 +91,7 @@ describe('GamesPage Password Protection', () => {
     fireEvent.click(submitButton);
     
     await waitFor(() => {
-      expect(screen.queryByText('Password Required')).not.toBeInTheDocument();
+      expect(screen.queryByText("What's the password?")).not.toBeInTheDocument();
     });
     
     // Check localStorage was set
@@ -105,7 +105,7 @@ describe('GamesPage Password Protection', () => {
     render(<GamesPage />);
     
     // Modal should not be visible
-    expect(screen.queryByText('Password Required')).not.toBeInTheDocument();
+    expect(screen.queryByText("What's the password?")).not.toBeInTheDocument();
     
     // Games should be visible immediately
     expect(screen.getByText('Snake')).toBeInTheDocument();
@@ -124,7 +124,7 @@ describe('GamesPage Password Protection', () => {
     
     // Modal should disappear and games should be visible
     await waitFor(() => {
-      expect(screen.queryByText('Password Required')).not.toBeInTheDocument();
+      expect(screen.queryByText("What's the password?")).not.toBeInTheDocument();
     });
     
     expect(screen.getByText('Snake')).toBeInTheDocument();
