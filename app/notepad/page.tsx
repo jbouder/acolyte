@@ -244,9 +244,9 @@ export default function NotepadPage() {
                 <div className="text-yellow-600">⚠️</div>
                 <div className="text-yellow-800">
                   <strong>Important:</strong> Your notes are stored in your
-                  browser&apos;s IndexedDB for better data persistence and may
-                  be lost when clearing browser data. Use the export button
-                  regularly to backup your important notes.
+                  browser&apos;s IndexedDB and may be lost when clearing browser
+                  data. Use the export button regularly to backup your important
+                  notes.
                 </div>
               </div>
             </div>
