@@ -33,10 +33,7 @@ describe('GamesPage Password Protection', () => {
     render(<GamesPage />);
 
     // Should show password modal
-    expect(screen.getByText("What's the password?")).toBeInTheDocument();
-    expect(
-      screen.getByText('Enter the password to access games'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Restricted Area')).toBeInTheDocument();
     expect(screen.getByLabelText('Password')).toBeInTheDocument();
 
     // Games should not be visible yet
@@ -51,15 +48,35 @@ describe('GamesPage Password Protection', () => {
 
     // Try correct password with different case
     fireEvent.change(passwordInput, {
-      target: { value: 'NEW ENGLAND CLAM CHOWDER' },
+      target: { value: 'PLAGUEIS' },
     });
     fireEvent.click(submitButton);
 
     // Modal should disappear and games should be visible
     await waitFor(() => {
-      expect(
-        screen.queryByText("What's the password?"),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByText('Restricted Area')).not.toBeInTheDocument();
+    });
+
+    expect(screen.getByText('Snake')).toBeInTheDocument();
+    expect(screen.getByText('Breakout')).toBeInTheDocument();
+    expect(screen.getByText('Sudoku')).toBeInTheDocument();
+  });
+
+  it('should accept "Darth Plagueis" password variation', async () => {
+    render(<GamesPage />);
+
+    const passwordInput = screen.getByLabelText('Password');
+    const submitButton = screen.getByRole('button', { name: 'Submit' });
+
+    // Try the longer password variation
+    fireEvent.change(passwordInput, {
+      target: { value: 'Darth Plagueis' },
+    });
+    fireEvent.click(submitButton);
+
+    // Modal should disappear and games should be visible
+    await waitFor(() => {
+      expect(screen.queryByText('Restricted Area')).not.toBeInTheDocument();
     });
 
     expect(screen.getByText('Snake')).toBeInTheDocument();
@@ -84,7 +101,7 @@ describe('GamesPage Password Protection', () => {
       ).toBeInTheDocument();
     });
 
-    expect(screen.getByText("What's the password?")).toBeInTheDocument();
+    expect(screen.getByText('Restricted Area')).toBeInTheDocument();
     expect(screen.queryByText('Snake')).not.toBeInTheDocument();
   });
 
@@ -96,14 +113,12 @@ describe('GamesPage Password Protection', () => {
 
     // Enter correct password
     fireEvent.change(passwordInput, {
-      target: { value: 'new england clam chowder' },
+      target: { value: 'darth plagueis' },
     });
     fireEvent.click(submitButton);
 
     await waitFor(() => {
-      expect(
-        screen.queryByText("What's the password?"),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByText('Restricted Area')).not.toBeInTheDocument();
     });
 
     // Check localStorage was set
@@ -117,7 +132,7 @@ describe('GamesPage Password Protection', () => {
     render(<GamesPage />);
 
     // Modal should not be visible
-    expect(screen.queryByText("What's the password?")).not.toBeInTheDocument();
+    expect(screen.queryByText('Restricted Area')).not.toBeInTheDocument();
 
     // Games should be visible immediately
     expect(screen.getByText('Snake')).toBeInTheDocument();
@@ -132,15 +147,13 @@ describe('GamesPage Password Protection', () => {
 
     // Enter correct password and press Enter
     fireEvent.change(passwordInput, {
-      target: { value: 'new england clam chowder' },
+      target: { value: 'plagueis' },
     });
     fireEvent.keyDown(passwordInput, { key: 'Enter', code: 'Enter' });
 
     // Modal should disappear and games should be visible
     await waitFor(() => {
-      expect(
-        screen.queryByText("What's the password?"),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByText('Restricted Area')).not.toBeInTheDocument();
     });
 
     expect(screen.getByText('Snake')).toBeInTheDocument();

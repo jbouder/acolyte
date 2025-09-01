@@ -14,14 +14,13 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 
-const CORRECT_PASSWORD = 'new england clam chowder';
+const CORRECT_PASSWORDS = ['plagueis', 'darth plagueis'];
 const STORAGE_KEY = 'games-password-verified';
 
 const games = [
@@ -59,7 +58,12 @@ export default function GamesPage() {
   }, []);
 
   const handlePasswordSubmit = () => {
-    if (password.toLowerCase().trim() === CORRECT_PASSWORD.toLowerCase()) {
+    const enteredPassword = password.toLowerCase().trim();
+    if (
+      CORRECT_PASSWORDS.some(
+        (correctPassword) => enteredPassword === correctPassword,
+      )
+    ) {
       // Correct password
       localStorage.setItem(STORAGE_KEY, 'true');
       setIsPasswordVerified(true);
@@ -84,10 +88,7 @@ export default function GamesPage() {
       <Dialog open={showModal} onOpenChange={() => {}}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>What&apos;s the password?</DialogTitle>
-            <DialogDescription>
-              Enter the password to access games
-            </DialogDescription>
+            <DialogTitle>Restricted Area</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
@@ -100,7 +101,7 @@ export default function GamesPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Enter password..."
+                placeholder="Have you heard the tragedy of…"
                 autoFocus
               />
               {errorMessage && (
