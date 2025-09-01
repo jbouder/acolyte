@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 
+// This is not the password you're looking for...
 const CORRECT_PASSWORDS = ['plagueis', 'darth plagueis'];
 const STORAGE_KEY = 'games-password-verified';
 
