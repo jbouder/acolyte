@@ -1,5 +1,9 @@
-import Link from 'next/link';
+'use client';
 
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -7,6 +11,18 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+
+const CORRECT_PASSWORD = 'new england clam chowder';
+const STORAGE_KEY = 'games-password-verified';
 
 const games = [
   {
@@ -30,6 +46,75 @@ const games = [
 ];
 
 export default function GamesPage() {
+  const [isPasswordVerified, setIsPasswordVerified] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  useEffect(() => {
+    // Check if password was previously verified
+    const verified = localStorage.getItem(STORAGE_KEY) === 'true';
+    setIsPasswordVerified(verified);
+    setShowModal(!verified);
+  }, []);
+
+  const handlePasswordSubmit = () => {
+    if (password.toLowerCase().trim() === CORRECT_PASSWORD.toLowerCase()) {
+      // Correct password
+      localStorage.setItem(STORAGE_KEY, 'true');
+      setIsPasswordVerified(true);
+      setShowModal(false);
+      setErrorMessage('');
+      setPassword('');
+    } else {
+      // Incorrect password
+      setErrorMessage('Incorrect password. Please try again.');
+      setPassword('');
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handlePasswordSubmit();
+    }
+  };
+
+  if (!isPasswordVerified) {
+    return (
+      <Dialog open={showModal} onOpenChange={() => {}}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Password Required</DialogTitle>
+            <DialogDescription>
+              Enter the password to access games
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <label htmlFor="password" className="text-sm font-medium">
+                Password
+              </label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Enter password..."
+                autoFocus
+              />
+              {errorMessage && (
+                <p className="text-sm text-red-500">{errorMessage}</p>
+              )}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button onClick={handlePasswordSubmit}>Submit</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+  }
   return (
     <div className="flex flex-1 flex-col gap-6">
       <div className="flex flex-col gap-2">
