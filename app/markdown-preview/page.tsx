@@ -125,7 +125,11 @@ function hello() {
             <Download className="h-4 w-4" />
             Export
           </Button>
-          <Button onClick={() => copyToClipboard(markdown)} variant="outline" size="sm">
+          <Button
+            onClick={() => copyToClipboard(markdown)}
+            variant="outline"
+            size="sm"
+          >
             <Copy className="h-4 w-4" />
             Copy MD
           </Button>
@@ -156,9 +160,7 @@ function hello() {
             />
             <div className="mt-4 flex items-center justify-between text-sm text-muted-foreground">
               <span>Characters: {markdown.length.toLocaleString()}</span>
-              <span>
-                Lines: {markdown.split('\n').length.toLocaleString()}
-              </span>
+              <span>Lines: {markdown.split('\n').length.toLocaleString()}</span>
             </div>
           </CardContent>
         </Card>

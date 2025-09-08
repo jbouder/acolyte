@@ -76,6 +76,11 @@ const items = [
     icon: GitBranch,
   },
   {
+    title: 'Markdown Preview',
+    url: '/markdown-preview',
+    icon: Eye,
+  },
+  {
     title: 'Base64 Encoding',
     url: '/base64',
     icon: FileText,
@@ -104,11 +109,6 @@ const items = [
     title: 'Notepad',
     url: '/notepad',
     icon: StickyNote,
-  },
-  {
-    title: 'Markdown Preview',
-    url: '/markdown-preview',
-    icon: Eye,
   },
   {
     title: 'Games',
