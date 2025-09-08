@@ -5,6 +5,7 @@ import {
   Braces,
   Cable,
   Code2,
+  Eye,
   FileText,
   Gamepad2,
   GitBranch,
@@ -103,6 +104,11 @@ const items = [
     title: 'Notepad',
     url: '/notepad',
     icon: StickyNote,
+  },
+  {
+    title: 'Markdown Preview',
+    url: '/markdown-preview',
+    icon: Eye,
   },
   {
     title: 'Games',
