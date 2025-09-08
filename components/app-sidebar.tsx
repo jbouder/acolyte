@@ -5,6 +5,7 @@ import {
   Braces,
   Cable,
   Code2,
+  Eye,
   FileText,
   Gamepad2,
   GitBranch,
@@ -73,6 +74,11 @@ const items = [
     title: 'Dependency Analysis',
     url: '/dependency-analysis',
     icon: GitBranch,
+  },
+  {
+    title: 'Markdown Preview',
+    url: '/markdown-preview',
+    icon: Eye,
   },
   {
     title: 'Base64 Encoding',
