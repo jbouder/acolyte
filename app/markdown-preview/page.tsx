@@ -12,6 +12,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Copy, Download, Eye, FileText, Upload } from 'lucide-react';
 import { useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
+import rehypeHighlight from 'rehype-highlight';
+import remarkGfm from 'remark-gfm';
 import { toast } from 'sonner';
 
 export default function MarkdownPreviewPage() {
@@ -179,7 +181,12 @@ function hello() {
           <CardContent>
             <div className="min-h-[500px] overflow-auto rounded-md border border-border bg-muted/30 p-4">
               <div className="prose prose-sm dark:prose-invert max-w-none">
-                <ReactMarkdown>{markdown}</ReactMarkdown>
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  rehypePlugins={[rehypeHighlight]}
+                >
+                  {markdown}
+                </ReactMarkdown>
               </div>
             </div>
           </CardContent>
