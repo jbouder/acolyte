@@ -46,6 +46,7 @@
 
 ### 🔧 Development Utilities
 
+- **Markdown Preview** - Real-time markdown editor and preview with syntax highlighting, GitHub Flavored Markdown support, and export capabilities
 - **Base64 Encoder/Decoder** - Convert text and files to/from Base64 encoding with support for multiple formats
 - **JSON Formatter** - Beautify, validate, and minify JSON with syntax highlighting and error detection
 - **Regex Tester** - Test and debug regular expressions with real-time matching and explanation
@@ -148,6 +149,7 @@ npm start
 
 - **JSON Formatter**: Paste JSON and get formatted, validated output
 - **Regex Tester**: Test patterns against sample text with real-time matching
+- **Markdown Preview**: Write and preview markdown with live rendering, syntax highlighting, and export options
 - **Base64 Tools**: Encode/decode text and files
 - **Color Picker**: Select colors and get values in multiple formats
 
@@ -164,6 +166,7 @@ acolyte/
 │   ├── games/             # Browser games
 │   ├── json-formatter/    # JSON formatting utility
 │   ├── jwt/               # JWT decoder tool
+│   ├── markdown-preview/  # Markdown editor and preview tool
 │   ├── notepad/           # Developer notepad
 │   ├── regex/             # Regular expression tester
 │   ├── sse/               # Server-Sent Events testing

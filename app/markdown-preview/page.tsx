@@ -179,7 +179,7 @@ function hello() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="min-h-[500px] overflow-auto rounded-md border border-border bg-muted/30 p-4">
+            <div className="min-h-[500px] overflow-auto rounded-md border border-border bg-muted/30 p-4 markdown-preview">
               <div className="prose prose-sm dark:prose-invert max-w-none">
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}

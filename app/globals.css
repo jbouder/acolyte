@@ -121,3 +121,215 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Markdown preview specific styles - scoped to avoid affecting other parts of the app */
+.markdown-preview {
+  .prose {
+    /* Headers */
+    h1 {
+      font-size: 2.25em;
+      font-weight: 800;
+      line-height: 1.1111111;
+      margin-top: 0;
+      margin-bottom: 0.8888889em;
+    }
+
+    h2 {
+      font-size: 1.5em;
+      font-weight: 700;
+      line-height: 1.3333333;
+      margin-top: 2em;
+      margin-bottom: 1em;
+    }
+
+    h3 {
+      font-size: 1.25em;
+      font-weight: 600;
+      line-height: 1.6;
+      margin-top: 1.6em;
+      margin-bottom: 0.6em;
+    }
+
+    h4 {
+      font-size: 1.125em;
+      font-weight: 600;
+      line-height: 1.5555556;
+      margin-top: 1.5555556em;
+      margin-bottom: 0.4444444em;
+    }
+
+    h5 {
+      font-size: 1em;
+      font-weight: 600;
+      line-height: 1.75;
+      margin-top: 1.75em;
+      margin-bottom: 0.75em;
+    }
+
+    h6 {
+      font-size: 1em;
+      font-weight: 600;
+      line-height: 1.75;
+      margin-top: 1.75em;
+      margin-bottom: 0.75em;
+    }
+
+    /* Lists */
+    ul {
+      list-style-type: disc;
+      padding-left: 1.625em;
+      margin-top: 1.25em;
+      margin-bottom: 1.25em;
+    }
+
+    ol {
+      list-style-type: decimal;
+      padding-left: 1.625em;
+      margin-top: 1.25em;
+      margin-bottom: 1.25em;
+    }
+
+    li {
+      margin-top: 0.5em;
+      margin-bottom: 0.5em;
+    }
+
+    ul ul,
+    ol ul {
+      list-style-type: circle;
+      margin-top: 0.75em;
+      margin-bottom: 0.75em;
+    }
+
+    ol ol,
+    ul ol {
+      list-style-type: lower-latin;
+      margin-top: 0.75em;
+      margin-bottom: 0.75em;
+    }
+
+    /* Other common elements */
+    p {
+      margin-top: 1.25em;
+      margin-bottom: 1.25em;
+    }
+
+    blockquote {
+      font-weight: 500;
+      font-style: italic;
+      border-left-width: 0.25rem;
+      border-left-color: rgb(209 213 219);
+      quotes: '\201C' '\201D' '\2018' '\2019';
+      margin-top: 1.6em;
+      margin-bottom: 1.6em;
+      padding-left: 1em;
+    }
+
+    code {
+      color: rgb(17 24 39);
+      background-color: rgb(243 244 246);
+      font-weight: 600;
+      font-size: 0.875em;
+      padding: 0.125rem 0.25rem;
+      border-radius: 0.25rem;
+      font-family:
+        ui-monospace, SFMono-Regular, 'SF Mono', Consolas, 'Liberation Mono',
+        Menlo, monospace;
+    }
+
+    pre {
+      background-color: rgb(248 250 252);
+      border: 1px solid rgb(226 232 240);
+      border-radius: 0.375rem;
+      color: rgb(15 23 42);
+      font-size: 0.875em;
+      line-height: 1.7142857;
+      margin-top: 1.7142857em;
+      margin-bottom: 1.7142857em;
+      overflow-x: auto;
+      padding: 0.8571429em 1.1428571em;
+
+      code {
+        background-color: transparent;
+        border-radius: 0;
+        border-width: 0;
+        color: inherit;
+        font-family: inherit;
+        font-size: inherit;
+        font-weight: 400;
+        line-height: inherit;
+        padding: 0;
+      }
+    }
+
+    hr {
+      border-color: rgb(229 231 235);
+      border-top-width: 1px;
+      margin-top: 3em;
+      margin-bottom: 3em;
+    }
+
+    /* Links */
+    a {
+      color: rgb(59 130 246);
+      text-decoration: underline;
+      font-weight: 500;
+
+      &:hover {
+        color: rgb(37 99 235);
+        text-decoration: none;
+      }
+
+      &:visited {
+        color: rgb(124 58 237);
+      }
+    }
+
+    /* Strong and emphasis */
+    strong {
+      color: inherit;
+      font-weight: 600;
+    }
+
+    em {
+      color: inherit;
+      font-style: italic;
+    }
+  }
+}
+
+/* Dark mode adjustments */
+.dark .markdown-preview {
+  .prose {
+    blockquote {
+      border-left-color: rgb(75 85 99);
+    }
+
+    code {
+      color: rgb(243 244 246);
+      background-color: rgb(55 65 81);
+    }
+
+    pre {
+      background-color: rgb(15 23 42);
+      border-color: rgb(51 65 85);
+      color: rgb(226 232 240);
+    }
+
+    hr {
+      border-color: rgb(75 85 99);
+    }
+
+    a {
+      color: rgb(96 165 250);
+
+      &:hover {
+        color: rgb(147 197 253);
+      }
+
+      &:visited {
+        color: rgb(196 181 253);
+      }
+    }
+  }
+}
