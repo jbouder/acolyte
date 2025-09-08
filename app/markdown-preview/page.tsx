@@ -21,14 +21,6 @@ export default function MarkdownPreviewPage() {
 
 This is a **markdown preview tool** that allows you to write and preview markdown in real-time.
 
-## Features
-
-- Live preview as you type
-- Side-by-side editing and preview
-- Copy formatted HTML to clipboard
-- Import/export markdown files
-- Support for all standard markdown syntax
-
 ### Code Example
 
 \`\`\`javascript
