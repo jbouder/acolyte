@@ -43,6 +43,7 @@
 - **Web Stats** - Provides detailed information about the current web client, including IP address, browser details, location, and system specifications
 - **Website Analysis** - In-depth analysis of web applications including security headers, performance metrics, and best practices
 - **Dependency Analysis** - Package.json analysis with vulnerability scanning, outdated package detection, and dependency tree visualization
+- **Accessibility Checker** - Scan websites for accessibility issues and WCAG compliance
 
 ### 🔧 Development Utilities
 
@@ -159,6 +160,7 @@ npm start
 acolyte/
 ├── app/                    # Next.js App Router pages
 │   ├── api/               # API route handlers
+│   ├── accessibility-checker/# Accessibility scanning tool
 │   ├── apis/              # REST API testing interface
 │   ├── base64/            # Base64 encoding/decoding tool
 │   ├── color-picker/      # Color selection utility

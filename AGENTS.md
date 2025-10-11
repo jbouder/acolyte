@@ -71,6 +71,18 @@ Package.json analysis tool featuring:
 - Total package count and categorization
 - Security recommendations
 
+#### Accessibility Checker
+
+Scan websites for accessibility issues and WCAG compliance:
+
+- Automated accessibility testing
+- WCAG 2.1 compliance checking
+- Detection of missing alt text, labels, and ARIA attributes
+- Heading structure validation
+- Landmark and semantic HTML checks
+- Detailed issue reporting with severity levels
+- Export reports in JSON format
+
 ### 🔧 Development Utilities
 
 #### Markdown Preview
@@ -235,6 +247,7 @@ npm start
 acolyte/
 ├── app/                    # Next.js App Router pages
 │   ├── api/               # API route handlers
+│   ├── accessibility-checker/# Accessibility scanning tool
 │   ├── apis/              # REST API testing interface
 │   ├── base64/            # Base64 encoding/decoding tool
 │   ├── color-picker/      # Color selection utility

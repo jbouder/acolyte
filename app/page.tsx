@@ -78,6 +78,12 @@ export default function Home() {
               >
                 Dependency Analysis
               </Link>
+              <Link
+                href="/accessibility-checker"
+                className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90 transition-colors"
+              >
+                Accessibility Checker
+              </Link>
             </div>
           </div>
         </div>
