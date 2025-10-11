@@ -13,15 +13,15 @@ describe('Accessibility Checker', () => {
   it('renders the accessibility checker page', () => {
     render(<AccessibilityCheckerPage />);
 
-    expect(
-      screen.getByText('Accessibility Checker'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Accessibility Checker')).toBeInTheDocument();
     expect(
       screen.getByText(
         'Enter a URL to scan for accessibility issues and WCAG compliance',
       ),
     ).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('https://example.com')).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText('https://example.com'),
+    ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /scan/i })).toBeInTheDocument();
   });
 
@@ -82,7 +82,9 @@ describe('Accessibility Checker', () => {
     fireEvent.click(scanButton);
 
     // Check for loading state
-    expect(screen.getByRole('button', { name: /scanning/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /scanning/i }),
+    ).toBeInTheDocument();
   });
 
   it('displays accessibility report after successful scan', async () => {
