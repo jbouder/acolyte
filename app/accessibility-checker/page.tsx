@@ -27,6 +27,10 @@ interface AccessibilityIssue {
   element?: string;
   wcagLevel?: string;
   wcagCriteria?: string;
+  help?: string;
+  helpUrl?: string;
+  impact?: string | null;
+  nodes?: number;
 }
 
 interface AccessibilityReport {
@@ -50,6 +54,10 @@ interface AccessibilityReport {
     hasAriaLabels: boolean;
     hasLandmarks: boolean;
     hasColorContrast: boolean;
+  };
+  testEngine?: {
+    name: string;
+    version: string;
   };
 }
 
@@ -341,23 +349,60 @@ export default function AccessibilityCheckerPage() {
                         {getIssueIcon(issue.type)}
                         <div className="flex-1">
                           <p className="text-sm font-medium">{issue.message}</p>
+                          {issue.help && (
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {issue.help}
+                            </p>
+                          )}
                           {issue.element && (
                             <p className="text-xs text-muted-foreground mt-1 font-mono">
                               Element: {issue.element}
                             </p>
                           )}
-                          {issue.wcagCriteria && (
-                            <div className="flex gap-2 mt-2">
+                          {issue.nodes && issue.nodes > 1 && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Affects {issue.nodes} element
+                              {issue.nodes !== 1 ? 's' : ''}
+                            </p>
+                          )}
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {issue.wcagCriteria && (
                               <Badge variant="outline" className="text-xs">
                                 {issue.wcagCriteria}
                               </Badge>
-                              {issue.wcagLevel && (
-                                <Badge variant="outline" className="text-xs">
-                                  WCAG {issue.wcagLevel}
-                                </Badge>
-                              )}
-                            </div>
-                          )}
+                            )}
+                            {issue.wcagLevel && (
+                              <Badge variant="outline" className="text-xs">
+                                WCAG {issue.wcagLevel}
+                              </Badge>
+                            )}
+                            {issue.impact && (
+                              <Badge
+                                variant="outline"
+                                className={`text-xs ${
+                                  issue.impact === 'critical'
+                                    ? 'border-red-500 text-red-500'
+                                    : issue.impact === 'serious'
+                                      ? 'border-orange-500 text-orange-500'
+                                      : issue.impact === 'moderate'
+                                        ? 'border-yellow-500 text-yellow-500'
+                                        : 'border-blue-500 text-blue-500'
+                                }`}
+                              >
+                                {issue.impact}
+                              </Badge>
+                            )}
+                            {issue.helpUrl && (
+                              <a
+                                href={issue.helpUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-primary hover:underline"
+                              >
+                                Learn more →
+                              </a>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>

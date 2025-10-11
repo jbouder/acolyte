@@ -1,4 +1,6 @@
+import type { AxeResults, ImpactValue, Result } from 'axe-core';
 import { NextRequest, NextResponse } from 'next/server';
+import puppeteer from 'puppeteer';
 
 interface AccessibilityIssue {
   type: 'error' | 'warning' | 'info';
@@ -6,9 +8,52 @@ interface AccessibilityIssue {
   element?: string;
   wcagLevel?: string;
   wcagCriteria?: string;
+  help?: string;
+  helpUrl?: string;
+  impact?: ImpactValue | null;
+  nodes?: number;
 }
 
+// Map axe-core impact levels to our severity types
+const mapImpactToType = (
+  impact?: ImpactValue | null,
+): 'error' | 'warning' | 'info' => {
+  switch (impact) {
+    case 'critical':
+    case 'serious':
+      return 'error';
+    case 'moderate':
+      return 'warning';
+    case 'minor':
+      return 'info';
+    default:
+      return 'error';
+  }
+};
+
+// Map axe-core tags to WCAG level
+const getWcagLevel = (tags: string[]): string => {
+  if (tags.includes('wcag2a') || tags.includes('wcag21a')) {
+    return '2.1 Level A';
+  }
+  if (tags.includes('wcag2aa') || tags.includes('wcag21aa')) {
+    return '2.1 Level AA';
+  }
+  if (tags.includes('wcag2aaa') || tags.includes('wcag21aaa')) {
+    return '2.1 Level AAA';
+  }
+  return '';
+};
+
+// Extract WCAG criteria from tags
+const getWcagCriteria = (tags: string[]): string => {
+  const wcagTag = tags.find((tag) => tag.match(/wcag\d+/));
+  return wcagTag || '';
+};
+
 export async function POST(request: NextRequest) {
+  let browser;
+
   try {
     const { url, wcagLevel = 'AA' } = await request.json();
 
@@ -27,318 +72,140 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Fetch the webpage
-    const response = await fetch(targetUrl.toString(), {
-      method: 'GET',
-      headers: {
-        'User-Agent': 'Acolyte-Accessibility/1.0',
-      },
-      signal: AbortSignal.timeout(10000),
+    // Launch headless browser
+    browser = await puppeteer.launch({
+      headless: true,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+      ],
     });
 
-    const html = await response.text();
+    const page = await browser.newPage();
 
-    // Initialize issues array and checks
+    // Set timeout and navigate to the page
+    await page.goto(targetUrl.toString(), {
+      waitUntil: 'networkidle0',
+      timeout: 30000,
+    });
+
+    // Inject axe-core into the page from CDN
+    await page.addScriptTag({
+      url: 'https://unpkg.com/axe-core@latest/axe.min.js',
+    });
+
+    // Run axe-core accessibility tests
+    const results = (await page.evaluate((wcagLevel: string) => {
+      return new Promise((resolve) => {
+        // Configure axe based on WCAG level
+        const runOptions = {
+          runOnly: {
+            type: 'tag' as const,
+            values:
+              wcagLevel === 'A'
+                ? ['wcag2a', 'wcag21a']
+                : wcagLevel === 'AA'
+                  ? ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']
+                  : [
+                      'wcag2a',
+                      'wcag2aa',
+                      'wcag2aaa',
+                      'wcag21a',
+                      'wcag21aa',
+                      'wcag21aaa',
+                    ],
+          },
+        };
+
+        // @ts-expect-error axe is injected into the page
+        window.axe.run(runOptions).then(resolve);
+      });
+    }, wcagLevel as string)) as AxeResults;
+
+    await browser.close();
+
+    // Convert axe-core results to our format
     const issues: AccessibilityIssue[] = [];
+
+    // Process violations (errors)
+    results.violations.forEach((violation: Result) => {
+      issues.push({
+        type: mapImpactToType(violation.impact),
+        message: violation.description,
+        help: violation.help,
+        helpUrl: violation.helpUrl,
+        element: violation.nodes[0]?.html || violation.id,
+        wcagLevel: getWcagLevel(violation.tags),
+        wcagCriteria: getWcagCriteria(violation.tags),
+        impact: violation.impact,
+        nodes: violation.nodes.length,
+      });
+    });
+
+    // Analyze checks for summary
     const checks = {
-      hasLang: false,
-      hasTitle: false,
-      hasMetaViewport: false,
-      hasSkipLink: false,
-      hasAltTexts: true,
-      hasFormLabels: true,
-      hasHeadingStructure: true,
-      hasAriaLabels: true,
-      hasLandmarks: true,
-      hasColorContrast: true,
+      hasLang: !results.violations.some((v) => v.id === 'html-has-lang'),
+      hasTitle: !results.violations.some((v) => v.id === 'document-title'),
+      hasMetaViewport: !results.violations.some(
+        (v) => v.id === 'meta-viewport',
+      ),
+      hasSkipLink: !results.violations.some((v) => v.id === 'bypass'),
+      hasAltTexts: !results.violations.some((v) => v.id === 'image-alt'),
+      hasFormLabels: !results.violations.some(
+        (v) => v.id === 'label' || v.id === 'label-title-only',
+      ),
+      hasHeadingStructure: !results.violations.some(
+        (v) =>
+          v.id === 'page-has-heading-one' ||
+          v.id === 'heading-order' ||
+          v.id === 'empty-heading',
+      ),
+      hasAriaLabels: !results.violations.some(
+        (v) =>
+          v.id === 'aria-hidden-focus' ||
+          v.id === 'aria-input-field-name' ||
+          v.id === 'button-name' ||
+          v.id === 'link-name',
+      ),
+      hasLandmarks: !results.violations.some(
+        (v) => v.id === 'landmark-one-main' || v.id === 'region',
+      ),
+      hasColorContrast: !results.violations.some(
+        (v) => v.id === 'color-contrast',
+      ),
     };
-
-    // Check for lang attribute
-    const hasLang = /<html[^>]*\slang=/i.test(html);
-    checks.hasLang = hasLang;
-    if (!hasLang) {
-      issues.push({
-        type: 'error',
-        message: 'HTML element is missing lang attribute',
-        element: '<html>',
-        wcagLevel: '2.1 Level A',
-        wcagCriteria: '3.1.1 Language of Page',
-      });
-    }
-
-    // Check for title
-    const hasTitle = /<title[^>]*>([^<]+)<\/title>/i.test(html);
-    checks.hasTitle = hasTitle;
-    if (!hasTitle) {
-      issues.push({
-        type: 'error',
-        message: 'Page is missing a title element',
-        element: '<head>',
-        wcagLevel: '2.1 Level A',
-        wcagCriteria: '2.4.2 Page Titled',
-      });
-    }
-
-    // Check for viewport meta tag
-    const hasViewport = /<meta[^>]*name=["']viewport["']/i.test(html);
-    checks.hasMetaViewport = hasViewport;
-    if (!hasViewport) {
-      issues.push({
-        type: 'warning',
-        message: 'Page is missing viewport meta tag for responsive design',
-        element: '<head>',
-        wcagLevel: '2.1 Level AA',
-        wcagCriteria: '1.4.10 Reflow',
-      });
-    }
-
-    // Check for skip links
-    const hasSkipLink =
-      /skip[- ]to[- ](main|content|navigation)/i.test(html) ||
-      /<a[^>]*href=["']#(main|content|skip)/i.test(html);
-    checks.hasSkipLink = hasSkipLink;
-    if (!hasSkipLink) {
-      issues.push({
-        type: 'info',
-        message: 'Consider adding a skip navigation link for keyboard users',
-        wcagLevel: '2.1 Level A',
-        wcagCriteria: '2.4.1 Bypass Blocks',
-      });
-    }
-
-    // Check for images without alt text
-    const imgMatches = html.matchAll(/<img[^>]*>/gi);
-    let imagesWithoutAlt = 0;
-    for (const match of imgMatches) {
-      const img = match[0];
-      if (
-        !img.includes('alt=') ||
-        /alt=["']["']/i.test(img) ||
-        /alt=["']\s*["']/i.test(img)
-      ) {
-        imagesWithoutAlt++;
-      }
-    }
-    if (imagesWithoutAlt > 0) {
-      checks.hasAltTexts = false;
-      issues.push({
-        type: 'error',
-        message: `Found ${imagesWithoutAlt} image(s) without proper alt text`,
-        element: '<img>',
-        wcagLevel: '2.1 Level A',
-        wcagCriteria: '1.1.1 Non-text Content',
-      });
-    }
-
-    // Check for form inputs without labels
-    const inputMatches = html.matchAll(
-      /<input[^>]*type=["']?(text|email|password|search|tel|url|number)[^>]*>/gi,
-    );
-    let inputsWithoutLabels = 0;
-    for (const match of inputMatches) {
-      const input = match[0];
-      const hasId = /id=["']([^"']+)["']/i.exec(input);
-      const hasAriaLabel = /aria-label=/i.test(input);
-      const hasAriaLabelledby = /aria-labelledby=/i.test(input);
-
-      if (!hasAriaLabel && !hasAriaLabelledby) {
-        if (hasId) {
-          const id = hasId[1];
-          const hasLabelFor = new RegExp(
-            `<label[^>]*for=["']${id}["']`,
-            'i',
-          ).test(html);
-          if (!hasLabelFor) {
-            inputsWithoutLabels++;
-          }
-        } else {
-          inputsWithoutLabels++;
-        }
-      }
-    }
-    if (inputsWithoutLabels > 0) {
-      checks.hasFormLabels = false;
-      issues.push({
-        type: 'error',
-        message: `Found ${inputsWithoutLabels} form input(s) without associated labels`,
-        element: '<input>',
-        wcagLevel: '2.1 Level A',
-        wcagCriteria: '1.3.1 Info and Relationships',
-      });
-    }
-
-    // Check heading structure
-    const h1Count = (html.match(/<h1[^>]*>/gi) || []).length;
-    if (h1Count === 0) {
-      checks.hasHeadingStructure = false;
-      issues.push({
-        type: 'error',
-        message: 'Page is missing an h1 heading',
-        wcagLevel: '2.1 Level A',
-        wcagCriteria: '1.3.1 Info and Relationships',
-      });
-    } else if (h1Count > 1) {
-      checks.hasHeadingStructure = false;
-      issues.push({
-        type: 'warning',
-        message: `Page has ${h1Count} h1 headings, should have only one`,
-        element: '<h1>',
-        wcagLevel: '2.1 Level A',
-        wcagCriteria: '1.3.1 Info and Relationships',
-      });
-    }
-
-    // Check for ARIA landmarks
-    const hasMain =
-      /<main[^>]*>/i.test(html) || /role=["']main["']/i.test(html);
-    const hasNav =
-      /<nav[^>]*>/i.test(html) || /role=["']navigation["']/i.test(html);
-    if (!hasMain) {
-      checks.hasLandmarks = false;
-      issues.push({
-        type: 'warning',
-        message: 'Page is missing a main landmark',
-        element: '<main>',
-        wcagLevel: '2.1 Level A',
-        wcagCriteria: '1.3.1 Info and Relationships',
-      });
-    }
-    if (!hasNav && /<a[^>]*href/i.test(html)) {
-      issues.push({
-        type: 'info',
-        message: 'Consider adding a navigation landmark',
-        element: '<nav>',
-      });
-    }
-
-    // Check for buttons without accessible names
-    const buttonMatches = html.matchAll(/<button[^>]*>([^<]*)<\/button>/gi);
-    let buttonsWithoutText = 0;
-    for (const match of buttonMatches) {
-      const buttonContent = match[1].trim();
-      const buttonTag = match[0];
-      const hasAriaLabel = /aria-label=/i.test(buttonTag);
-      const hasAriaLabelledby = /aria-labelledby=/i.test(buttonTag);
-
-      if (!buttonContent && !hasAriaLabel && !hasAriaLabelledby) {
-        buttonsWithoutText++;
-      }
-    }
-    if (buttonsWithoutText > 0) {
-      checks.hasAriaLabels = false;
-      issues.push({
-        type: 'error',
-        message: `Found ${buttonsWithoutText} button(s) without accessible text`,
-        element: '<button>',
-        wcagLevel: '2.1 Level A',
-        wcagCriteria: '4.1.2 Name, Role, Value',
-      });
-    }
-
-    // Check for links without text
-    const linkMatches = html.matchAll(/<a[^>]*href[^>]*>([^<]*)<\/a>/gi);
-    let linksWithoutText = 0;
-    for (const match of linkMatches) {
-      const linkContent = match[1].trim();
-      const linkTag = match[0];
-      const hasAriaLabel = /aria-label=/i.test(linkTag);
-      const hasAriaLabelledby = /aria-labelledby=/i.test(linkTag);
-      const hasImage = /<img/i.test(linkTag);
-
-      if (!linkContent && !hasAriaLabel && !hasAriaLabelledby && !hasImage) {
-        linksWithoutText++;
-      }
-    }
-    if (linksWithoutText > 0) {
-      checks.hasAriaLabels = false;
-      issues.push({
-        type: 'error',
-        message: `Found ${linksWithoutText} link(s) without accessible text`,
-        element: '<a>',
-        wcagLevel: '2.1 Level A',
-        wcagCriteria: '2.4.4 Link Purpose',
-      });
-    }
-
-    // Check for color contrast issues (basic check)
-    const hasInlineStyles = /style=["'][^"']*color:/i.test(html);
-    if (hasInlineStyles) {
-      issues.push({
-        type: 'info',
-        message:
-          'Inline color styles detected. Ensure sufficient color contrast (4.5:1 for normal text)',
-        wcagLevel: '2.1 Level AA',
-        wcagCriteria: '1.4.3 Contrast',
-      });
-    }
-
-    // Check for tables without proper structure
-    const tableMatches = html.matchAll(/<table[^>]*>/gi);
-    let tablesWithoutHeaders = 0;
-    for (const match of tableMatches) {
-      const tableStart = match.index || 0;
-      const tableEnd = html.indexOf('</table>', tableStart);
-      if (tableEnd !== -1) {
-        const tableContent = html.substring(tableStart, tableEnd);
-        if (!/<th[^>]*>/i.test(tableContent)) {
-          tablesWithoutHeaders++;
-        }
-      }
-    }
-    if (tablesWithoutHeaders > 0) {
-      issues.push({
-        type: 'warning',
-        message: `Found ${tablesWithoutHeaders} table(s) without header cells`,
-        element: '<table>',
-        wcagLevel: '2.1 Level A',
-        wcagCriteria: '1.3.1 Info and Relationships',
-      });
-    }
-
-    // Filter issues based on WCAG level
-    const wcagLevelFilter = (issue: AccessibilityIssue) => {
-      if (!issue.wcagLevel) return true; // Include issues without level
-
-      const levelMatch = issue.wcagLevel.match(/Level (A|AA|AAA)/i);
-      if (!levelMatch) return true;
-
-      const issueLevel = levelMatch[1].toUpperCase();
-
-      // If wcagLevel is A, show all (A, AA, AAA)
-      // If wcagLevel is AA, show A and AA
-      // If wcagLevel is AAA, show all
-      if (wcagLevel === 'A') {
-        return issueLevel === 'A';
-      } else if (wcagLevel === 'AA') {
-        return issueLevel === 'A' || issueLevel === 'AA';
-      } else {
-        return true; // AAA shows all levels
-      }
-    };
-
-    const filteredIssues = issues.filter(wcagLevelFilter);
 
     // Calculate summary
-    const errors = filteredIssues.filter((i) => i.type === 'error').length;
-    const warnings = filteredIssues.filter((i) => i.type === 'warning').length;
-    const info = filteredIssues.filter((i) => i.type === 'info').length;
+    const errors = issues.filter((i) => i.type === 'error').length;
+    const warnings = issues.filter((i) => i.type === 'warning').length;
+    const info = issues.filter((i) => i.type === 'info').length;
 
     const report = {
       url: targetUrl.toString(),
       timestamp: new Date().toISOString(),
       summary: {
-        totalIssues: filteredIssues.length,
+        totalIssues: issues.length,
         errors,
         warnings,
         info,
       },
-      issues: filteredIssues,
+      issues,
       checks,
+      testEngine: {
+        name: 'axe-core',
+        version: results.testEngine.version,
+      },
     };
 
     return NextResponse.json(report);
   } catch (error) {
     console.error('Accessibility check error:', error);
+
+    // Ensure browser is closed on error
+    if (browser) {
+      await browser.close();
+    }
 
     if (error instanceof Error) {
       if (error.name === 'TimeoutError' || error.message.includes('timeout')) {
@@ -347,7 +214,7 @@ export async function POST(request: NextRequest) {
           { status: 408 },
         );
       }
-      if (error.message.includes('fetch')) {
+      if (error.message.includes('net::ERR')) {
         return NextResponse.json(
           {
             error:
