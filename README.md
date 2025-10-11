@@ -126,6 +126,21 @@ npm run build
 npm start
 ```
 
+## Deployment
+
+Acolyte is optimized for deployment on Vercel and other serverless platforms. The Accessibility Checker feature uses a serverless-compatible Puppeteer configuration that works seamlessly on:
+
+- **Vercel** (recommended)
+- **AWS Lambda**
+- **Netlify Functions**
+- **Google Cloud Functions**
+
+For detailed deployment instructions and troubleshooting, see [DEPLOYMENT.md](DEPLOYMENT.md).
+
+### Quick Deploy to Vercel
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/jbouder/acolyte)
+
 ## Usage
 
 ### API Testing

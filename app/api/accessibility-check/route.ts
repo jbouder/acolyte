@@ -1,6 +1,7 @@
+import chromium from '@sparticuz/chromium';
 import type { AxeResults, ImpactValue, Result } from 'axe-core';
 import { NextRequest, NextResponse } from 'next/server';
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-core';
 
 interface AccessibilityIssue {
   type: 'error' | 'warning' | 'info';
@@ -72,14 +73,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Launch headless browser
+    // Launch headless browser with serverless-compatible configuration
+    const isDev = process.env.NODE_ENV === 'development';
+
     browser = await puppeteer.launch({
+      args: isDev
+        ? [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+          ]
+        : [...chromium.args, '--no-sandbox', '--disable-setuid-sandbox'],
+      defaultViewport: {
+        width: 1920,
+        height: 1080,
+      },
+      executablePath: isDev
+        ? process.env.PUPPETEER_EXECUTABLE_PATH ||
+          '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+        : await chromium.executablePath(),
       headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-      ],
     });
 
     const page = await browser.newPage();
