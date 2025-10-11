@@ -10,7 +10,7 @@ interface AccessibilityIssue {
 
 export async function POST(request: NextRequest) {
   try {
-    const { url } = await request.json();
+    const { url, wcagLevel = 'AA' } = await request.json();
 
     if (!url) {
       return NextResponse.json({ error: 'URL is required' }, { status: 400 });
@@ -295,21 +295,44 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    // Filter issues based on WCAG level
+    const wcagLevelFilter = (issue: AccessibilityIssue) => {
+      if (!issue.wcagLevel) return true; // Include issues without level
+
+      const levelMatch = issue.wcagLevel.match(/Level (A|AA|AAA)/i);
+      if (!levelMatch) return true;
+
+      const issueLevel = levelMatch[1].toUpperCase();
+
+      // If wcagLevel is A, show all (A, AA, AAA)
+      // If wcagLevel is AA, show A and AA
+      // If wcagLevel is AAA, show all
+      if (wcagLevel === 'A') {
+        return issueLevel === 'A';
+      } else if (wcagLevel === 'AA') {
+        return issueLevel === 'A' || issueLevel === 'AA';
+      } else {
+        return true; // AAA shows all levels
+      }
+    };
+
+    const filteredIssues = issues.filter(wcagLevelFilter);
+
     // Calculate summary
-    const errors = issues.filter((i) => i.type === 'error').length;
-    const warnings = issues.filter((i) => i.type === 'warning').length;
-    const info = issues.filter((i) => i.type === 'info').length;
+    const errors = filteredIssues.filter((i) => i.type === 'error').length;
+    const warnings = filteredIssues.filter((i) => i.type === 'warning').length;
+    const info = filteredIssues.filter((i) => i.type === 'info').length;
 
     const report = {
       url: targetUrl.toString(),
       timestamp: new Date().toISOString(),
       summary: {
-        totalIssues: issues.length,
+        totalIssues: filteredIssues.length,
         errors,
         warnings,
         info,
       },
-      issues,
+      issues: filteredIssues,
       checks,
     };
 

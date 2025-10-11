@@ -10,6 +10,13 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { AlertCircle, AlertTriangle, CheckCircle, Info } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -48,6 +55,8 @@ interface AccessibilityReport {
 
 export default function AccessibilityCheckerPage() {
   const [url, setUrl] = useState('https://example.com');
+  const [wcagLevel, setWcagLevel] = useState('AA');
+  const [severityLevel, setSeverityLevel] = useState('all');
   const [loading, setLoading] = useState(false);
   const [report, setReport] = useState<AccessibilityReport | null>(null);
   const [error, setError] = useState('');
@@ -68,7 +77,7 @@ export default function AccessibilityCheckerPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ url }),
+        body: JSON.stringify({ url, wcagLevel }),
       });
 
       const data = await response.json();
@@ -96,6 +105,19 @@ export default function AccessibilityCheckerPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const getFilteredIssues = () => {
+    if (!report) return [];
+
+    let filtered = report.issues;
+
+    // Filter by severity level
+    if (severityLevel !== 'all') {
+      filtered = filtered.filter((issue) => issue.type === severityLevel);
+    }
+
+    return filtered;
   };
 
   const exportReport = () => {
@@ -167,6 +189,37 @@ export default function AccessibilityCheckerPage() {
               <Button onClick={checkAccessibility} disabled={loading}>
                 {loading ? 'Scanning...' : 'Scan'}
               </Button>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">WCAG Level</label>
+                <Select value={wcagLevel} onValueChange={setWcagLevel}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="A">Level A</SelectItem>
+                    <SelectItem value="AA">Level AA (Recommended)</SelectItem>
+                    <SelectItem value="AAA">Level AAA</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Severity Filter</label>
+                <Select value={severityLevel} onValueChange={setSeverityLevel}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Issues</SelectItem>
+                    <SelectItem value="error">Errors Only</SelectItem>
+                    <SelectItem value="warning">Warnings Only</SelectItem>
+                    <SelectItem value="info">Info Only</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             {error && (
@@ -268,17 +321,18 @@ export default function AccessibilityCheckerPage() {
           </Card>
 
           {/* Issues List */}
-          {report.issues.length > 0 && (
+          {getFilteredIssues().length > 0 && (
             <Card>
               <CardHeader>
                 <CardTitle>Issues Found</CardTitle>
                 <CardDescription>
                   Accessibility issues detected on the page
+                  {severityLevel !== 'all' && ` (filtered by ${severityLevel})`}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {report.issues.map((issue, index) => (
+                  {getFilteredIssues().map((issue, index) => (
                     <div
                       key={index}
                       className={`border rounded-lg p-4 ${getIssueColor(issue.type)}`}
@@ -308,6 +362,22 @@ export default function AccessibilityCheckerPage() {
                       </div>
                     </div>
                   ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {getFilteredIssues().length === 0 && report.issues.length > 0 && (
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <CheckCircle className="h-16 w-16 text-green-500 mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">
+                    No Issues Match Filter
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    Try changing the severity filter to see other issues.
+                  </p>
                 </div>
               </CardContent>
             </Card>

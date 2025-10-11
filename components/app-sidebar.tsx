@@ -12,6 +12,7 @@ import {
   Home,
   Key,
   Palette,
+  ScanEye,
   SearchCode,
   Settings,
   StickyNote,
@@ -69,6 +70,11 @@ const items = [
     title: 'Website Analysis',
     url: '/website-analysis',
     icon: BarChart3,
+  },
+  {
+    title: 'Accessibility Checker',
+    url: '/accessibility-checker',
+    icon: ScanEye,
   },
   {
     title: 'Dependency Analysis',
