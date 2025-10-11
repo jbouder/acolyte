@@ -2,6 +2,14 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import GamesPage from '@/app/games/page';
 
+// Mock next/navigation
+const mockPush = jest.fn();
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: mockPush,
+  }),
+}));
+
 // Mock localStorage
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
@@ -27,6 +35,7 @@ Object.defineProperty(window, 'localStorage', {
 describe('GamesPage Password Protection', () => {
   beforeEach(() => {
     localStorageMock.clear();
+    mockPush.mockClear();
   });
 
   it('should show password modal when no password is stored', async () => {

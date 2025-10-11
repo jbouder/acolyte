@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -46,6 +47,7 @@ const games = [
 ];
 
 export default function GamesPage() {
+  const router = useRouter();
   const [isPasswordVerified, setIsPasswordVerified] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [password, setPassword] = useState('');
@@ -86,7 +88,7 @@ export default function GamesPage() {
 
   if (!isPasswordVerified) {
     return (
-      <Dialog open={showModal} onOpenChange={() => {}}>
+      <Dialog open={showModal} onOpenChange={() => router.push('/')}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Restricted Area</DialogTitle>
