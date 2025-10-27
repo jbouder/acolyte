@@ -81,7 +81,7 @@ describe('Base64Page', () => {
   });
 
   it('encodes text to Base64 correctly', async () => {
-    const { toast } = require('sonner');
+    const toast = jest.mocked((await import('sonner')).toast);
     render(<Base64Page />);
 
     const inputTextarea = screen.getByPlaceholderText(
@@ -106,7 +106,7 @@ describe('Base64Page', () => {
   });
 
   it('decodes Base64 text correctly', async () => {
-    const { toast } = require('sonner');
+    const toast = jest.mocked((await import('sonner')).toast);
     render(<Base64Page />);
 
     const base64Input = screen.getByPlaceholderText(
@@ -234,7 +234,7 @@ describe('Base64Page', () => {
   });
 
   it('copies output to clipboard when copy button is clicked', async () => {
-    const { toast } = require('sonner');
+    const toast = jest.mocked((await import('sonner')).toast);
     render(<Base64Page />);
 
     const inputTextarea = screen.getByPlaceholderText(
@@ -306,7 +306,6 @@ describe('Base64Page', () => {
   });
 
   it('handles invalid Base64 input gracefully', async () => {
-    const { toast } = require('sonner');
     render(<Base64Page />);
 
     const base64Input = screen.getByPlaceholderText(
@@ -390,7 +389,7 @@ describe('Base64Page', () => {
   });
 
   it('displays download as image button when image data is detected', async () => {
-    const { toast } = require('sonner');
+    const toast = jest.mocked((await import('sonner')).toast);
     render(<Base64Page />);
 
     const base64Input = screen.getByPlaceholderText(

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { Badge } from '@/components/ui/badge';
@@ -420,7 +419,6 @@ export default function WebTransportPage() {
         disconnect();
       }
     };
-    /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [isConnected]);
 
   const getStatusColor = () => {

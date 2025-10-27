@@ -176,7 +176,7 @@ describe('NotepadPage', () => {
   });
 
   it('saves content manually when save button is clicked', async () => {
-    const { toast } = require('sonner');
+    const toast = jest.mocked((await import('sonner')).toast);
     render(<NotepadPage />);
 
     const textarea = screen.getByPlaceholderText(
@@ -204,7 +204,7 @@ describe('NotepadPage', () => {
   });
 
   it('clears content when clear button is clicked with confirmation', async () => {
-    const { toast } = require('sonner');
+    const toast = jest.mocked((await import('sonner')).toast);
     render(<NotepadPage />);
 
     const textarea = screen.getByPlaceholderText(
@@ -296,7 +296,7 @@ describe('NotepadPage', () => {
   });
 
   it('shows error when trying to export empty content', async () => {
-    const { toast } = require('sonner');
+    const toast = jest.mocked((await import('sonner')).toast);
     render(<NotepadPage />);
 
     const exportButton = screen.getByText('Export .md');
@@ -308,7 +308,6 @@ describe('NotepadPage', () => {
   });
 
   it('copies all content to clipboard', async () => {
-    const { toast } = require('sonner');
     render(<NotepadPage />);
 
     const textarea = screen.getByPlaceholderText(
@@ -328,7 +327,7 @@ describe('NotepadPage', () => {
   });
 
   it('shows error when trying to copy empty content', async () => {
-    const { toast } = require('sonner');
+    const toast = jest.mocked((await import('sonner')).toast);
     render(<NotepadPage />);
 
     const copyButton = screen.getByText('Copy All');
@@ -340,7 +339,7 @@ describe('NotepadPage', () => {
   });
 
   it('handles file import functionality', async () => {
-    const { toast } = require('sonner');
+    const toast = jest.mocked((await import('sonner')).toast);
     render(<NotepadPage />);
 
     const importButton = screen.getByText('Import');
@@ -383,7 +382,7 @@ describe('NotepadPage', () => {
   });
 
   it('rejects invalid file types on import', async () => {
-    const { toast } = require('sonner');
+    const toast = jest.mocked((await import('sonner')).toast);
     render(<NotepadPage />);
 
     const importButton = screen.getByText('Import');
