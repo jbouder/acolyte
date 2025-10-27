@@ -165,7 +165,6 @@ describe('RegexPage', () => {
   });
 
   it('copies regex when copy button is available', async () => {
-    const { toast } = require('sonner');
     render(<RegexPage />);
 
     const patternInput = screen.getByPlaceholderText('Enter regex pattern...');

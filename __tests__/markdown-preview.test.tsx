@@ -72,7 +72,7 @@ describe('Markdown Preview Page', () => {
   });
 
   it('copies markdown to clipboard when copy button is clicked', async () => {
-    const { toast } = require('sonner');
+    const toast = jest.mocked((await import('sonner')).toast);
 
     render(<MarkdownPreviewPage />);
 
@@ -85,8 +85,8 @@ describe('Markdown Preview Page', () => {
     });
   });
 
-  it('clears content when clear button is clicked', () => {
-    const { toast } = require('sonner');
+  it('clears content when clear button is clicked', async () => {
+    const toast = jest.mocked((await import('sonner')).toast);
 
     render(<MarkdownPreviewPage />);
 
@@ -99,8 +99,8 @@ describe('Markdown Preview Page', () => {
     expect(toast.info).toHaveBeenCalledWith('Cleared all content');
   });
 
-  it('handles file upload correctly', () => {
-    const { toast } = require('sonner');
+  it('handles file upload correctly', async () => {
+    const toast = jest.mocked((await import('sonner')).toast);
 
     render(<MarkdownPreviewPage />);
 
@@ -124,8 +124,8 @@ describe('Markdown Preview Page', () => {
     }, 100);
   });
 
-  it('rejects invalid file types', () => {
-    const { toast } = require('sonner');
+  it('rejects invalid file types', async () => {
+    const toast = jest.mocked((await import('sonner')).toast);
 
     render(<MarkdownPreviewPage />);
 
@@ -146,8 +146,8 @@ describe('Markdown Preview Page', () => {
     );
   });
 
-  it('triggers download when export button is clicked', () => {
-    const { toast } = require('sonner');
+  it('triggers download when export button is clicked', async () => {
+    const toast = jest.mocked((await import('sonner')).toast);
 
     render(<MarkdownPreviewPage />);
 

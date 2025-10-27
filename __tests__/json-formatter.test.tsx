@@ -58,7 +58,7 @@ describe('JsonFormatterPage', () => {
   });
 
   it('formats JSON correctly with default settings', async () => {
-    const { toast } = require('sonner');
+    const toast = jest.mocked((await import('sonner')).toast);
     render(<JsonFormatterPage />);
 
     const input = screen.getByPlaceholderText('Paste your JSON here...');
@@ -84,7 +84,7 @@ describe('JsonFormatterPage', () => {
   });
 
   it('handles invalid JSON with proper error display', async () => {
-    const { toast } = require('sonner');
+    const toast = jest.mocked((await import('sonner')).toast);
     render(<JsonFormatterPage />);
 
     const input = screen.getByPlaceholderText('Paste your JSON here...');
@@ -106,7 +106,7 @@ describe('JsonFormatterPage', () => {
   });
 
   it('minifies JSON correctly', async () => {
-    const { toast } = require('sonner');
+    const toast = jest.mocked((await import('sonner')).toast);
     render(<JsonFormatterPage />);
 
     const input = screen.getByPlaceholderText('Paste your JSON here...');
@@ -129,7 +129,7 @@ describe('JsonFormatterPage', () => {
   });
 
   it('validates JSON correctly for valid input', async () => {
-    const { toast } = require('sonner');
+    const toast = jest.mocked((await import('sonner')).toast);
     render(<JsonFormatterPage />);
 
     const input = screen.getByPlaceholderText('Paste your JSON here...');
@@ -198,7 +198,7 @@ describe('JsonFormatterPage', () => {
   });
 
   it('clears all fields when clear button is clicked', async () => {
-    const { toast } = require('sonner');
+    const toast = jest.mocked((await import('sonner')).toast);
     render(<JsonFormatterPage />);
 
     const input = screen.getByPlaceholderText('Paste your JSON here...');
@@ -218,7 +218,7 @@ describe('JsonFormatterPage', () => {
   });
 
   it('copies output to clipboard when copy button is clicked', async () => {
-    const { toast } = require('sonner');
+    const toast = jest.mocked((await import('sonner')).toast);
     render(<JsonFormatterPage />);
 
     const input = screen.getByPlaceholderText('Paste your JSON here...');
