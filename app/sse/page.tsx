@@ -39,7 +39,7 @@ export default function SSEPage() {
       2,
     ),
   );
-  const [body, setBody] = useState();
+  const [body, setBody] = useState<string>('');
   const [isConnected, setIsConnected] = useState(false);
   const [messages, setMessages] = useState<SSEMessage[]>([]);
   const [messageCount, setMessageCount] = useState(0);
@@ -90,7 +90,7 @@ export default function SSEPage() {
     let parsedBody = null;
     if (method === 'POST') {
       try {
-        if (body.trim()) {
+        if (body && body.trim()) {
           parsedBody = JSON.parse(body);
         }
       } catch {
