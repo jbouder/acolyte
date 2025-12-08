@@ -20,7 +20,7 @@
     "@radix-ui/react-slot": "^1.2.4",
     "@radix-ui/react-tabs": "^1.1.13",
     "@radix-ui/react-tooltip": "^1.2.8",
-    "@sparticuz/chromium": "^141.0.0",
+    "@sparticuz/chromium": "^143.0.0",
     "@tailwindcss/typography": "^0.5.19",
     "@types/jsonwebtoken": "^9.0.10",
     "axe-core": "^4.11.0",
