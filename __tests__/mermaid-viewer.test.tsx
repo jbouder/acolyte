@@ -129,9 +129,9 @@ describe('Mermaid Viewer Page', () => {
     fireEvent.change(fileInput);
 
     // Wait for FileReader to process
-    setTimeout(() => {
+    await waitFor(() => {
       expect(toast.success).toHaveBeenCalledWith('File loaded successfully!');
-    }, 100);
+    });
   });
 
   it('rejects invalid file types', async () => {

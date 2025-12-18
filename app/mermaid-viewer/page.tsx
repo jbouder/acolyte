@@ -30,7 +30,7 @@ export default function MermaidViewerPage() {
     mermaid.initialize({
       startOnLoad: true,
       theme: 'default',
-      securityLevel: 'loose',
+      securityLevel: 'strict',
     });
   }, []);
 
