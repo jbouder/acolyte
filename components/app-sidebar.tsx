@@ -9,6 +9,7 @@ import {
   FileText,
   Gamepad2,
   GitBranch,
+  GitGraph,
   Home,
   Key,
   Palette,
@@ -85,6 +86,11 @@ const items = [
     title: 'Markdown Preview',
     url: '/markdown-preview',
     icon: Eye,
+  },
+  {
+    title: 'Mermaid Preview',
+    url: '/mermaid-preview',
+    icon: GitGraph,
   },
   {
     title: 'Base64 Encoding',

@@ -91,9 +91,9 @@ export default function Home() {
           <div>
             <h3 className="font-semibold mb-2">Utilities</h3>
             <p className="text-sm text-muted-foreground mb-3">
-              Essential development utilities including markdown preview, Base64
-              encoding, JSON formatting, regex testing, and more to streamline
-              your workflow.
+              Essential development utilities including markdown preview,
+              mermaid diagrams, Base64 encoding, JSON formatting, regex testing,
+              and more to streamline your workflow.
             </p>
             <div className="flex flex-wrap gap-2">
               <Link
@@ -101,6 +101,12 @@ export default function Home() {
                 className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90 transition-colors"
               >
                 Markdown Preview
+              </Link>
+              <Link
+                href="/mermaid-preview"
+                className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90 transition-colors"
+              >
+                Mermaid Preview
               </Link>
               <Link
                 href="/base64"

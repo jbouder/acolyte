@@ -48,6 +48,7 @@
 ### 🔧 Development Utilities
 
 - **Markdown Preview** - Real-time markdown editor and preview with syntax highlighting, GitHub Flavored Markdown support, and export capabilities
+- **Mermaid Preview** - Create and visualize Mermaid diagrams with live preview, including flowcharts, sequence diagrams, and more
 - **Base64 Encoder/Decoder** - Convert text and files to/from Base64 encoding with support for multiple formats
 - **JSON Formatter** - Beautify, validate, and minify JSON with syntax highlighting and error detection
 - **Regex Tester** - Test and debug regular expressions with real-time matching and explanation
