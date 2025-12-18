@@ -93,6 +93,22 @@ Scan websites for accessibility issues and WCAG compliance:
 - Syntax highlighting
 - Export capabilities
 
+#### Mermaid Preview
+
+- Create and edit Mermaid diagrams with live preview
+- Support for multiple diagram types:
+  - Flowcharts
+  - Sequence diagrams
+  - Class diagrams
+  - State diagrams
+  - Gantt charts
+  - And more
+- Real-time rendering as you type
+- Import/export diagram files (.mmd, .mermaid, .txt)
+- Copy diagram code to clipboard
+- Character and line count tracking
+- Syntax error detection and reporting
+
 #### Base64 Encoder/Decoder
 
 - Convert text to/from Base64 encoding

@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import MermaidViewerPage from '../app/mermaid-viewer/page';
+import MermaidViewerPage from '../app/mermaid-preview/page';
 
 // Mock mermaid
 jest.mock('mermaid', () => ({
@@ -34,15 +34,15 @@ jest.mock('sonner', () => ({
 global.URL.createObjectURL = jest.fn(() => 'mocked-url');
 global.URL.revokeObjectURL = jest.fn();
 
-describe('Mermaid Viewer Page', () => {
+describe('Mermaid Preview Page', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it('renders mermaid viewer page with default content', () => {
+  it('renders mermaid preview page with default content', () => {
     render(<MermaidViewerPage />);
 
-    expect(screen.getByText('Mermaid Viewer')).toBeInTheDocument();
+    expect(screen.getByText('Mermaid Preview')).toBeInTheDocument();
     expect(screen.getByText('Mermaid Editor')).toBeInTheDocument();
     expect(screen.getByText('Live Preview')).toBeInTheDocument();
     expect(

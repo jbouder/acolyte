@@ -103,10 +103,10 @@ export default function Home() {
                 Markdown Preview
               </Link>
               <Link
-                href="/mermaid-viewer"
+                href="/mermaid-preview"
                 className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90 transition-colors"
               >
-                Mermaid Viewer
+                Mermaid Preview
               </Link>
               <Link
                 href="/base64"

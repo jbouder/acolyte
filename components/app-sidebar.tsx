@@ -88,8 +88,8 @@ const items = [
     icon: Eye,
   },
   {
-    title: 'Mermaid Viewer',
-    url: '/mermaid-viewer',
+    title: 'Mermaid Preview',
+    url: '/mermaid-preview',
     icon: GitGraph,
   },
   {

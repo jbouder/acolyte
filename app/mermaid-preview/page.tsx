@@ -23,6 +23,7 @@ export default function MermaidViewerPage() {
     C --> E[End]`);
 
   const [renderKey, setRenderKey] = useState(0);
+  const [isInitialized, setIsInitialized] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -32,9 +33,12 @@ export default function MermaidViewerPage() {
       theme: 'default',
       securityLevel: 'strict',
     });
+    setIsInitialized(true);
   }, []);
 
   useEffect(() => {
+    if (!isInitialized) return;
+
     const renderDiagram = async () => {
       if (!previewRef.current) return;
 
@@ -54,7 +58,7 @@ export default function MermaidViewerPage() {
     };
 
     renderDiagram();
-  }, [mermaidCode, renderKey]);
+  }, [mermaidCode, renderKey, isInitialized]);
 
   const copyToClipboard = async (text: string) => {
     try {
@@ -116,7 +120,7 @@ export default function MermaidViewerPage() {
   return (
     <div className="flex flex-1 flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Mermaid Viewer</h1>
+        <h1 className="text-3xl font-bold">Mermaid Preview</h1>
         <div className="flex gap-2">
           <Button onClick={uploadMermaid} variant="outline" size="sm">
             <Upload className="h-4 w-4" />
