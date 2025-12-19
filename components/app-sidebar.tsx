@@ -12,6 +12,7 @@ import {
   GitGraph,
   Home,
   Key,
+  PackageSearch,
   Palette,
   ScanEye,
   SearchCode,
@@ -81,6 +82,11 @@ const items = [
     title: 'Dependency Analysis',
     url: '/dependency-analysis',
     icon: GitBranch,
+  },
+  {
+    title: 'SBOM Report',
+    url: '/sbom-report',
+    icon: PackageSearch,
   },
   {
     title: 'Markdown Preview',
