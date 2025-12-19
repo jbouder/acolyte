@@ -340,11 +340,11 @@ describe('SBOMReportPage', () => {
     // Find and click the copy button in the Raw Report Data section
     const copyButtons = screen.getAllByText('Copy');
     const rawReportCopyButton = copyButtons[copyButtons.length - 1];
-    
+
     // Clear previous toast calls to isolate this test
     mockClipboard.writeText.mockClear();
     toast.success.mockClear();
-    
+
     fireEvent.click(rawReportCopyButton);
 
     // Check clipboard was called

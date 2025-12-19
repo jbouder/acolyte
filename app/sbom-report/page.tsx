@@ -115,8 +115,9 @@ export default function SBOMReportPage() {
       relationships: sbomData.relationships || [],
       statistics: {
         totalPackages: packages.length,
-        licensedPackages: packages.filter((pkg) => pkg.license !== 'NOASSERTION')
-          .length,
+        licensedPackages: packages.filter(
+          (pkg) => pkg.license !== 'NOASSERTION',
+        ).length,
         packagesWithSupplier: packages.filter((pkg) => pkg.supplier !== 'N/A')
           .length,
         uniqueLicenses: uniqueLicenses.size,
@@ -173,8 +174,7 @@ export default function SBOMReportPage() {
       dataLicense: 'CC0-1.0',
       SPDXID: 'SPDXRef-DOCUMENT',
       name: 'Sample Project SBOM',
-      documentNamespace:
-        'https://example.com/sbom/sample-project-1.0.0-abc123',
+      documentNamespace: 'https://example.com/sbom/sample-project-1.0.0-abc123',
       creationInfo: {
         created: '2024-01-15T10:30:00Z',
         creators: [
@@ -189,7 +189,8 @@ export default function SBOMReportPage() {
           name: 'react',
           versionInfo: '18.2.0',
           supplier: 'Organization: Facebook Inc.',
-          downloadLocation: 'https://registry.npmjs.org/react/-/react-18.2.0.tgz',
+          downloadLocation:
+            'https://registry.npmjs.org/react/-/react-18.2.0.tgz',
           filesAnalyzed: false,
           licenseConcluded: 'MIT',
           licenseDeclared: 'MIT',
@@ -459,7 +460,9 @@ export default function SBOMReportPage() {
                     <label className="text-xs font-medium text-muted-foreground">
                       Document Name
                     </label>
-                    <p className="text-sm font-medium">{report.metadata.name}</p>
+                    <p className="text-sm font-medium">
+                      {report.metadata.name}
+                    </p>
                   </div>
                   <div>
                     <label className="text-xs font-medium text-muted-foreground">
@@ -516,7 +519,9 @@ export default function SBOMReportPage() {
                   <div className="text-2xl font-bold">
                     {report.statistics.totalPackages}
                   </div>
-                  <p className="text-xs text-muted-foreground">Total Packages</p>
+                  <p className="text-xs text-muted-foreground">
+                    Total Packages
+                  </p>
                 </CardContent>
               </Card>
               <Card>
