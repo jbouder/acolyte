@@ -43,6 +43,7 @@
 - **Web Stats** - Provides detailed information about the current web client, including IP address, browser details, location, and system specifications
 - **Website Analysis** - In-depth analysis of web applications including security headers, performance metrics, and best practices
 - **Dependency Analysis** - Package.json analysis with vulnerability scanning, outdated package detection, and dependency tree visualization
+- **SBOM Report** - Analyze SPDX JSON format Software Bill of Materials with detailed package information, license tracking, and relationship visualization
 - **Accessibility Checker** - Scan websites for accessibility issues and WCAG compliance
 
 ### 🔧 Development Utilities
@@ -162,6 +163,17 @@ For detailed deployment instructions and troubleshooting, see [DEPLOYMENT.md](DE
    - Outdated packages
    - Dependency tree visualization
 
+### SBOM Report
+
+1. Navigate to **SBOM Report** from the Analysis section
+2. Upload an SPDX JSON file or paste the content directly
+3. Click "Analyze SBOM" to generate a comprehensive report including:
+   - SBOM metadata and document information
+   - Package statistics (total packages, licenses, suppliers)
+   - Detailed package list with versions and licenses
+   - Package relationships and dependencies
+4. Download the report in JSON or TXT format for documentation
+
 ### Development Utilities
 
 - **JSON Formatter**: Paste JSON and get formatted, validated output
@@ -187,6 +199,7 @@ acolyte/
 │   ├── markdown-preview/  # Markdown editor and preview tool
 │   ├── notepad/           # Developer notepad
 │   ├── regex/             # Regular expression tester
+│   ├── sbom-report/       # SBOM analysis tool
 │   ├── sse/               # Server-Sent Events testing
 │   ├── web-stats/         # Website statistics analyzer
 │   ├── websockets/        # WebSocket testing interface
