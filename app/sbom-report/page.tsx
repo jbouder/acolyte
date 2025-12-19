@@ -86,14 +86,16 @@ export default function SBOMReportPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const parseSPDXSBOM = (sbomData: SPDXDocument): SBOMReport => {
-    const packages = (sbomData.packages || []).map((pkg) => ({
-      id: pkg.SPDXID,
-      name: pkg.name,
-      version: pkg.versionInfo || 'N/A',
-      license: pkg.licenseConcluded || pkg.licenseDeclared || 'NOASSERTION',
-      supplier: pkg.supplier || 'N/A',
-      downloadLocation: pkg.downloadLocation || 'N/A',
-    }));
+    const packages = (sbomData.packages || [])
+      .filter((pkg) => pkg.SPDXID && pkg.name)
+      .map((pkg) => ({
+        id: pkg.SPDXID,
+        name: pkg.name,
+        version: pkg.versionInfo || 'N/A',
+        license: pkg.licenseConcluded || pkg.licenseDeclared || 'NOASSERTION',
+        supplier: pkg.supplier || 'N/A',
+        downloadLocation: pkg.downloadLocation || 'N/A',
+      }));
 
     const uniqueLicenses = new Set(
       packages.map((pkg) => pkg.license).filter((lic) => lic !== 'NOASSERTION'),
