@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "next build --turbopack",
     "start": "next start",
     "test": "jest",
     "lint": "eslint --fix .",
@@ -30,11 +30,11 @@
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^0.561.0",
     "mermaid": "^11.12.2",
-    "next": "15.5.9",
+    "next": "16.1.0",
     "next-themes": "^0.4.6",
     "puppeteer-core": "^24.33.0",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
     "react-markdown": "^10.1.0",
     "rehype-highlight": "^7.0.2",
     "remark-gfm": "^4.0.1",
@@ -52,11 +52,11 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^20",
     "@types/puppeteer": "^7.0.4",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
+    "@types/react": "19.2.7",
+    "@types/react-dom": "19.2.3",
     "babel-jest": "^30.2.0",
     "eslint": "^9",
-    "eslint-config-next": "16.0.10",
+    "eslint-config-next": "16.1.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "fake-indexeddb": "^6.2.5",
@@ -70,5 +70,9 @@
   },
   "optionalDependencies": {
     "lightningcss-linux-x64-gnu": "1.30.2"
+  },
+  "overrides": {
+    "@types/react": "19.2.7",
+    "@types/react-dom": "19.2.3"
   }
 }
