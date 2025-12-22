@@ -42,6 +42,12 @@ export default function MermaidViewerPage() {
     const renderDiagram = async () => {
       if (!previewRef.current) return;
 
+      // Don't attempt to render if mermaidCode is empty or only whitespace
+      if (!mermaidCode.trim()) {
+        previewRef.current.innerHTML = '';
+        return;
+      }
+
       try {
         previewRef.current.innerHTML = '';
         const { svg } = await mermaid.render(

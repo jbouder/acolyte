@@ -109,6 +109,55 @@ describe('Mermaid Preview Page', () => {
     expect(toast.info).toHaveBeenCalledWith('Cleared all content');
   });
 
+  it('does not attempt to render when mermaid code is empty', async () => {
+    const mermaid = jest.mocked((await import('mermaid')).default);
+
+    render(<MermaidViewerPage />);
+
+    const textarea = screen.getByPlaceholderText(
+      'Type your Mermaid code here...',
+    );
+    const clearButton = screen.getByText('Clear');
+
+    // Clear the initial content
+    fireEvent.click(clearButton);
+
+    // Wait a bit for any potential render attempts
+    await waitFor(() => {
+      expect(textarea).toHaveValue('');
+    });
+
+    // Check that mermaid.render was not called with empty string
+    const renderCalls = mermaid.render.mock.calls;
+    const emptyRenderCalls = renderCalls.filter((call) => !call[1]?.trim());
+    expect(emptyRenderCalls.length).toBe(0);
+  });
+
+  it('does not attempt to render when mermaid code is only whitespace', async () => {
+    const mermaid = jest.mocked((await import('mermaid')).default);
+
+    render(<MermaidViewerPage />);
+
+    const textarea = screen.getByPlaceholderText(
+      'Type your Mermaid code here...',
+    );
+
+    // Set to whitespace only
+    fireEvent.change(textarea, { target: { value: '   \n  \n  ' } });
+
+    // Wait a bit for any potential render attempts
+    await waitFor(() => {
+      expect(textarea).toHaveValue('   \n  \n  ');
+    });
+
+    // Check that mermaid.render was not called with whitespace-only string
+    const renderCalls = mermaid.render.mock.calls;
+    const whitespaceRenderCalls = renderCalls.filter(
+      (call) => call[1] && !call[1].trim(),
+    );
+    expect(whitespaceRenderCalls.length).toBe(0);
+  });
+
   it('handles file upload correctly', async () => {
     const toast = jest.mocked((await import('sonner')).toast);
 
