@@ -26,12 +26,11 @@ describe('SwaggerViewerPage', () => {
     expect(
       screen.getByText('OpenAPI / Swagger Specification'),
     ).toBeInTheDocument();
-    expect(screen.getByText('API Documentation')).toBeInTheDocument();
 
     // Check buttons
     expect(screen.getByText('Upload JSON File')).toBeInTheDocument();
     expect(screen.getByText('Load Example')).toBeInTheDocument();
-    expect(screen.getByText('Render API Docs')).toBeInTheDocument();
+    expect(screen.getByText('Parse API Docs')).toBeInTheDocument();
     expect(screen.getByText('Clear')).toBeInTheDocument();
 
     // Check textarea
@@ -63,13 +62,13 @@ describe('SwaggerViewerPage', () => {
     expect(toast.success).toHaveBeenCalledWith('Example loaded!');
   });
 
-  it('enables Render API Docs button when JSON is entered', () => {
+  it('enables Parse API Docs button when JSON is entered', () => {
     render(<SwaggerViewerPage />);
 
     const textarea = screen.getByPlaceholderText(
       'Paste your OpenAPI/Swagger JSON here...',
     );
-    const renderButton = screen.getByText('Render API Docs');
+    const renderButton = screen.getByText('Parse API Docs');
 
     // Initially disabled
     expect(renderButton).toBeDisabled();
@@ -88,7 +87,7 @@ describe('SwaggerViewerPage', () => {
     const textarea = screen.getByPlaceholderText(
       'Paste your OpenAPI/Swagger JSON here...',
     );
-    const renderButton = screen.getByText('Render API Docs');
+    const renderButton = screen.getByText('Parse API Docs');
 
     // Enter invalid JSON
     fireEvent.change(textarea, { target: { value: '{invalid json}' } });
@@ -110,7 +109,7 @@ describe('SwaggerViewerPage', () => {
     const textarea = screen.getByPlaceholderText(
       'Paste your OpenAPI/Swagger JSON here...',
     );
-    const renderButton = screen.getByText('Render API Docs');
+    const renderButton = screen.getByText('Parse API Docs');
 
     // Enter valid JSON but without openapi or swagger property
     fireEvent.change(textarea, {
@@ -231,5 +230,74 @@ describe('SwaggerViewerPage', () => {
         'Invalid file type. Please upload a JSON file.',
       );
     });
+  });
+
+  it('displays endpoints in tables grouped by tags', async () => {
+    const toast = jest.mocked((await import('sonner')).toast);
+    render(<SwaggerViewerPage />);
+
+    const textarea = screen.getByPlaceholderText(
+      'Paste your OpenAPI/Swagger JSON here...',
+    );
+    const parseButton = screen.getByText('Parse API Docs');
+
+    // Enter valid OpenAPI spec with endpoints
+    const spec = {
+      openapi: '3.0.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+        description: 'Test API Description',
+      },
+      paths: {
+        '/users': {
+          get: {
+            summary: 'Get all users',
+            tags: ['Users'],
+          },
+          post: {
+            summary: 'Create user',
+            tags: ['Users'],
+          },
+        },
+        '/products': {
+          get: {
+            summary: 'Get all products',
+            tags: ['Products'],
+          },
+        },
+      },
+    };
+
+    fireEvent.change(textarea, { target: { value: JSON.stringify(spec) } });
+    fireEvent.click(parseButton);
+
+    // Check success toast
+    await waitFor(() => {
+      expect(toast.success).toHaveBeenCalledWith(
+        'API documentation parsed successfully!',
+      );
+    });
+
+    // Check that API title is displayed
+    expect(screen.getByText('Test API')).toBeInTheDocument();
+    expect(screen.getByText('Version: 1.0.0')).toBeInTheDocument();
+
+    // Check that tags are displayed as headers
+    expect(screen.getByText('Users')).toBeInTheDocument();
+    expect(screen.getByText('Products')).toBeInTheDocument();
+
+    // Check that endpoints are displayed
+    expect(screen.getByText('Get all users')).toBeInTheDocument();
+    expect(screen.getByText('Create user')).toBeInTheDocument();
+    expect(screen.getByText('Get all products')).toBeInTheDocument();
+
+    // Check that methods are displayed
+    expect(screen.getAllByText('GET')).toHaveLength(2);
+    expect(screen.getByText('POST')).toBeInTheDocument();
+
+    // Check that paths are displayed
+    expect(screen.getAllByText('/users')).toHaveLength(2); // GET and POST
+    expect(screen.getByText('/products')).toBeInTheDocument();
   });
 });

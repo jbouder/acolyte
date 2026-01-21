@@ -1,5 +1,6 @@
 'use client';
 
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -8,74 +9,38 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { Upload } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { toast } from 'sonner';
 
-declare global {
-  interface Window {
-    SwaggerUIBundle?: {
-      (config: unknown): void;
-      presets: {
-        apis: unknown;
-      };
-    };
-    SwaggerUIStandalonePreset?: unknown;
-  }
+interface OpenAPIEndpoint {
+  method: string;
+  path: string;
+  summary: string;
+  description: string;
+  tags: string[];
 }
 
-const SWAGGER_UI_VERSION = '5.20.0';
+interface ParsedAPI {
+  title: string;
+  version: string;
+  description: string;
+  endpoints: OpenAPIEndpoint[];
+}
 
 export default function SwaggerViewerPage() {
   const [jsonInput, setJsonInput] = useState('');
   const [error, setError] = useState('');
-  const [isSwaggerLoaded, setIsSwaggerLoaded] = useState(false);
+  const [parsedAPI, setParsedAPI] = useState<ParsedAPI | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const swaggerContainerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    // Load Swagger UI CSS
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = `https://unpkg.com/swagger-ui-dist@${SWAGGER_UI_VERSION}/swagger-ui.css`;
-    document.head.appendChild(link);
-
-    // Load Swagger UI Bundle
-    const bundleScript = document.createElement('script');
-    bundleScript.src = `https://unpkg.com/swagger-ui-dist@${SWAGGER_UI_VERSION}/swagger-ui-bundle.js`;
-
-    // Load Swagger UI Standalone Preset
-    const presetScript = document.createElement('script');
-    presetScript.src = `https://unpkg.com/swagger-ui-dist@${SWAGGER_UI_VERSION}/swagger-ui-standalone-preset.js`;
-
-    let bundleLoaded = false;
-    let presetLoaded = false;
-
-    const checkBothLoaded = () => {
-      if (bundleLoaded && presetLoaded) {
-        setIsSwaggerLoaded(true);
-      }
-    };
-
-    bundleScript.onload = () => {
-      bundleLoaded = true;
-      checkBothLoaded();
-    };
-
-    presetScript.onload = () => {
-      presetLoaded = true;
-      checkBothLoaded();
-    };
-
-    document.head.appendChild(bundleScript);
-    document.head.appendChild(presetScript);
-
-    return () => {
-      document.head.removeChild(link);
-      document.head.removeChild(bundleScript);
-      document.head.removeChild(presetScript);
-    };
-  }, []);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -100,9 +65,49 @@ export default function SwaggerViewerPage() {
     reader.readAsText(file);
   };
 
-  const renderSwaggerUI = () => {
+  const parseOpenAPI = (spec: Record<string, unknown>): ParsedAPI => {
+    const endpoints: OpenAPIEndpoint[] = [];
+    const paths = spec.paths as Record<string, unknown>;
+    const info = spec.info as Record<string, unknown>;
+
+    if (!paths) {
+      throw new Error('No paths found in OpenAPI specification');
+    }
+
+    Object.entries(paths).forEach(([path, pathItem]) => {
+      const methods = pathItem as Record<string, unknown>;
+      Object.entries(methods).forEach(([method, operation]) => {
+        if (
+          typeof operation === 'object' &&
+          operation !== null &&
+          ['get', 'post', 'put', 'delete', 'patch', 'options', 'head'].includes(
+            method.toLowerCase(),
+          )
+        ) {
+          const op = operation as Record<string, unknown>;
+          endpoints.push({
+            method: method.toUpperCase(),
+            path,
+            summary: (op.summary as string) || '',
+            description: (op.description as string) || '',
+            tags: (op.tags as string[]) || ['default'],
+          });
+        }
+      });
+    });
+
+    return {
+      title: (info?.title as string) || 'API Documentation',
+      version: (info?.version as string) || '1.0.0',
+      description: (info?.description as string) || '',
+      endpoints,
+    };
+  };
+
+  const renderAPIDocumentation = () => {
     try {
       setError('');
+      setParsedAPI(null);
 
       // Validate JSON
       const spec = JSON.parse(jsonInput);
@@ -116,34 +121,9 @@ export default function SwaggerViewerPage() {
         return;
       }
 
-      if (
-        !isSwaggerLoaded ||
-        !window.SwaggerUIBundle ||
-        !window.SwaggerUIStandalonePreset
-      ) {
-        setError('Swagger UI is still loading. Please try again.');
-        toast.error('Swagger UI is still loading');
-        return;
-      }
-
-      // Clear previous Swagger UI instance
-      if (swaggerContainerRef.current) {
-        swaggerContainerRef.current.innerHTML = '';
-      }
-
-      // Initialize Swagger UI
-      window.SwaggerUIBundle({
-        spec,
-        dom_id: '#swagger-ui-container',
-        deepLinking: true,
-        presets: [
-          window.SwaggerUIBundle.presets.apis,
-          window.SwaggerUIStandalonePreset,
-        ],
-        layout: 'StandaloneLayout',
-      });
-
-      toast.success('API documentation loaded successfully!');
+      const parsed = parseOpenAPI(spec);
+      setParsedAPI(parsed);
+      toast.success('API documentation parsed successfully!');
     } catch (err) {
       setError('Invalid JSON: ' + (err as Error).message);
       toast.error('Failed to parse JSON');
@@ -153,9 +133,7 @@ export default function SwaggerViewerPage() {
   const clearAll = () => {
     setJsonInput('');
     setError('');
-    if (swaggerContainerRef.current) {
-      swaggerContainerRef.current.innerHTML = '';
-    }
+    setParsedAPI(null);
     toast.info('Cleared all fields');
   };
 
@@ -178,45 +156,17 @@ export default function SwaggerViewerPage() {
           get: {
             summary: 'Get all users',
             description: 'Returns a list of users',
+            tags: ['Users'],
             responses: {
               '200': {
                 description: 'Successful response',
-                content: {
-                  'application/json': {
-                    schema: {
-                      type: 'array',
-                      items: {
-                        type: 'object',
-                        properties: {
-                          id: { type: 'integer' },
-                          name: { type: 'string' },
-                          email: { type: 'string' },
-                        },
-                      },
-                    },
-                  },
-                },
               },
             },
           },
           post: {
             summary: 'Create a user',
             description: 'Creates a new user',
-            requestBody: {
-              required: true,
-              content: {
-                'application/json': {
-                  schema: {
-                    type: 'object',
-                    properties: {
-                      name: { type: 'string' },
-                      email: { type: 'string' },
-                    },
-                    required: ['name', 'email'],
-                  },
-                },
-              },
-            },
+            tags: ['Users'],
             responses: {
               '201': {
                 description: 'User created successfully',
@@ -228,20 +178,42 @@ export default function SwaggerViewerPage() {
           get: {
             summary: 'Get a user by ID',
             description: 'Returns a single user',
-            parameters: [
-              {
-                name: 'id',
-                in: 'path',
-                required: true,
-                schema: { type: 'integer' },
-              },
-            ],
+            tags: ['Users'],
             responses: {
               '200': {
                 description: 'Successful response',
               },
-              '404': {
-                description: 'User not found',
+            },
+          },
+          delete: {
+            summary: 'Delete a user',
+            description: 'Deletes a user by ID',
+            tags: ['Users'],
+            responses: {
+              '204': {
+                description: 'User deleted successfully',
+              },
+            },
+          },
+        },
+        '/products': {
+          get: {
+            summary: 'Get all products',
+            description: 'Returns a list of products',
+            tags: ['Products'],
+            responses: {
+              '200': {
+                description: 'Successful response',
+              },
+            },
+          },
+          post: {
+            summary: 'Create a product',
+            description: 'Creates a new product',
+            tags: ['Products'],
+            responses: {
+              '201': {
+                description: 'Product created successfully',
               },
             },
           },
@@ -251,6 +223,32 @@ export default function SwaggerViewerPage() {
 
     setJsonInput(JSON.stringify(exampleSpec, null, 2));
     toast.success('Example loaded!');
+  };
+
+  const getMethodColor = (method: string) => {
+    const colors: Record<string, string> = {
+      GET: 'bg-blue-500',
+      POST: 'bg-green-500',
+      PUT: 'bg-yellow-500',
+      DELETE: 'bg-red-500',
+      PATCH: 'bg-purple-500',
+      OPTIONS: 'bg-gray-500',
+      HEAD: 'bg-cyan-500',
+    };
+    return colors[method] || 'bg-gray-500';
+  };
+
+  const groupEndpointsByTag = (endpoints: OpenAPIEndpoint[]) => {
+    const grouped: Record<string, OpenAPIEndpoint[]> = {};
+    endpoints.forEach((endpoint) => {
+      endpoint.tags.forEach((tag) => {
+        if (!grouped[tag]) {
+          grouped[tag] = [];
+        }
+        grouped[tag].push(endpoint);
+      });
+    });
+    return grouped;
   };
 
   return (
@@ -264,8 +262,8 @@ export default function SwaggerViewerPage() {
           <CardHeader>
             <CardTitle>OpenAPI / Swagger Specification</CardTitle>
             <CardDescription>
-              Paste your OpenAPI JSON or upload a file to visualize your API
-              documentation
+              Paste your OpenAPI JSON or upload a file to view your API
+              endpoints in a readable format
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -288,8 +286,8 @@ export default function SwaggerViewerPage() {
               <Button onClick={loadExample} variant="outline">
                 Load Example
               </Button>
-              <Button onClick={renderSwaggerUI} disabled={!jsonInput}>
-                Render API Docs
+              <Button onClick={renderAPIDocumentation} disabled={!jsonInput}>
+                Parse API Docs
               </Button>
               <Button onClick={clearAll} variant="outline">
                 Clear
@@ -318,21 +316,66 @@ export default function SwaggerViewerPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>API Documentation</CardTitle>
-            <CardDescription>
-              Interactive API documentation will appear here
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div
-              id="swagger-ui-container"
-              ref={swaggerContainerRef}
-              className="swagger-ui-container"
-            />
-          </CardContent>
-        </Card>
+        {parsedAPI && (
+          <Card>
+            <CardHeader>
+              <CardTitle>{parsedAPI.title}</CardTitle>
+              <CardDescription>
+                {parsedAPI.description && (
+                  <span className="block mb-2">{parsedAPI.description}</span>
+                )}
+                <span className="text-xs">Version: {parsedAPI.version}</span>
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {Object.entries(groupEndpointsByTag(parsedAPI.endpoints)).map(
+                ([tag, endpoints]) => (
+                  <div key={tag} className="space-y-3">
+                    <h3 className="text-lg font-semibold border-b pb-2">
+                      {tag}
+                    </h3>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-24">Method</TableHead>
+                          <TableHead className="w-1/3">Endpoint</TableHead>
+                          <TableHead>Description</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {endpoints.map((endpoint, idx) => (
+                          <TableRow
+                            key={`${endpoint.method}-${endpoint.path}-${idx}`}
+                          >
+                            <TableCell>
+                              <Badge
+                                className={`${getMethodColor(endpoint.method)} text-white font-mono`}
+                              >
+                                {endpoint.method}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="font-mono text-sm">
+                              {endpoint.path}
+                            </TableCell>
+                            <TableCell>
+                              {endpoint.summary || endpoint.description || '-'}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                ),
+              )}
+
+              {parsedAPI.endpoints.length === 0 && (
+                <p className="text-sm text-muted-foreground text-center py-8">
+                  No endpoints found in the API specification.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
