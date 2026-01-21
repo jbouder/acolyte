@@ -14,7 +14,13 @@ import { toast } from 'sonner';
 
 declare global {
   interface Window {
-    SwaggerUIBundle?: (config: unknown) => void;
+    SwaggerUIBundle?: {
+      (config: unknown): void;
+      presets: {
+        apis: unknown;
+      };
+    };
+    SwaggerUIStandalonePreset?: unknown;
   }
 }
 
@@ -33,17 +39,41 @@ export default function SwaggerViewerPage() {
     document.head.appendChild(link);
 
     // Load Swagger UI Bundle
-    const script = document.createElement('script');
-    script.src =
+    const bundleScript = document.createElement('script');
+    bundleScript.src =
       'https://unpkg.com/swagger-ui-dist@5.20.0/swagger-ui-bundle.js';
-    script.onload = () => {
-      setIsSwaggerLoaded(true);
+
+    // Load Swagger UI Standalone Preset
+    const presetScript = document.createElement('script');
+    presetScript.src =
+      'https://unpkg.com/swagger-ui-dist@5.20.0/swagger-ui-standalone-preset.js';
+
+    let bundleLoaded = false;
+    let presetLoaded = false;
+
+    const checkBothLoaded = () => {
+      if (bundleLoaded && presetLoaded) {
+        setIsSwaggerLoaded(true);
+      }
     };
-    document.head.appendChild(script);
+
+    bundleScript.onload = () => {
+      bundleLoaded = true;
+      checkBothLoaded();
+    };
+
+    presetScript.onload = () => {
+      presetLoaded = true;
+      checkBothLoaded();
+    };
+
+    document.head.appendChild(bundleScript);
+    document.head.appendChild(presetScript);
 
     return () => {
       document.head.removeChild(link);
-      document.head.removeChild(script);
+      document.head.removeChild(bundleScript);
+      document.head.removeChild(presetScript);
     };
   }, []);
 
@@ -86,7 +116,11 @@ export default function SwaggerViewerPage() {
         return;
       }
 
-      if (!isSwaggerLoaded || !window.SwaggerUIBundle) {
+      if (
+        !isSwaggerLoaded ||
+        !window.SwaggerUIBundle ||
+        !window.SwaggerUIStandalonePreset
+      ) {
         setError('Swagger UI is still loading. Please try again.');
         toast.error('Swagger UI is still loading');
         return;
