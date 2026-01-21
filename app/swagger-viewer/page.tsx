@@ -29,8 +29,7 @@ export default function SwaggerViewerPage() {
     // Load Swagger UI CSS
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href =
-      'https://unpkg.com/swagger-ui-dist@5.20.0/swagger-ui.css';
+    link.href = 'https://unpkg.com/swagger-ui-dist@5.20.0/swagger-ui.css';
     document.head.appendChild(link);
 
     // Load Swagger UI Bundle
