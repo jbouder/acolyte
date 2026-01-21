@@ -99,7 +99,7 @@ export default function Home() {
             <p className="text-sm text-muted-foreground mb-3">
               Essential development utilities including markdown preview,
               mermaid diagrams, Base64 encoding, JSON formatting, regex testing,
-              and more to streamline your workflow.
+              Swagger/OpenAPI viewer, and more to streamline your workflow.
             </p>
             <div className="flex flex-wrap gap-2">
               <Link
@@ -143,6 +143,12 @@ export default function Home() {
                 className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90 transition-colors"
               >
                 JWT Decoder
+              </Link>
+              <Link
+                href="/swagger-viewer"
+                className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90 transition-colors"
+              >
+                Swagger Viewer
               </Link>
               <Link
                 href="/notepad"

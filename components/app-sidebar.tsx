@@ -2,6 +2,7 @@
 
 import {
   BarChart3,
+  BookOpen,
   Braces,
   Cable,
   Code2,
@@ -97,6 +98,11 @@ const items = [
     title: 'Mermaid Preview',
     url: '/mermaid-preview',
     icon: GitGraph,
+  },
+  {
+    title: 'Swagger Viewer',
+    url: '/swagger-viewer',
+    icon: BookOpen,
   },
   {
     title: 'Base64 Encoding',
