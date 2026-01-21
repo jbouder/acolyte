@@ -100,6 +100,11 @@ const items = [
     icon: GitGraph,
   },
   {
+    title: 'Swagger Viewer',
+    url: '/swagger-viewer',
+    icon: BookOpen,
+  },
+  {
     title: 'Base64 Encoding',
     url: '/base64',
     icon: FileText,
@@ -123,11 +128,6 @@ const items = [
     title: 'JWT Decoder',
     url: '/jwt',
     icon: Key,
-  },
-  {
-    title: 'Swagger Viewer',
-    url: '/swagger-viewer',
-    icon: BookOpen,
   },
   {
     title: 'Notepad',
