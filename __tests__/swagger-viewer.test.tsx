@@ -300,4 +300,62 @@ describe('SwaggerViewerPage', () => {
     expect(screen.getAllByText('/users')).toHaveLength(2); // GET and POST
     expect(screen.getByText('/products')).toBeInTheDocument();
   });
+
+  it('displays parameters and authentication information', async () => {
+    const toast = jest.mocked((await import('sonner')).toast);
+    render(<SwaggerViewerPage />);
+
+    const textarea = screen.getByPlaceholderText(
+      'Paste your OpenAPI/Swagger JSON here...',
+    );
+    const parseButton = screen.getByText('Parse API Docs');
+
+    // Enter OpenAPI spec with parameters and security
+    const spec = {
+      openapi: '3.0.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/users/{id}': {
+          get: {
+            summary: 'Get user by ID',
+            tags: ['Users'],
+            parameters: [
+              {
+                name: 'id',
+                in: 'path',
+                required: true,
+                schema: { type: 'integer' },
+              },
+              {
+                name: 'fields',
+                in: 'query',
+                required: false,
+                schema: { type: 'string' },
+              },
+            ],
+            security: [{ apiKey: [] }],
+          },
+        },
+      },
+    };
+
+    fireEvent.change(textarea, { target: { value: JSON.stringify(spec) } });
+    fireEvent.click(parseButton);
+
+    await waitFor(() => {
+      expect(toast.success).toHaveBeenCalledWith(
+        'API documentation parsed successfully!',
+      );
+    });
+
+    // Check that parameters are displayed
+    expect(screen.getByText('id* (path)')).toBeInTheDocument();
+    expect(screen.getByText('fields (query)')).toBeInTheDocument();
+
+    // Check that authentication is displayed
+    expect(screen.getByText('apiKey')).toBeInTheDocument();
+  });
 });

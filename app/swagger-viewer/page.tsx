@@ -27,6 +27,8 @@ interface OpenAPIEndpoint {
   summary: string;
   description: string;
   tags: string[];
+  parameters: string[];
+  auth: string;
 }
 
 interface ParsedAPI {
@@ -99,12 +101,59 @@ export default function SwaggerViewerPage() {
           // Safely handle tags - ensure it's an array
           const tags = Array.isArray(op.tags) ? op.tags : ['default'];
 
+          // Extract parameters
+          const parameters: string[] = [];
+          if (Array.isArray(op.parameters)) {
+            op.parameters.forEach((param) => {
+              if (typeof param === 'object' && param !== null) {
+                const p = param as Record<string, unknown>;
+                const name = p.name as string;
+                const inLocation = p.in as string;
+                const required = p.required ? '*' : '';
+                if (name && inLocation) {
+                  parameters.push(`${name}${required} (${inLocation})`);
+                }
+              }
+            });
+          }
+
+          // Check for path parameters in the path itself
+          const pathParams = path.match(/\{([^}]+)\}/g);
+          if (pathParams) {
+            pathParams.forEach((param) => {
+              const paramName = param.slice(1, -1);
+              if (!parameters.some((p) => p.startsWith(paramName))) {
+                parameters.push(`${paramName}* (path)`);
+              }
+            });
+          }
+
+          // Extract authentication requirements
+          let auth = 'None';
+          if (Array.isArray(op.security) && op.security.length > 0) {
+            const securitySchemes: string[] = [];
+            op.security.forEach((secReq) => {
+              if (typeof secReq === 'object' && secReq !== null) {
+                Object.keys(secReq).forEach((key) => {
+                  if (!securitySchemes.includes(key)) {
+                    securitySchemes.push(key);
+                  }
+                });
+              }
+            });
+            if (securitySchemes.length > 0) {
+              auth = securitySchemes.join(', ');
+            }
+          }
+
           endpoints.push({
             method: method.toUpperCase(),
             path,
             summary: (op.summary as string) || '',
             description: (op.description as string) || '',
             tags,
+            parameters,
+            auth,
           });
         }
       });
@@ -177,6 +226,20 @@ export default function SwaggerViewerPage() {
             summary: 'Get all users',
             description: 'Returns a list of users',
             tags: ['Users'],
+            parameters: [
+              {
+                name: 'page',
+                in: 'query',
+                required: false,
+                schema: { type: 'integer' },
+              },
+              {
+                name: 'limit',
+                in: 'query',
+                required: false,
+                schema: { type: 'integer' },
+              },
+            ],
             responses: {
               '200': {
                 description: 'Successful response',
@@ -187,6 +250,7 @@ export default function SwaggerViewerPage() {
             summary: 'Create a user',
             description: 'Creates a new user',
             tags: ['Users'],
+            security: [{ bearerAuth: [] }],
             responses: {
               '201': {
                 description: 'User created successfully',
@@ -199,6 +263,14 @@ export default function SwaggerViewerPage() {
             summary: 'Get a user by ID',
             description: 'Returns a single user',
             tags: ['Users'],
+            parameters: [
+              {
+                name: 'id',
+                in: 'path',
+                required: true,
+                schema: { type: 'integer' },
+              },
+            ],
             responses: {
               '200': {
                 description: 'Successful response',
@@ -209,6 +281,15 @@ export default function SwaggerViewerPage() {
             summary: 'Delete a user',
             description: 'Deletes a user by ID',
             tags: ['Users'],
+            security: [{ bearerAuth: [] }],
+            parameters: [
+              {
+                name: 'id',
+                in: 'path',
+                required: true,
+                schema: { type: 'integer' },
+              },
+            ],
             responses: {
               '204': {
                 description: 'User deleted successfully',
@@ -221,6 +302,14 @@ export default function SwaggerViewerPage() {
             summary: 'Get all products',
             description: 'Returns a list of products',
             tags: ['Products'],
+            parameters: [
+              {
+                name: 'category',
+                in: 'query',
+                required: false,
+                schema: { type: 'string' },
+              },
+            ],
             responses: {
               '200': {
                 description: 'Successful response',
@@ -231,6 +320,7 @@ export default function SwaggerViewerPage() {
             summary: 'Create a product',
             description: 'Creates a new product',
             tags: ['Products'],
+            security: [{ bearerAuth: [] }],
             responses: {
               '201': {
                 description: 'Product created successfully',
@@ -357,9 +447,11 @@ export default function SwaggerViewerPage() {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead className="w-24">Method</TableHead>
-                          <TableHead className="w-1/3">Endpoint</TableHead>
+                          <TableHead className="w-20">Method</TableHead>
+                          <TableHead className="w-64">Endpoint</TableHead>
                           <TableHead>Description</TableHead>
+                          <TableHead className="w-32">Auth</TableHead>
+                          <TableHead className="w-48">Parameters</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -377,6 +469,20 @@ export default function SwaggerViewerPage() {
                             </TableCell>
                             <TableCell>
                               {endpoint.summary || endpoint.description || '-'}
+                            </TableCell>
+                            <TableCell className="text-xs">
+                              {endpoint.auth}
+                            </TableCell>
+                            <TableCell className="text-xs">
+                              {endpoint.parameters.length > 0 ? (
+                                <ul className="list-disc list-inside space-y-1">
+                                  {endpoint.parameters.map((param, idx) => (
+                                    <li key={idx}>{param}</li>
+                                  ))}
+                                </ul>
+                              ) : (
+                                '-'
+                              )}
                             </TableCell>
                           </TableRow>
                         ))}
