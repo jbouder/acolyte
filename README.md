@@ -58,7 +58,7 @@
 - **Regex Tester** - Test and debug regular expressions with real-time matching and explanation
 - **Color Picker** - Advanced color selection tool with support for HEX, RGB, HSL, and HSV color spaces
 - **JWT Decoder** - Decode and validate JSON Web Tokens with header and payload inspection
-- **Swagger Viewer** - Visualize and interact with OpenAPI/Swagger API documentation with a modern UI
+- **Swagger Viewer** - Parse and display OpenAPI/Swagger specifications in organized, readable tables grouped by endpoint categories
 - **Developer Notepad** - Persistent note-taking with markdown support and local storage
 
 ### 🎮 Entertainment
@@ -185,7 +185,7 @@ For detailed deployment instructions and troubleshooting, see [DEPLOYMENT.md](DE
 - **Markdown Preview**: Write and preview markdown with live rendering, syntax highlighting, and export options
 - **Base64 Tools**: Encode/decode text and files
 - **Color Picker**: Select colors and get values in multiple formats
-- **Swagger Viewer**: Upload or paste OpenAPI/Swagger JSON specifications to view interactive API documentation
+- **Swagger Viewer**: Upload or paste OpenAPI/Swagger JSON specifications to view endpoints in organized tables with color-coded HTTP methods
 
 ## Project Structure
 
