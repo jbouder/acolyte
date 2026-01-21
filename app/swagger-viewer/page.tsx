@@ -36,6 +36,16 @@ interface ParsedAPI {
   endpoints: OpenAPIEndpoint[];
 }
 
+const HTTP_METHODS = new Set([
+  'get',
+  'post',
+  'put',
+  'delete',
+  'patch',
+  'options',
+  'head',
+]);
+
 export default function SwaggerViewerPage() {
   const [jsonInput, setJsonInput] = useState('');
   const [error, setError] = useState('');
@@ -83,9 +93,7 @@ export default function SwaggerViewerPage() {
         if (
           typeof operation === 'object' &&
           operation !== null &&
-          ['get', 'post', 'put', 'delete', 'patch', 'options', 'head'].includes(
-            method.toLowerCase(),
-          )
+          HTTP_METHODS.has(method.toLowerCase())
         ) {
           const op = operation as Record<string, unknown>;
           // Safely handle tags - ensure it's an array
@@ -355,10 +363,8 @@ export default function SwaggerViewerPage() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {endpoints.map((endpoint, idx) => (
-                          <TableRow
-                            key={`${endpoint.method}-${endpoint.path}-${idx}`}
-                          >
+                        {endpoints.map((endpoint) => (
+                          <TableRow key={`${endpoint.method}-${endpoint.path}`}>
                             <TableCell>
                               <Badge
                                 className={`${getMethodColor(endpoint.method)} text-white font-mono`}
