@@ -24,6 +24,8 @@ declare global {
   }
 }
 
+const SWAGGER_UI_VERSION = '5.20.0';
+
 export default function SwaggerViewerPage() {
   const [jsonInput, setJsonInput] = useState('');
   const [error, setError] = useState('');
@@ -35,18 +37,16 @@ export default function SwaggerViewerPage() {
     // Load Swagger UI CSS
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = 'https://unpkg.com/swagger-ui-dist@5.20.0/swagger-ui.css';
+    link.href = `https://unpkg.com/swagger-ui-dist@${SWAGGER_UI_VERSION}/swagger-ui.css`;
     document.head.appendChild(link);
 
     // Load Swagger UI Bundle
     const bundleScript = document.createElement('script');
-    bundleScript.src =
-      'https://unpkg.com/swagger-ui-dist@5.20.0/swagger-ui-bundle.js';
+    bundleScript.src = `https://unpkg.com/swagger-ui-dist@${SWAGGER_UI_VERSION}/swagger-ui-bundle.js`;
 
     // Load Swagger UI Standalone Preset
     const presetScript = document.createElement('script');
-    presetScript.src =
-      'https://unpkg.com/swagger-ui-dist@5.20.0/swagger-ui-standalone-preset.js';
+    presetScript.src = `https://unpkg.com/swagger-ui-dist@${SWAGGER_UI_VERSION}/swagger-ui-standalone-preset.js`;
 
     let bundleLoaded = false;
     let presetLoaded = false;
@@ -133,7 +133,7 @@ export default function SwaggerViewerPage() {
 
       // Initialize Swagger UI
       window.SwaggerUIBundle({
-        spec: spec,
+        spec,
         dom_id: '#swagger-ui-container',
         deepLinking: true,
         presets: [
