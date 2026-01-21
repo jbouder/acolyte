@@ -67,14 +67,17 @@ export default function SwaggerViewerPage() {
 
   const parseOpenAPI = (spec: Record<string, unknown>): ParsedAPI => {
     const endpoints: OpenAPIEndpoint[] = [];
-    const paths = spec.paths as Record<string, unknown>;
-    const info = spec.info as Record<string, unknown>;
+    const paths = spec.paths;
+    const info = spec.info;
 
-    if (!paths) {
+    // Validate paths exists and is an object
+    if (!paths || typeof paths !== 'object' || Array.isArray(paths)) {
       throw new Error('No paths found in OpenAPI specification');
     }
 
     Object.entries(paths).forEach(([path, pathItem]) => {
+      if (typeof pathItem !== 'object' || pathItem === null) return;
+
       const methods = pathItem as Record<string, unknown>;
       Object.entries(methods).forEach(([method, operation]) => {
         if (
@@ -85,21 +88,30 @@ export default function SwaggerViewerPage() {
           )
         ) {
           const op = operation as Record<string, unknown>;
+          // Safely handle tags - ensure it's an array
+          const tags = Array.isArray(op.tags) ? op.tags : ['default'];
+
           endpoints.push({
             method: method.toUpperCase(),
             path,
             summary: (op.summary as string) || '',
             description: (op.description as string) || '',
-            tags: (op.tags as string[]) || ['default'],
+            tags,
           });
         }
       });
     });
 
+    // Safely extract info properties
+    const infoObj =
+      info && typeof info === 'object' && !Array.isArray(info)
+        ? (info as Record<string, unknown>)
+        : {};
+
     return {
-      title: (info?.title as string) || 'API Documentation',
-      version: (info?.version as string) || '1.0.0',
-      description: (info?.description as string) || '',
+      title: (infoObj.title as string) || 'API Documentation',
+      version: (infoObj.version as string) || '1.0.0',
+      description: (infoObj.description as string) || '',
       endpoints,
     };
   };
@@ -241,12 +253,12 @@ export default function SwaggerViewerPage() {
   const groupEndpointsByTag = (endpoints: OpenAPIEndpoint[]) => {
     const grouped: Record<string, OpenAPIEndpoint[]> = {};
     endpoints.forEach((endpoint) => {
-      endpoint.tags.forEach((tag) => {
-        if (!grouped[tag]) {
-          grouped[tag] = [];
-        }
-        grouped[tag].push(endpoint);
-      });
+      // Use only the first tag to avoid duplicates
+      const primaryTag = endpoint.tags[0] || 'default';
+      if (!grouped[primaryTag]) {
+        grouped[primaryTag] = [];
+      }
+      grouped[primaryTag].push(endpoint);
     });
     return grouped;
   };
