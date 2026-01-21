@@ -2,6 +2,7 @@
 
 import {
   BarChart3,
+  BookOpen,
   Braces,
   Cable,
   Code2,
@@ -122,6 +123,11 @@ const items = [
     title: 'JWT Decoder',
     url: '/jwt',
     icon: Key,
+  },
+  {
+    title: 'Swagger Viewer',
+    url: '/swagger-viewer',
+    icon: BookOpen,
   },
   {
     title: 'Notepad',

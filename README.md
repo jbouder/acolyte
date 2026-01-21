@@ -15,6 +15,9 @@
   <a href="https://github.com/jbouder/acolyte/releases">
     <img src="https://img.shields.io/github/v/release/jbouder/acolyte?include_prereleases" alt="Latest Release" />
   </a>
+  <a href="#swagger-viewer">
+    <img src="https://img.shields.io/badge/OpenAPI-Swagger%20Viewer-85EA2D?logo=swagger" alt="Swagger Viewer" />
+  </a>
 </p>
 
 <p align="center">
@@ -55,6 +58,7 @@
 - **Regex Tester** - Test and debug regular expressions with real-time matching and explanation
 - **Color Picker** - Advanced color selection tool with support for HEX, RGB, HSL, and HSV color spaces
 - **JWT Decoder** - Decode and validate JSON Web Tokens with header and payload inspection
+- **Swagger Viewer** - Visualize and interact with OpenAPI/Swagger API documentation with a modern UI
 - **Developer Notepad** - Persistent note-taking with markdown support and local storage
 
 ### 🎮 Entertainment
@@ -181,6 +185,7 @@ For detailed deployment instructions and troubleshooting, see [DEPLOYMENT.md](DE
 - **Markdown Preview**: Write and preview markdown with live rendering, syntax highlighting, and export options
 - **Base64 Tools**: Encode/decode text and files
 - **Color Picker**: Select colors and get values in multiple formats
+- **Swagger Viewer**: Upload or paste OpenAPI/Swagger JSON specifications to view interactive API documentation
 
 ## Project Structure
 
@@ -197,11 +202,14 @@ acolyte/
 │   ├── json-formatter/    # JSON formatting utility
 │   ├── jwt/               # JWT decoder tool
 │   ├── markdown-preview/  # Markdown editor and preview tool
+│   ├── mermaid-preview/   # Mermaid diagram editor
 │   ├── notepad/           # Developer notepad
 │   ├── regex/             # Regular expression tester
 │   ├── sbom-report/       # SBOM analysis tool
 │   ├── sse/               # Server-Sent Events testing
+│   ├── swagger-viewer/    # OpenAPI/Swagger documentation viewer
 │   ├── web-stats/         # Website statistics analyzer
+│   ├── website-analysis/  # Website analysis tool
 │   ├── websockets/        # WebSocket testing interface
 │   └── webtransport/      # WebTransport testing tool
 ├── components/            # Reusable React components

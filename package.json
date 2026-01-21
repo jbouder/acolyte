@@ -39,6 +39,7 @@
     "rehype-highlight": "^7.0.2",
     "remark-gfm": "^4.0.1",
     "sonner": "^2.0.7",
+    "swagger-ui-dist": "^5.20.0",
     "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {
