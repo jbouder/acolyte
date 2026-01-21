@@ -137,9 +137,7 @@ export default function SwaggerViewerPage() {
         dom_id: '#swagger-ui-container',
         deepLinking: true,
         presets: [
-          // @ts-expect-error SwaggerUIBundle presets
           window.SwaggerUIBundle.presets.apis,
-          // @ts-expect-error SwaggerUIStandalonePreset
           window.SwaggerUIStandalonePreset,
         ],
         layout: 'StandaloneLayout',
