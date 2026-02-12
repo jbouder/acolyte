@@ -22,11 +22,7 @@ import {
   Zap,
 } from 'lucide-react';
 
-export type ToolCategory =
-  | 'API Testing'
-  | 'Analysis'
-  | 'Utilities'
-  | 'Other';
+export type ToolCategory = 'API Testing' | 'Analysis' | 'Utilities' | 'Other';
 
 export interface Tool {
   title: string;
