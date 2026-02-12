@@ -1,0 +1,36 @@
+{
+  "cli_version": "0.4.3",
+  "checkpoint_id": "874d17f7e932",
+  "session_id": "0b8a4140-199b-4978-92ec-9ae85ff55dfd",
+  "strategy": "manual-commit",
+  "created_at": "2026-02-12T15:48:47.87586Z",
+  "branch": "site-search",
+  "checkpoints_count": 2,
+  "files_touched": [
+    ".claude/settings.json",
+    ".claude/settings.local.json",
+    "app/layout.tsx",
+    "components/app-sidebar.tsx",
+    "components/site-search.tsx",
+    "components/ui/command.tsx",
+    "lib/tools-data.ts"
+  ],
+  "agent": "Claude Code",
+  "token_usage": {
+    "input_tokens": 60,
+    "cache_creation_tokens": 134975,
+    "cache_read_tokens": 1982170,
+    "output_tokens": 3068,
+    "api_call_count": 48
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-02-12T15:48:47.723581Z",
+    "agent_lines": 348,
+    "human_added": 1026,
+    "human_modified": 218,
+    "human_removed": 0,
+    "total_committed": 1587,
+    "agent_percentage": 21.928166351606805
+  },
+  "transcript_path": ".claude/projects/-Users-jbouder-repos-jbouder-acolyte/0b8a4140-199b-4978-92ec-9ae85ff55dfd.jsonl"
+}

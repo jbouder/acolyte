@@ -1,0 +1,112 @@
+Implement the following plan:
+
+# Site Search Implementation Plan
+
+## Context
+
+The app has ~20 developer tools (APIs, SSE, JSON Formatter, JWT Decoder, etc.) accessible only through the sidebar navigation. There's no way to quickly search for a tool. This change adds a command palette-style search (Cmd+K / Ctrl+K) in the header, backed by a centralized tool index that replaces the hardcoded sidebar array.
+
+## Approach
+
+Use shadcn/ui's Command component (built on the `cmdk` package) inside a Dialog to create a searchable command palette. Tools are grouped by category with descriptions and keywords for better discoverability.
+
+## Steps
+
+### 1. Create centralized tool index — `lib/tools-data.ts` (new file)
+
+Single source of truth for all tool metadata. Each tool has:
+- `title`, `url`, `icon` (LucideIcon), `description`, `category`, `keywords[]`
+
+Categories: "API Testing", "Analysis", "Utilities", "Other"
+
+Exports:
+- `allTools` — all 20 items (including Home) for the sidebar
+- `searchableTools` — excludes Home, used by search
+
+### 2. Install `cmdk` package
+
+```bash
+npm install cmdk
+```
+
+### 3. Add shadcn Command component — `components/ui/command.tsx` (new file)
+
+Standard shadcn/ui Command component wrapping `cmdk`. Exports: `Command`, `CommandDialog`, `CommandInput`, `CommandList`, `CommandEmpty`, `CommandGroup`, `CommandItem`, `CommandSeparator`, `CommandShortcut`.
+
+`CommandDialog` composes Radix Dialog primitives directly (bypassing `DialogContent`) to avoid the automatic close button.
+
+### 4. Create SiteSearch component — `components/site-search.tsx` (new file)
+
+- **Trigger button**: Search icon + "Search tools..." text + keyboard shortcut badge (responsive — icon-only on small screens, full width on xl+)
+- **Keyboard shortcut**: Global `Cmd+K` / `Ctrl+K` listener via `useEffect`
+- **Dialog content**: `CommandDialog` with grouped results by category, each showing icon + title + description
+- **Navigation**: On select, calls `router.push(tool.url)` and closes dialog
+- **Filtering**: `cmdk` built-in fuzzy matching against combined `value` string (title + description + keywords)
+
+### 5. Integrate into header — `app/layout.tsx` (modify)
+
+Add `<SiteSearch />` between `SidebarTrigger` and the GitHubLink/ThemeToggle group:
+
+```tsx
+<header className="sticky top-0 flex h-17 shrink-0 items-center gap-2 border-b bg-background px-4">
+  <SidebarTrigger className="-ml-1" />
+  <div className="ml-auto flex items-center gap-2">
+    <SiteSearch />
+    <GitHubLink />
+    <ThemeToggle />
+  </div>
+</header>
+```
+
+### 6. Refactor sidebar — `components/app-sidebar.tsx` (modify)
+
+- Remove all 19 Lucide icon imports and the local `items` array
+- Import `allTools` from `@/lib/tools-data`
+- Replace `items.map(...)` with `allTools.map(...)`
+- No visual or behavioral changes to the sidebar
+
+## Files Changed
+
+| File | Action |
+|---|---|
+| `lib/tools-data.ts` | New |
+| `components/ui/command.tsx` | New |
+| `components/site-search.tsx` | New |
+| `app/layout.tsx` | Modified — add SiteSearch import and render |
+| `components/app-sidebar.tsx` | Modified — use shared tool data |
+| `package.json` | Modified — add `cmdk` dependency |
+
+## Verification
+
+1. Run `npm run build` to ensure no type/build errors
+2. Run `npm run dev` and verify:
+   - Search button appears in the header between sidebar trigger and GitHub/theme buttons
+   - Clicking the search button opens the command palette
+   - `Cmd+K` / `Ctrl+K` opens and closes the palette
+   - Typing filters tools by name, description, and keywords
+   - Selecting a tool navigates to its page and closes the dialog
+   - Sidebar still renders all tools correctly with active state highlighting
+3. Run `npm test` to ensure existing tests pass
+
+
+If you need specific details from before exiting plan mode (like exact code snippets, error messages, or content you generated), read the full transcript at: /Users/jbouder/.REDACTED.jsonl
+
+---
+
+Actually I want to use the shadcn command component instead of cmdk. Replace and remove the package
+
+---
+
+start up the dev server so i can see these chnages
+
+---
+
+open it in the browser for me
+
+---
+
+stop the server
+
+---
+
+commit this
