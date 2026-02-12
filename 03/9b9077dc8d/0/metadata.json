@@ -1,0 +1,33 @@
+{
+  "cli_version": "0.4.3",
+  "checkpoint_id": "039b9077dc8d",
+  "session_id": "0b8a4140-199b-4978-92ec-9ae85ff55dfd",
+  "strategy": "manual-commit",
+  "created_at": "2026-02-12T15:55:34.108938Z",
+  "branch": "site-search",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "package.json"
+  ],
+  "agent": "Claude Code",
+  "transcript_identifier_at_start": "fcd1f986-2b73-4fd4-9e42-5633fc80a3ab",
+  "checkpoint_transcript_start": 283,
+  "transcript_lines_at_start": 283,
+  "token_usage": {
+    "input_tokens": 21,
+    "cache_creation_tokens": 5485,
+    "cache_read_tokens": 1011888,
+    "output_tokens": 966,
+    "api_call_count": 17
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-02-12T15:55:33.938102Z",
+    "agent_lines": 3,
+    "human_added": 201,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 204,
+    "agent_percentage": 1.4705882352941175
+  },
+  "transcript_path": ".claude/projects/-Users-jbouder-repos-jbouder-acolyte/0b8a4140-199b-4978-92ec-9ae85ff55dfd.jsonl"
+}
