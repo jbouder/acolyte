@@ -1,27 +1,5 @@
 'use client';
 
-import {
-  BarChart3,
-  BookOpen,
-  Braces,
-  Cable,
-  Code2,
-  Eye,
-  FileText,
-  Gamepad2,
-  GitBranch,
-  GitGraph,
-  Home,
-  Key,
-  PackageSearch,
-  Palette,
-  ScanEye,
-  SearchCode,
-  Settings,
-  StickyNote,
-  Wifi,
-  Zap,
-} from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -36,110 +14,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
-
-// Menu items.
-const items = [
-  {
-    title: 'Home',
-    url: '/',
-    icon: Home,
-  },
-  {
-    title: 'APIs',
-    url: '/apis',
-    icon: Code2,
-  },
-  {
-    title: 'SSE',
-    url: '/sse',
-    icon: Zap,
-  },
-  {
-    title: 'WebSockets',
-    url: '/websockets',
-    icon: Cable,
-  },
-  {
-    title: 'WebTransport',
-    url: '/webtransport',
-    icon: Wifi,
-  },
-  {
-    title: 'Web Stats',
-    url: '/web-stats',
-    icon: Settings,
-  },
-  {
-    title: 'Website Analysis',
-    url: '/website-analysis',
-    icon: BarChart3,
-  },
-  {
-    title: 'Accessibility Checker',
-    url: '/accessibility-checker',
-    icon: ScanEye,
-  },
-  {
-    title: 'Dependency Analysis',
-    url: '/dependency-analysis',
-    icon: GitBranch,
-  },
-  {
-    title: 'SBOM Report',
-    url: '/sbom-report',
-    icon: PackageSearch,
-  },
-  {
-    title: 'Markdown Preview',
-    url: '/markdown-preview',
-    icon: Eye,
-  },
-  {
-    title: 'Mermaid Preview',
-    url: '/mermaid-preview',
-    icon: GitGraph,
-  },
-  {
-    title: 'Swagger Viewer',
-    url: '/swagger-viewer',
-    icon: BookOpen,
-  },
-  {
-    title: 'Base64 Encoding',
-    url: '/base64',
-    icon: FileText,
-  },
-  {
-    title: 'JSON Formatter',
-    url: '/json-formatter',
-    icon: Braces,
-  },
-  {
-    title: 'Regex Tester',
-    url: '/regex',
-    icon: SearchCode,
-  },
-  {
-    title: 'Color Picker',
-    url: '/color-picker',
-    icon: Palette,
-  },
-  {
-    title: 'JWT Decoder',
-    url: '/jwt',
-    icon: Key,
-  },
-  {
-    title: 'Notepad',
-    url: '/notepad',
-    icon: StickyNote,
-  },
-  {
-    title: 'Games',
-    url: '/games',
-    icon: Gamepad2,
-  },
-];
+import { allTools } from '@/lib/tools-data';
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -170,7 +45,7 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
+              {allTools.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={pathname === item.url}>
                     <Link href={item.url}>

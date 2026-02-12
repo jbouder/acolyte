@@ -1,5 +1,6 @@
 import { AppSidebar } from '@/components/app-sidebar';
 import { GitHubLink } from '@/components/github-link';
+import { SiteSearch } from '@/components/site-search';
 import { ThemeProvider } from '@/components/theme-provider';
 import { ThemeToggle } from '@/components/theme-toggle';
 import {
@@ -64,6 +65,7 @@ export default function RootLayout({
               <header className="sticky top-0 flex h-17 shrink-0 items-center gap-2 border-b bg-background px-4">
                 <SidebarTrigger className="-ml-1" />
                 <div className="ml-auto flex items-center gap-2">
+                  <SiteSearch />
                   <GitHubLink />
                   <ThemeToggle />
                 </div>
