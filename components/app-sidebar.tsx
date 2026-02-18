@@ -1,22 +1,6 @@
 'use client';
 
-import {
-  BarChart3,
-  Bot,
-  Braces,
-  Cable,
-  Code2,
-  FileText,
-  GitBranch,
-  Home,
-  Key,
-  Palette,
-  SearchCode,
-  Settings,
-  StickyNote,
-  Wifi,
-  Zap,
-} from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -30,80 +14,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
-
-// Menu items.
-const items = [
-  {
-    title: 'Home',
-    url: '/',
-    icon: Home,
-  },
-  {
-    title: 'APIs',
-    url: '/apis',
-    icon: Code2,
-  },
-  {
-    title: 'SSE',
-    url: '/sse',
-    icon: Zap,
-  },
-  {
-    title: 'WebSockets',
-    url: '/websockets',
-    icon: Cable,
-  },
-  {
-    title: 'WebTransport',
-    url: '/webtransport',
-    icon: Wifi,
-  },
-  {
-    title: 'Web Stats',
-    url: '/web-stats',
-    icon: Settings,
-  },
-  {
-    title: 'Website Analysis',
-    url: '/website-analysis',
-    icon: BarChart3,
-  },
-  {
-    title: 'Dependency Analysis',
-    url: '/dependency-analysis',
-    icon: GitBranch,
-  },
-  {
-    title: 'Base64 Encoding',
-    url: '/base64',
-    icon: FileText,
-  },
-  {
-    title: 'JSON Formatter',
-    url: '/json-formatter',
-    icon: Braces,
-  },
-  {
-    title: 'Regex Tester',
-    url: '/regex',
-    icon: SearchCode,
-  },
-  {
-    title: 'Color Picker',
-    url: '/color-picker',
-    icon: Palette,
-  },
-  {
-    title: 'JWT Decoder',
-    url: '/jwt',
-    icon: Key,
-  },
-  {
-    title: 'Notepad',
-    url: '/notepad',
-    icon: StickyNote,
-  },
-];
+import { allTools } from '@/lib/tools-data';
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -115,8 +26,14 @@ export function AppSidebar() {
           href="/"
           className="flex items-center gap-2 px-4 py-2 hover:bg-sidebar-accent rounded-md transition-colors"
         >
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary">
-            <Bot className="h-4 w-4 text-primary-foreground" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-md">
+            <Image
+              src="/logo_sm.png"
+              alt="Acolyte Logo"
+              width={32}
+              height={32}
+              className="h-8 w-8 object-contain"
+            />
           </div>
           <div className="flex flex-col">
             <span className="text-sm font-semibold">Project Acolyte</span>
@@ -128,7 +45,7 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
+              {allTools.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={pathname === item.url}>
                     <Link href={item.url}>

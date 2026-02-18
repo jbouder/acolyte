@@ -9,7 +9,7 @@ updates:
       timezone: 'US/Eastern'
     open-pull-requests-limit: 10
     labels:
-      - 'dependencies'
+      - 'security'
     groups:
       minor-and-patch:
         patterns:
@@ -18,6 +18,9 @@ updates:
           - 'minor'
           - 'patch'
     ignore:
+      - dependency-name: next
+        versions:
+          - '>=15.6.0'
       - dependency-name: react
         versions:
           - '>=19.1.0'
