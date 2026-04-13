@@ -1,6 +1,6 @@
 'use client';
 
-import { Github } from 'lucide-react';
+import { GitBranch } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 
@@ -13,7 +13,7 @@ export function GitHubLink() {
         rel="noopener noreferrer"
         aria-label="View source code on GitHub"
       >
-        <Github className="h-[1.2rem] w-[1.2rem]" />
+        <GitBranch className="h-[1.2rem] w-[1.2rem]" />
         <span className="sr-only">View source on GitHub</span>
       </a>
     </Button>
