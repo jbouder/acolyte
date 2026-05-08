@@ -91,6 +91,13 @@ describe('RetroPage', () => {
         return createMockResponse(201, [{ id: 'retro-1', ...body }]);
       }
 
+      if (
+        url.includes('/rest/v1/retros') &&
+        url.includes('owner_token_hash=eq.')
+      ) {
+        return createMockResponse(200, [{ id: 'retro-1' }]);
+      }
+
       if (url.includes('/rest/v1/retro_items') && init?.method === 'POST') {
         const body = JSON.parse(init.body as string);
         return createMockResponse(201, [
@@ -152,7 +159,7 @@ describe('RetroPage', () => {
     });
 
     expect(mockFetch).toHaveBeenCalledWith(
-      'https://example.supabase.co/rest/v1/retros?select=*',
+      'https://example.supabase.co/rest/v1/retros?select=id,session_id,name,columns,created_at',
       expect.objectContaining({ method: 'POST' }),
     );
     expect(mockFetch).toHaveBeenCalledWith(
@@ -161,7 +168,12 @@ describe('RetroPage', () => {
           32,
         )}`,
       ),
-      expect.objectContaining({ method: 'DELETE' }),
+      expect.objectContaining({
+        method: 'DELETE',
+        headers: expect.objectContaining({
+          'x-owner-token-hash': '02'.repeat(32),
+        }),
+      }),
     );
   });
 
@@ -215,6 +227,58 @@ describe('RetroPage', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('does not allow delete when the local creator token cannot be verified', async () => {
+    localStorage.setItem(
+      'acolyte-retro-supabase-config',
+      JSON.stringify({
+        url: 'https://example.supabase.co',
+        anonKey: 'anon-key',
+      }),
+    );
+    localStorage.setItem('acolyte-retro-owner-token:ABC123', 'stale-token');
+
+    mockFetch.mockImplementation((url: string) => {
+      if (url.includes('owner_token_hash=eq.')) {
+        return createMockResponse(200, []);
+      }
+
+      if (url.includes('/rest/v1/retros')) {
+        return createMockResponse(200, [
+          {
+            id: 'retro-1',
+            session_id: 'ABC123',
+            name: 'Team retro',
+            columns: ['Happy'],
+          },
+        ]);
+      }
+
+      return createMockResponse(200, []);
+    });
+
+    render(<RetroPage />);
+
+    fireEvent.change(screen.getByLabelText('Session id'), {
+      target: { value: 'abc123' },
+    });
+    fireEvent.submit(screen.getByText('Join session').closest('form')!);
+
+    await waitFor(() => {
+      expect(screen.getByText('Team retro')).toBeInTheDocument();
+    });
+
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('button', { name: 'Delete retro' }),
+      ).not.toBeInTheDocument();
+    });
+
+    expect(mockFetch).not.toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({ method: 'DELETE' }),
+    );
+  });
+
   it('loads a retro session from the dynamic route id', async () => {
     mockUseParams.mockReturnValue({ retroId: 'abc123' });
     localStorage.setItem(
@@ -250,7 +314,9 @@ describe('RetroPage', () => {
     });
 
     expect(mockFetch).toHaveBeenCalledWith(
-      expect.stringContaining('/rest/v1/retros?session_id=eq.ABC123&select=*'),
+      expect.stringContaining(
+        '/rest/v1/retros?session_id=eq.ABC123&select=id,session_id,name,columns,created_at',
+      ),
       expect.any(Object),
     );
   });

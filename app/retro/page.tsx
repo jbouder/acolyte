@@ -32,7 +32,6 @@ interface SupabaseConfig {
 interface RetroRecord {
   id?: string;
   session_id: string;
-  owner_token_hash: string;
   name: string;
   columns: string[];
   created_at?: string;
@@ -119,7 +118,26 @@ create table retro_items (
 );
 
 create index retros_session_id_idx on retros(session_id);
-create index retro_items_session_id_idx on retro_items(session_id);`;
+create index retro_items_session_id_idx on retro_items(session_id);
+
+alter table retros enable row level security;
+
+revoke all on retros from anon;
+grant select (id, session_id, name, columns, created_at), insert, delete on retros to anon;
+
+create policy "Anyone can read retros"
+on retros for select
+using (true);
+
+create policy "Anyone can create retros"
+on retros for insert
+with check (true);
+
+create policy "Only retro creators can delete retros"
+on retros for delete
+using (
+  owner_token_hash = current_setting('request.headers', true)::json->>'x-owner-token-hash'
+);`;
 
 interface RetroPageProps {
   initialSessionId?: string;
@@ -142,6 +160,7 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [ownerTokenHash, setOwnerTokenHash] = useState<string | null>(null);
+  const [ownerVerified, setOwnerVerified] = useState(false);
   const [pendingSessionIdToLoad, setPendingSessionIdToLoad] = useState(
     initialRouteSessionId,
   );
@@ -175,12 +194,7 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
     return localStorage.getItem(getOwnerTokenKey(activeRetro.session_id));
   }, [activeRetro]);
 
-  const isOwner = Boolean(
-    activeRetro &&
-      ownerToken &&
-      ownerTokenHash &&
-      ownerTokenHash === activeRetro.owner_token_hash,
-  );
+  const isOwner = Boolean(activeRetro && ownerVerified);
 
   const columns = activeRetro?.columns ?? parseColumns(columnsInput);
 
@@ -247,7 +261,9 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
   const loadRetro = useCallback(
     async (sessionId: string) => {
       const data = await requestSupabase<RetroRecord[]>(
-        `retros?session_id=eq.${encodeURIComponent(sessionId)}&select=*`,
+        `retros?session_id=eq.${encodeURIComponent(
+          sessionId,
+        )}&select=id,session_id,name,columns,created_at`,
       );
 
       if (!data.length) {
@@ -262,6 +278,7 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
 
   useEffect(() => {
     let cancelled = false;
+    setOwnerVerified(false);
 
     if (!ownerToken) {
       setOwnerTokenHash(null);
@@ -282,6 +299,33 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
     };
   }, [ownerToken]);
 
+  useEffect(() => {
+    let cancelled = false;
+    setOwnerVerified(false);
+
+    if (!activeRetro || !ownerTokenHash) {
+      return;
+    }
+
+    const sessionFilter = encodeURIComponent(activeRetro.session_id);
+    const ownerFilter = encodeURIComponent(ownerTokenHash);
+
+    requestSupabase<Pick<RetroRecord, 'id'>[]>(
+      `retros?session_id=eq.${sessionFilter}&owner_token_hash=eq.${ownerFilter}&select=id`,
+    )
+      .then((data) => {
+        if (!cancelled) setOwnerVerified(data.length > 0);
+      })
+      .catch((error) => {
+        console.warn('Failed to verify retro ownership:', error);
+        if (!cancelled) setOwnerVerified(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeRetro, ownerTokenHash, requestSupabase]);
+
   const createRetro = async (event: FormEvent) => {
     event.preventDefault();
     setLoading(true);
@@ -300,15 +344,18 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
       const sessionId = generateRandomId(16);
       const nextOwnerToken = generateRandomId(48);
       const nextOwnerTokenHash = await hashToken(nextOwnerToken);
-      const data = await requestSupabase<RetroRecord[]>('retros?select=*', {
-        method: 'POST',
-        body: JSON.stringify({
-          session_id: sessionId,
-          owner_token_hash: nextOwnerTokenHash,
-          name: retroName.trim(),
-          columns: parsedColumns,
-        }),
-      });
+      const data = await requestSupabase<RetroRecord[]>(
+        'retros?select=id,session_id,name,columns,created_at',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            session_id: sessionId,
+            owner_token_hash: nextOwnerTokenHash,
+            name: retroName.trim(),
+            columns: parsedColumns,
+          }),
+        },
+      );
 
       localStorage.setItem(getOwnerTokenKey(sessionId), nextOwnerToken);
       setActiveRetro(data[0]);
@@ -430,7 +477,10 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
         )}`,
         {
           method: 'DELETE',
-          headers: { Prefer: 'return=minimal' },
+          headers: {
+            Prefer: 'return=minimal',
+            'x-owner-token-hash': ownerTokenHash,
+          },
         },
       );
 
