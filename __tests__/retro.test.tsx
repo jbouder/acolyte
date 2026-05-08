@@ -7,7 +7,10 @@ import {
 } from '@testing-library/react';
 
 import RetroSessionPage from '@/app/retro/[retroId]/page';
-import RetroPage, { getOwnerTokenKey } from '@/app/retro/page';
+import RetroPage, {
+  createRetroShareToken,
+  getOwnerTokenKey,
+} from '@/app/retro/page';
 
 const mockUseParams = jest.fn();
 
@@ -219,6 +222,64 @@ describe('RetroPage', () => {
     expect(
       screen.queryByRole('button', { name: 'Delete retro' }),
     ).not.toBeInTheDocument();
+  });
+
+  it('joins from a shared retro link without saved Supabase settings', async () => {
+    const shareToken = createRetroShareToken('abc123', {
+      url: 'https://example.supabase.co/',
+      anonKey: 'anon-key',
+    });
+
+    mockFetch.mockImplementation((url: string) => {
+      if (url.includes('/rest/v1/retros')) {
+        return createMockResponse(200, [
+          {
+            id: 'retro-1',
+            session_id: 'ABC123',
+            name: 'Shared retro',
+            columns: ['Happy'],
+          },
+        ]);
+      }
+
+      return createMockResponse(200, [
+        {
+          id: 'item-1',
+          session_id: 'ABC123',
+          column_name: 'Happy',
+          content: 'Joined from link',
+          author: 'Grace',
+        },
+      ]);
+    });
+
+    render(<RetroPage />);
+
+    fireEvent.change(screen.getByLabelText('Session id'), {
+      target: { value: `http://localhost/retro/${shareToken}` },
+    });
+    fireEvent.submit(screen.getByText('Join session').closest('form')!);
+
+    await waitFor(() => {
+      expect(screen.getByText('Shared retro')).toBeInTheDocument();
+      expect(screen.getByText('Joined from link')).toBeInTheDocument();
+    });
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      'https://example.supabase.co/rest/v1/retros?session_id=eq.ABC123&select=id,session_id,name,columns,created_at',
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          apikey: 'anon-key',
+          Authorization: 'Bearer anon-key',
+        }),
+      }),
+    );
+    expect(localStorage.getItem('acolyte-retro-supabase-config')).toBe(
+      JSON.stringify({
+        url: 'https://example.supabase.co',
+        anonKey: 'anon-key',
+      }),
+    );
   });
 
   it('does not allow delete when the local creator token cannot be verified', async () => {
