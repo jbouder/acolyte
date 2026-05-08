@@ -55,7 +55,7 @@ const defaultColumns = 'Went well\nCould improve\nAction items';
 const configStorageKey = 'acolyte-retro-supabase-config';
 const ownerTokenPrefix = 'acolyte-retro-owner-token:';
 const retroSelectFields = 'id,session_id,name,columns,created_at';
-const shareTokenPrefix = 'r1_';
+const shareTokenVersionPrefix = 'r1_';
 
 function generateRandomId(length = 8) {
   const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -112,9 +112,8 @@ function encodeBase64Url(value: string) {
 }
 
 function decodeBase64Url(value: string) {
-  const paddedValue = `${value.replace(/-/g, '+').replace(/_/g, '/')}${'='.repeat(
-    (4 - (value.length % 4)) % 4,
-  )}`;
+  const paddingLength = (4 - (value.length % 4)) % 4;
+  const paddedValue = `${value.replace(/-/g, '+').replace(/_/g, '/')}${'='.repeat(paddingLength)}`;
   return atob(paddedValue);
 }
 
@@ -122,7 +121,7 @@ export function createRetroShareToken(
   sessionId: string,
   config: SupabaseConfig,
 ) {
-  return `${shareTokenPrefix}${encodeBase64Url(
+  return `${shareTokenVersionPrefix}${encodeBase64Url(
     JSON.stringify({
       sessionId: normalizeSessionId(sessionId),
       config: normalizeSupabaseConfig(config),
@@ -131,11 +130,11 @@ export function createRetroShareToken(
 }
 
 function parseShareToken(value: string): RetroJoinDetails | null {
-  if (!value.startsWith(shareTokenPrefix)) return null;
+  if (!value.startsWith(shareTokenVersionPrefix)) return null;
 
   try {
     const payload = JSON.parse(
-      decodeBase64Url(value.slice(shareTokenPrefix.length)),
+      decodeBase64Url(value.slice(shareTokenVersionPrefix.length)),
     ) as Partial<{
       sessionId: unknown;
       config: Partial<SupabaseConfig>;
@@ -167,7 +166,7 @@ function getJoinValueFromInput(value: string) {
   try {
     const url = new URL(trimmedValue);
     const retroPathMatch = url.pathname.match(/\/retro\/([^/]+)$/);
-    return decodeURIComponent(retroPathMatch?.[1] ?? url.hash.slice(1));
+    return decodeURIComponent(retroPathMatch?.[1] ?? trimmedValue);
   } catch {
     return trimmedValue;
   }
