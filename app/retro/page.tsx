@@ -105,7 +105,10 @@ create table retro_items (
   content text not null,
   author text not null,
   created_at timestamptz not null default now()
-);`;
+);
+
+create index retros_session_id_idx on retros(session_id);
+create index retro_items_session_id_idx on retro_items(session_id);`;
 
 export default function RetroPage() {
   const [mode, setMode] = useState<Mode>('create');
@@ -224,19 +227,6 @@ export default function RetroPage() {
     },
     [loadItems, requestSupabase],
   );
-
-  useEffect(() => {
-    if (!activeRetro) return;
-
-    const interval = window.setInterval(() => {
-      if (document.visibilityState === 'hidden') return;
-      loadItems(activeRetro.session_id, false).catch((error) => {
-        console.warn('Failed to refresh retro items:', error);
-      });
-    }, 10000);
-
-    return () => window.clearInterval(interval);
-  }, [activeRetro, loadItems]);
 
   useEffect(() => {
     let cancelled = false;

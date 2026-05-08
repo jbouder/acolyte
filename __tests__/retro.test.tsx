@@ -17,7 +17,7 @@ jest.mock('sonner', () => ({
 
 const mockFetch = jest.fn();
 
-function mockSupabaseResponse(status: number, body?: unknown) {
+function createMockResponse(status: number, body?: unknown) {
   return Promise.resolve({
     ok: status >= 200 && status < 300,
     status,
@@ -74,21 +74,21 @@ describe('RetroPage', () => {
     mockFetch.mockImplementation((url: string, init?: RequestInit) => {
       if (url.includes('/rest/v1/retros') && init?.method === 'POST') {
         const body = JSON.parse(init.body as string);
-        return mockSupabaseResponse(201, [{ id: 'retro-1', ...body }]);
+        return createMockResponse(201, [{ id: 'retro-1', ...body }]);
       }
 
       if (url.includes('/rest/v1/retro_items') && init?.method === 'POST') {
         const body = JSON.parse(init.body as string);
-        return mockSupabaseResponse(201, [
+        return createMockResponse(201, [
           { id: 'item-1', ...body, author: 'Ada' },
         ]);
       }
 
       if (init?.method === 'DELETE') {
-        return mockSupabaseResponse(204);
+        return createMockResponse(204);
       }
 
-      return mockSupabaseResponse(200, []);
+      return createMockResponse(200, []);
     });
 
     render(<RetroPage />);
@@ -153,7 +153,7 @@ describe('RetroPage', () => {
   it('joins an existing retro session and loads board items', async () => {
     mockFetch.mockImplementation((url: string) => {
       if (url.includes('/rest/v1/retros')) {
-        return mockSupabaseResponse(200, [
+        return createMockResponse(200, [
           {
             id: 'retro-1',
             session_id: 'ABC123',
@@ -164,7 +164,7 @@ describe('RetroPage', () => {
         ]);
       }
 
-      return mockSupabaseResponse(200, [
+      return createMockResponse(200, [
         {
           id: 'item-1',
           session_id: 'ABC123',
