@@ -44,7 +44,7 @@ const defaultColumns = 'Went well\nCould improve\nAction items';
 const configStorageKey = 'acolyte-retro-supabase-config';
 const ownerTokenPrefix = 'acolyte-retro-owner-token:';
 
-function createId(length = 8) {
+function generateRandomId(length = 8) {
   const values = new Uint8Array(length);
   crypto.getRandomValues(values);
   return Array.from(values, (value) => (value % 36).toString(36))
@@ -203,7 +203,9 @@ export default function RetroPage() {
     if (!activeRetro) return;
 
     const interval = window.setInterval(() => {
-      loadItems(activeRetro.session_id, false).catch(() => undefined);
+      loadItems(activeRetro.session_id, false).catch((error) => {
+        console.warn('Failed to refresh retro items:', error);
+      });
     }, 5000);
 
     return () => window.clearInterval(interval);
@@ -224,8 +226,8 @@ export default function RetroPage() {
 
       saveConfig();
 
-      const sessionId = createId(10);
-      const nextOwnerToken = createId(32);
+      const sessionId = generateRandomId(10);
+      const nextOwnerToken = generateRandomId(32);
       const data = await requestSupabase<RetroRecord[]>('retros?select=*', {
         method: 'POST',
         body: JSON.stringify({
