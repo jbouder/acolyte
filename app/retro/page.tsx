@@ -12,7 +12,14 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ClipboardList, Plus, RefreshCw, Trash2, Users } from 'lucide-react';
-import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  FormEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { toast } from 'sonner';
 
 type Mode = 'create' | 'join';
@@ -25,7 +32,6 @@ interface SupabaseConfig {
 interface RetroRecord {
   id?: string;
   session_id: string;
-  owner_token_hash: string;
   name: string;
   columns: string[];
   created_at?: string;
@@ -43,6 +49,7 @@ interface RetroItem {
 const defaultColumns = 'Went well\nCould improve\nAction items';
 const configStorageKey = 'acolyte-retro-supabase-config';
 const ownerTokenPrefix = 'acolyte-retro-owner-token:';
+const retroSelectFields = 'id,session_id,name,columns,created_at';
 
 function generateRandomId(length = 8) {
   const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -75,8 +82,12 @@ function parseColumns(value: string) {
     .filter(Boolean);
 }
 
-function getOwnerTokenKey(sessionId: string) {
+export function getOwnerTokenKey(sessionId: string) {
   return `${ownerTokenPrefix}${sessionId}`;
+}
+
+function normalizeRouteSessionId(sessionId?: string) {
+  return sessionId?.trim().toUpperCase() ?? '';
 }
 
 async function hashToken(token: string) {
@@ -108,17 +119,63 @@ create table retro_items (
 );
 
 create index retros_session_id_idx on retros(session_id);
-create index retro_items_session_id_idx on retro_items(session_id);`;
+create index retro_items_session_id_idx on retro_items(session_id);
 
-export default function RetroPage() {
-  const [mode, setMode] = useState<Mode>('create');
+alter table retros enable row level security;
+
+revoke all on retros from anon;
+-- DELETE is constrained by the RLS policy below; do not disable RLS.
+grant select (id, session_id, name, columns, created_at), insert, delete on retros to anon;
+
+create function verify_retro_owner(retro_session_id text)
+returns boolean
+language sql
+stable
+as $$
+  select exists (
+    select 1
+    from retros
+    where session_id = retro_session_id
+      and owner_token_hash = current_setting('request.headers', true)::json->>'x-owner-token-hash'
+  );
+$$;
+
+grant execute on function verify_retro_owner(text) to anon;
+
+create policy "Anyone can read retros"
+on retros for select
+using (true);
+
+create policy "Anyone can create retros"
+on retros for insert
+with check (true);
+
+create policy "Only retro creators can delete retros"
+on retros for delete
+using (
+  -- Supabase-hosted PostgREST exposes REST request headers through request.headers.
+  -- If you self-host PostgREST, ensure request headers are available to policies.
+  owner_token_hash = current_setting('request.headers', true)::json->>'x-owner-token-hash'
+);`;
+
+interface RetroPageProps {
+  /**
+   * Optional route-provided session id used to prefill and auto-load a retro
+   * when visiting /retro/[retroId].
+   */
+  initialSessionId?: string;
+}
+
+export default function RetroPage({ initialSessionId }: RetroPageProps) {
+  const initialRouteSessionId = normalizeRouteSessionId(initialSessionId);
+  const [mode, setMode] = useState<Mode>('join');
   const [config, setConfig] = useState<SupabaseConfig>({
     url: '',
     anonKey: '',
   });
   const [retroName, setRetroName] = useState('');
   const [columnsInput, setColumnsInput] = useState(defaultColumns);
-  const [sessionInput, setSessionInput] = useState('');
+  const [sessionInput, setSessionInput] = useState(initialRouteSessionId);
   const [participantName, setParticipantName] = useState('');
   const [activeRetro, setActiveRetro] = useState<RetroRecord | null>(null);
   const [items, setItems] = useState<RetroItem[]>([]);
@@ -126,6 +183,11 @@ export default function RetroPage() {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [ownerTokenHash, setOwnerTokenHash] = useState<string | null>(null);
+  const [ownerVerified, setOwnerVerified] = useState(false);
+  const [pendingSessionIdToLoad, setPendingSessionIdToLoad] = useState(
+    initialRouteSessionId,
+  );
+  const processedRouteSessionId = useRef(initialRouteSessionId);
 
   useEffect(() => {
     try {
@@ -138,16 +200,25 @@ export default function RetroPage() {
     }
   }, []);
 
+  useEffect(() => {
+    const routeSessionId = initialRouteSessionId;
+    if (!routeSessionId || routeSessionId === processedRouteSessionId.current) {
+      return;
+    }
+
+    processedRouteSessionId.current = routeSessionId;
+    setMode('join');
+    setSessionInput(routeSessionId);
+    setPendingSessionIdToLoad(routeSessionId);
+  }, [initialRouteSessionId]);
+
   const ownerToken = useMemo(() => {
     if (!activeRetro) return null;
     return localStorage.getItem(getOwnerTokenKey(activeRetro.session_id));
   }, [activeRetro]);
 
   const isOwner = Boolean(
-    activeRetro &&
-      ownerToken &&
-      ownerTokenHash &&
-      ownerTokenHash === activeRetro.owner_token_hash,
+    activeRetro && ownerToken && ownerTokenHash && ownerVerified,
   );
 
   const columns = activeRetro?.columns ?? parseColumns(columnsInput);
@@ -215,7 +286,9 @@ export default function RetroPage() {
   const loadRetro = useCallback(
     async (sessionId: string) => {
       const data = await requestSupabase<RetroRecord[]>(
-        `retros?session_id=eq.${encodeURIComponent(sessionId)}&select=*`,
+        `retros?session_id=eq.${encodeURIComponent(
+          sessionId,
+        )}&select=${retroSelectFields}`,
       );
 
       if (!data.length) {
@@ -230,6 +303,7 @@ export default function RetroPage() {
 
   useEffect(() => {
     let cancelled = false;
+    setOwnerVerified(false);
 
     if (!ownerToken) {
       setOwnerTokenHash(null);
@@ -250,6 +324,32 @@ export default function RetroPage() {
     };
   }, [ownerToken]);
 
+  useEffect(() => {
+    let cancelled = false;
+    setOwnerVerified(false);
+
+    if (!activeRetro || !ownerTokenHash) {
+      return;
+    }
+
+    requestSupabase<boolean>('rpc/verify_retro_owner', {
+      method: 'POST',
+      headers: { 'x-owner-token-hash': ownerTokenHash },
+      body: JSON.stringify({ retro_session_id: activeRetro.session_id }),
+    })
+      .then((verified) => {
+        if (!cancelled) setOwnerVerified(verified);
+      })
+      .catch((error) => {
+        console.warn('Failed to verify retro ownership:', error);
+        if (!cancelled) setOwnerVerified(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeRetro, ownerTokenHash, requestSupabase]);
+
   const createRetro = async (event: FormEvent) => {
     event.preventDefault();
     setLoading(true);
@@ -268,15 +368,18 @@ export default function RetroPage() {
       const sessionId = generateRandomId(16);
       const nextOwnerToken = generateRandomId(48);
       const nextOwnerTokenHash = await hashToken(nextOwnerToken);
-      const data = await requestSupabase<RetroRecord[]>('retros?select=*', {
-        method: 'POST',
-        body: JSON.stringify({
-          session_id: sessionId,
-          owner_token_hash: nextOwnerTokenHash,
-          name: retroName.trim(),
-          columns: parsedColumns,
-        }),
-      });
+      const data = await requestSupabase<RetroRecord[]>(
+        `retros?select=${retroSelectFields}`,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            session_id: sessionId,
+            owner_token_hash: nextOwnerTokenHash,
+            name: retroName.trim(),
+            columns: parsedColumns,
+          }),
+        },
+      );
 
       localStorage.setItem(getOwnerTokenKey(sessionId), nextOwnerToken);
       setActiveRetro(data[0]);
@@ -312,6 +415,50 @@ export default function RetroPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (
+      !pendingSessionIdToLoad ||
+      !config.url.trim() ||
+      !config.anonKey.trim() ||
+      activeRetro?.session_id === pendingSessionIdToLoad
+    ) {
+      return;
+    }
+
+    let cancelled = false;
+    setLoading(true);
+
+    loadRetro(pendingSessionIdToLoad)
+      .then(() => {
+        if (!cancelled) {
+          toast.success('Joined retro session');
+        }
+      })
+      .catch((error) => {
+        if (!cancelled) {
+          toast.error(
+            error instanceof Error ? error.message : 'Failed to join retro',
+          );
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setPendingSessionIdToLoad('');
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    activeRetro?.session_id,
+    config.anonKey,
+    config.url,
+    loadRetro,
+    pendingSessionIdToLoad,
+  ]);
 
   const addItem = async (column: string) => {
     const content = newItems[column]?.trim();
@@ -349,12 +496,13 @@ export default function RetroPage() {
     try {
       const sessionFilter = encodeURIComponent(activeRetro.session_id);
       await requestSupabase<undefined>(
-        `retros?session_id=eq.${sessionFilter}&owner_token_hash=eq.${encodeURIComponent(
-          ownerTokenHash,
-        )}`,
+        `retros?session_id=eq.${sessionFilter}`,
         {
           method: 'DELETE',
-          headers: { Prefer: 'return=minimal' },
+          headers: {
+            Prefer: 'return=minimal',
+            'x-owner-token-hash': ownerTokenHash,
+          },
         },
       );
 
@@ -398,51 +546,6 @@ export default function RetroPage() {
         <div className="flex flex-col gap-4">
           <Card>
             <CardHeader>
-              <CardTitle>Supabase connection</CardTitle>
-              <CardDescription>
-                Use your project URL and anon key. The key stays in this browser
-                and is sent directly to Supabase.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="space-y-2">
-                <label className="text-sm font-medium" htmlFor="supabase-url">
-                  Project URL
-                </label>
-                <Input
-                  id="supabase-url"
-                  placeholder="https://project-ref.supabase.co"
-                  value={config.url}
-                  onChange={(event) =>
-                    setConfig((currentConfig) => ({
-                      ...currentConfig,
-                      url: event.target.value,
-                    }))
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium" htmlFor="supabase-key">
-                  Anon key
-                </label>
-                <Input
-                  id="supabase-key"
-                  type="password"
-                  placeholder="eyJhbGciOi..."
-                  value={config.anonKey}
-                  onChange={(event) =>
-                    setConfig((currentConfig) => ({
-                      ...currentConfig,
-                      anonKey: event.target.value,
-                    }))
-                  }
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
               <CardTitle>Start</CardTitle>
               <CardDescription>
                 Create a new retro or join an existing session.
@@ -452,17 +555,17 @@ export default function RetroPage() {
               <div className="grid grid-cols-2 gap-2">
                 <Button
                   type="button"
-                  variant={mode === 'create' ? 'default' : 'outline'}
-                  onClick={() => setMode('create')}
-                >
-                  Create retro
-                </Button>
-                <Button
-                  type="button"
                   variant={mode === 'join' ? 'default' : 'outline'}
                   onClick={() => setMode('join')}
                 >
                   Join retro
+                </Button>
+                <Button
+                  type="button"
+                  variant={mode === 'create' ? 'default' : 'outline'}
+                  onClick={() => setMode('create')}
+                >
+                  Create retro
                 </Button>
               </div>
 
@@ -532,25 +635,84 @@ export default function RetroPage() {
                   <Button type="submit" disabled={loading} className="w-full">
                     Join session
                   </Button>
+                  <p className="text-xs text-muted-foreground">
+                    Joining uses the Supabase connection saved in this browser.
+                    Switch to Create retro mode to update project settings.
+                  </p>
                 </form>
               )}
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Required Supabase tables</CardTitle>
-              <CardDescription>
-                Run this SQL in Supabase, then add Row Level Security policies
-                that fit your project.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <pre className="max-h-72 overflow-auto rounded-lg bg-muted p-3 text-xs">
-                {schemaSql}
-              </pre>
-            </CardContent>
-          </Card>
+          {mode === 'create' ? (
+            <>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Supabase connection</CardTitle>
+                  <CardDescription>
+                    Use your project URL and anon key. The key stays in this
+                    browser and is sent directly to Supabase.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="space-y-2">
+                    <label
+                      className="text-sm font-medium"
+                      htmlFor="supabase-url"
+                    >
+                      Project URL
+                    </label>
+                    <Input
+                      id="supabase-url"
+                      placeholder="https://project-ref.supabase.co"
+                      value={config.url}
+                      onChange={(event) =>
+                        setConfig((currentConfig) => ({
+                          ...currentConfig,
+                          url: event.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label
+                      className="text-sm font-medium"
+                      htmlFor="supabase-key"
+                    >
+                      Anon key
+                    </label>
+                    <Input
+                      id="supabase-key"
+                      type="password"
+                      placeholder="eyJhbGciOi..."
+                      value={config.anonKey}
+                      onChange={(event) =>
+                        setConfig((currentConfig) => ({
+                          ...currentConfig,
+                          anonKey: event.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Required Supabase tables</CardTitle>
+                  <CardDescription>
+                    Run this SQL in Supabase to create the tables and RLS policy
+                    for creator-only retro deletion.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <pre className="max-h-72 overflow-auto rounded-lg bg-muted p-3 text-xs">
+                    {schemaSql}
+                  </pre>
+                </CardContent>
+              </Card>
+            </>
+          ) : null}
         </div>
 
         <Card>
