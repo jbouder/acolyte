@@ -29,6 +29,11 @@ interface SupabaseConfig {
   anonKey: string;
 }
 
+interface RetroJoinDetails {
+  sessionId: string;
+  config?: SupabaseConfig;
+}
+
 interface RetroRecord {
   id?: string;
   session_id: string;
@@ -50,6 +55,7 @@ const defaultColumns = 'Went well\nCould improve\nAction items';
 const configStorageKey = 'acolyte-retro-supabase-config';
 const ownerTokenPrefix = 'acolyte-retro-owner-token:';
 const retroSelectFields = 'id,session_id,name,columns,created_at';
+const shareTokenPrefix = 'r1_';
 
 function generateRandomId(length = 8) {
   const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -75,6 +81,17 @@ function normalizeSupabaseUrl(url: string) {
   return url.trim().replace(/\/+$/, '');
 }
 
+function normalizeSupabaseConfig(config: SupabaseConfig) {
+  return {
+    url: normalizeSupabaseUrl(config.url),
+    anonKey: config.anonKey.trim(),
+  };
+}
+
+function normalizeSessionId(sessionId: string) {
+  return sessionId.trim().toUpperCase();
+}
+
 function parseColumns(value: string) {
   return value
     .split('\n')
@@ -87,7 +104,82 @@ export function getOwnerTokenKey(sessionId: string) {
 }
 
 function normalizeRouteSessionId(sessionId?: string) {
-  return sessionId?.trim().toUpperCase() ?? '';
+  return sessionId?.trim() ?? '';
+}
+
+function encodeBase64Url(value: string) {
+  return btoa(value).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function decodeBase64Url(value: string) {
+  const paddedValue = `${value.replace(/-/g, '+').replace(/_/g, '/')}${'='.repeat(
+    (4 - (value.length % 4)) % 4,
+  )}`;
+  return atob(paddedValue);
+}
+
+export function createRetroShareToken(
+  sessionId: string,
+  config: SupabaseConfig,
+) {
+  return `${shareTokenPrefix}${encodeBase64Url(
+    JSON.stringify({
+      sessionId: normalizeSessionId(sessionId),
+      config: normalizeSupabaseConfig(config),
+    }),
+  )}`;
+}
+
+function parseShareToken(value: string): RetroJoinDetails | null {
+  if (!value.startsWith(shareTokenPrefix)) return null;
+
+  try {
+    const payload = JSON.parse(
+      decodeBase64Url(value.slice(shareTokenPrefix.length)),
+    ) as Partial<{
+      sessionId: unknown;
+      config: Partial<SupabaseConfig>;
+    }>;
+    const sessionId =
+      typeof payload.sessionId === 'string'
+        ? normalizeSessionId(payload.sessionId)
+        : '';
+    const config =
+      typeof payload.config?.url === 'string' &&
+      typeof payload.config?.anonKey === 'string'
+        ? normalizeSupabaseConfig({
+            url: payload.config.url,
+            anonKey: payload.config.anonKey,
+          })
+        : undefined;
+
+    if (!sessionId || !config?.url || !config.anonKey) return null;
+
+    return { sessionId, config };
+  } catch {
+    return null;
+  }
+}
+
+function getJoinValueFromInput(value: string) {
+  const trimmedValue = value.trim();
+
+  try {
+    const url = new URL(trimmedValue);
+    const retroPathMatch = url.pathname.match(/\/retro\/([^/]+)$/);
+    return decodeURIComponent(retroPathMatch?.[1] ?? url.hash.slice(1));
+  } catch {
+    return trimmedValue;
+  }
+}
+
+function parseRetroJoinInput(value: string): RetroJoinDetails {
+  const joinValue = getJoinValueFromInput(value);
+  const shareDetails = parseShareToken(joinValue);
+
+  if (shareDetails) return shareDetails;
+
+  return { sessionId: normalizeSessionId(joinValue) };
 }
 
 async function hashToken(token: string) {
@@ -168,6 +260,9 @@ interface RetroPageProps {
 
 export default function RetroPage({ initialSessionId }: RetroPageProps) {
   const initialRouteSessionId = normalizeRouteSessionId(initialSessionId);
+  const initialJoinDetails = initialRouteSessionId
+    ? parseRetroJoinInput(initialRouteSessionId)
+    : null;
   const [mode, setMode] = useState<Mode>('join');
   const [config, setConfig] = useState<SupabaseConfig>({
     url: '',
@@ -175,7 +270,9 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
   });
   const [retroName, setRetroName] = useState('');
   const [columnsInput, setColumnsInput] = useState(defaultColumns);
-  const [sessionInput, setSessionInput] = useState(initialRouteSessionId);
+  const [sessionInput, setSessionInput] = useState(
+    initialJoinDetails?.sessionId ?? '',
+  );
   const [participantName, setParticipantName] = useState('');
   const [activeRetro, setActiveRetro] = useState<RetroRecord | null>(null);
   const [items, setItems] = useState<RetroItem[]>([]);
@@ -184,9 +281,8 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
   const [refreshing, setRefreshing] = useState(false);
   const [ownerTokenHash, setOwnerTokenHash] = useState<string | null>(null);
   const [ownerVerified, setOwnerVerified] = useState(false);
-  const [pendingSessionIdToLoad, setPendingSessionIdToLoad] = useState(
-    initialRouteSessionId,
-  );
+  const [pendingJoinDetails, setPendingJoinDetails] =
+    useState<RetroJoinDetails | null>(initialJoinDetails);
   const processedRouteSessionId = useRef(initialRouteSessionId);
 
   useEffect(() => {
@@ -207,9 +303,10 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
     }
 
     processedRouteSessionId.current = routeSessionId;
+    const nextJoinDetails = parseRetroJoinInput(routeSessionId);
     setMode('join');
-    setSessionInput(routeSessionId);
-    setPendingSessionIdToLoad(routeSessionId);
+    setSessionInput(nextJoinDetails.sessionId);
+    setPendingJoinDetails(nextJoinDetails);
   }, [initialRouteSessionId]);
 
   const ownerToken = useMemo(() => {
@@ -223,10 +320,30 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
 
   const columns = activeRetro?.columns ?? parseColumns(columnsInput);
 
+  const shareUrl = useMemo(() => {
+    if (
+      !activeRetro ||
+      !config.url.trim() ||
+      !config.anonKey.trim() ||
+      typeof window === 'undefined'
+    ) {
+      return '';
+    }
+
+    return `${window.location.origin}/retro/${createRetroShareToken(
+      activeRetro.session_id,
+      config,
+    )}`;
+  }, [activeRetro, config]);
+
   const requestSupabase = useCallback(
-    async <T,>(path: string, init: RequestInit = {}): Promise<T> => {
-      const baseUrl = normalizeSupabaseUrl(config.url);
-      const anonKey = config.anonKey.trim();
+    async <T,>(
+      path: string,
+      init: RequestInit = {},
+      configOverride = config,
+    ): Promise<T> => {
+      const baseUrl = normalizeSupabaseUrl(configOverride.url);
+      const anonKey = configOverride.anonKey.trim();
 
       if (!baseUrl || !anonKey) {
         throw new Error('Enter your Supabase project URL and anon key.');
@@ -257,23 +374,30 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
     [config],
   );
 
-  const saveConfig = useCallback(() => {
-    const nextConfig = {
-      url: normalizeSupabaseUrl(config.url),
-      anonKey: config.anonKey.trim(),
-    };
-    localStorage.setItem(configStorageKey, JSON.stringify(nextConfig));
-    setConfig(nextConfig);
-  }, [config]);
+  const saveConfig = useCallback(
+    (configToSave = config) => {
+      const nextConfig = normalizeSupabaseConfig(configToSave);
+      localStorage.setItem(configStorageKey, JSON.stringify(nextConfig));
+      setConfig(nextConfig);
+      return nextConfig;
+    },
+    [config],
+  );
 
   const loadItems = useCallback(
-    async (sessionId: string, showSpinner = true) => {
+    async (
+      sessionId: string,
+      showSpinner = true,
+      configOverride?: SupabaseConfig,
+    ) => {
       if (showSpinner) setRefreshing(true);
       try {
         const data = await requestSupabase<RetroItem[]>(
           `retro_items?session_id=eq.${encodeURIComponent(
             sessionId,
           )}&order=created_at.asc`,
+          {},
+          configOverride,
         );
         setItems(data);
       } finally {
@@ -284,11 +408,13 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
   );
 
   const loadRetro = useCallback(
-    async (sessionId: string) => {
+    async (sessionId: string, configOverride?: SupabaseConfig) => {
       const data = await requestSupabase<RetroRecord[]>(
         `retros?session_id=eq.${encodeURIComponent(
           sessionId,
         )}&select=${retroSelectFields}`,
+        {},
+        configOverride,
       );
 
       if (!data.length) {
@@ -296,7 +422,7 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
       }
 
       setActiveRetro(data[0]);
-      await loadItems(data[0].session_id);
+      await loadItems(data[0].session_id, true, configOverride);
     },
     [loadItems, requestSupabase],
   );
@@ -363,7 +489,7 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
         throw new Error('Add at least one retro column.');
       }
 
-      saveConfig();
+      const nextConfig = saveConfig();
 
       const sessionId = generateRandomId(16);
       const nextOwnerToken = generateRandomId(48);
@@ -379,13 +505,14 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
             columns: parsedColumns,
           }),
         },
+        nextConfig,
       );
 
       localStorage.setItem(getOwnerTokenKey(sessionId), nextOwnerToken);
       setActiveRetro(data[0]);
       setItems([]);
-      setSessionInput(sessionId);
-      toast.success(`Retro created. Session id: ${sessionId}`);
+      setSessionInput(createRetroShareToken(sessionId, nextConfig));
+      toast.success(`Retro created. Share link ready for session ${sessionId}`);
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : 'Failed to create retro',
@@ -404,8 +531,15 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
         throw new Error('Enter a session id.');
       }
 
-      saveConfig();
-      await loadRetro(sessionInput.trim().toUpperCase());
+      const joinDetails = parseRetroJoinInput(sessionInput);
+      if (!joinDetails.sessionId) {
+        throw new Error('Enter a session id.');
+      }
+      const configForJoin = joinDetails.config
+        ? saveConfig(joinDetails.config)
+        : saveConfig();
+      await loadRetro(joinDetails.sessionId, configForJoin);
+      setSessionInput(joinDetails.sessionId);
       toast.success('Joined retro session');
     } catch (error) {
       toast.error(
@@ -418,18 +552,29 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
 
   useEffect(() => {
     if (
-      !pendingSessionIdToLoad ||
-      !config.url.trim() ||
-      !config.anonKey.trim() ||
-      activeRetro?.session_id === pendingSessionIdToLoad
+      !pendingJoinDetails ||
+      activeRetro?.session_id === pendingJoinDetails.sessionId
     ) {
+      return;
+    }
+
+    const configForJoin = pendingJoinDetails.config
+      ? normalizeSupabaseConfig(pendingJoinDetails.config)
+      : normalizeSupabaseConfig(config);
+
+    if (!configForJoin.url || !configForJoin.anonKey) {
       return;
     }
 
     let cancelled = false;
     setLoading(true);
+    setPendingJoinDetails(null);
+    if (pendingJoinDetails.config) {
+      localStorage.setItem(configStorageKey, JSON.stringify(configForJoin));
+      setConfig(configForJoin);
+    }
 
-    loadRetro(pendingSessionIdToLoad)
+    loadRetro(pendingJoinDetails.sessionId, configForJoin)
       .then(() => {
         if (!cancelled) {
           toast.success('Joined retro session');
@@ -444,7 +589,6 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
       })
       .finally(() => {
         if (!cancelled) {
-          setPendingSessionIdToLoad('');
           setLoading(false);
         }
       });
@@ -457,7 +601,7 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
     config.anonKey,
     config.url,
     loadRetro,
-    pendingSessionIdToLoad,
+    pendingJoinDetails,
   ]);
 
   const addItem = async (column: string) => {
@@ -636,8 +780,8 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
                     Join session
                   </Button>
                   <p className="text-xs text-muted-foreground">
-                    Joining uses the Supabase connection saved in this browser.
-                    Switch to Create retro mode to update project settings.
+                    Paste a shared retro link to join without entering Supabase
+                    settings.
                   </p>
                 </form>
               )}
@@ -753,6 +897,23 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
                 </div>
               ) : null}
             </div>
+            {shareUrl ? (
+              <div className="mt-4 space-y-2">
+                <label className="text-sm font-medium" htmlFor="share-link">
+                  Share link
+                </label>
+                <Input
+                  id="share-link"
+                  readOnly
+                  value={shareUrl}
+                  onFocus={(event) => event.target.select()}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Teammates can use this link to join without entering Supabase
+                  project settings.
+                </p>
+              </div>
+            ) : null}
           </CardHeader>
           <CardContent>
             {activeRetro ? (
