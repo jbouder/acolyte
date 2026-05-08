@@ -242,7 +242,9 @@ export default function RetroPage() {
       setSessionInput(sessionId);
       toast.success(`Retro created. Session id: ${sessionId}`);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to create retro');
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to create retro',
+      );
     } finally {
       setLoading(false);
     }
@@ -261,7 +263,9 @@ export default function RetroPage() {
       await loadRetro(sessionInput.trim().toUpperCase());
       toast.success('Joined retro session');
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to join retro');
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to join retro',
+      );
     } finally {
       setLoading(false);
     }
@@ -287,7 +291,9 @@ export default function RetroPage() {
       setNewItems((currentItems) => ({ ...currentItems, [column]: '' }));
       toast.success('Added retro item');
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to add item');
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to add item',
+      );
     } finally {
       setLoading(false);
     }
@@ -322,7 +328,9 @@ export default function RetroPage() {
       setItems([]);
       toast.success('Retro deleted');
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to delete retro');
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to delete retro',
+      );
     } finally {
       setLoading(false);
     }
@@ -357,8 +365,8 @@ export default function RetroPage() {
             <CardHeader>
               <CardTitle>Supabase connection</CardTitle>
               <CardDescription>
-                Use your project URL and anon key. The key stays in this
-                browser and is sent directly to Supabase.
+                Use your project URL and anon key. The key stays in this browser
+                and is sent directly to Supabase.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -620,7 +628,9 @@ export default function RetroPage() {
                 <div>
                   <ClipboardList className="mx-auto mb-3 h-10 w-10" />
                   <p>No retro loaded yet.</p>
-                  <p className="text-sm">Create one or join with a session id.</p>
+                  <p className="text-sm">
+                    Create one or join with a session id.
+                  </p>
                 </div>
               </div>
             )}

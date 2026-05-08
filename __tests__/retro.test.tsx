@@ -1,4 +1,10 @@
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 
 import RetroPage from '@/app/retro/page';
 
@@ -45,11 +51,17 @@ describe('RetroPage', () => {
   it('renders create and join controls with setup SQL', () => {
     render(<RetroPage />);
 
-    expect(screen.getByRole('heading', { name: 'Retro Board' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Retro Board' }),
+    ).toBeInTheDocument();
     expect(screen.getByLabelText('Project URL')).toBeInTheDocument();
     expect(screen.getByLabelText('Anon key')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Create retro' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Join retro' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Create retro' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Join retro' }),
+    ).toBeInTheDocument();
     expect(screen.getByText(/create table retros/)).toBeInTheDocument();
   });
 
@@ -62,7 +74,9 @@ describe('RetroPage', () => {
 
       if (url.includes('/rest/v1/retro_items') && init?.method === 'POST') {
         const body = JSON.parse(init.body as string);
-        return mockSupabaseResponse(201, [{ id: 'item-1', ...body, author: 'Ada' }]);
+        return mockSupabaseResponse(201, [
+          { id: 'item-1', ...body, author: 'Ada' },
+        ]);
       }
 
       if (init?.method === 'DELETE') {
@@ -89,21 +103,26 @@ describe('RetroPage', () => {
       expect(screen.getByText('Session 1111111111')).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Join retro' }));
-    fireEvent.change(screen.getByLabelText('Your name'), {
-      target: { value: 'Ada' },
-    });
-
-    const wentWellColumn = screen.getByText('Went well').closest('div')!.parentElement!;
-    fireEvent.change(within(wentWellColumn).getByLabelText('New item for Went well'), {
-      target: { value: 'Strong collaboration' },
-    });
-    fireEvent.click(within(wentWellColumn).getByRole('button', { name: 'Add item' }));
+    const wentWellColumn = screen
+      .getByText('Went well')
+      .closest('div')!.parentElement!;
+    fireEvent.change(
+      within(wentWellColumn).getByLabelText('New item for Went well'),
+      {
+        target: { value: 'Strong collaboration' },
+      },
+    );
+    fireEvent.click(
+      within(wentWellColumn).getByRole('button', { name: 'Add item' }),
+    );
 
     await waitFor(() => {
       expect(screen.getByText('Strong collaboration')).toBeInTheDocument();
     });
 
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Delete retro' })).toBeEnabled();
+    });
     fireEvent.click(screen.getByRole('button', { name: 'Delete retro' }));
 
     await waitFor(() => {
@@ -115,7 +134,9 @@ describe('RetroPage', () => {
       expect.objectContaining({ method: 'POST' }),
     );
     expect(mockFetch).toHaveBeenCalledWith(
-      expect.stringContaining('/rest/v1/retros?session_id=eq.1111111111&owner_token=eq.11111111111111111111111111111111'),
+      expect.stringContaining(
+        '/rest/v1/retros?session_id=eq.1111111111&owner_token=eq.11111111111111111111111111111111',
+      ),
       expect.objectContaining({ method: 'DELETE' }),
     );
   });
@@ -164,6 +185,8 @@ describe('RetroPage', () => {
       expect(screen.getByText('Shipped the release')).toBeInTheDocument();
     });
 
-    expect(screen.queryByRole('button', { name: 'Delete retro' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Delete retro' }),
+    ).not.toBeInTheDocument();
   });
 });
