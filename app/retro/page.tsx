@@ -81,7 +81,7 @@ function parseColumns(value: string) {
     .filter(Boolean);
 }
 
-function getOwnerTokenKey(sessionId: string) {
+export function getOwnerTokenKey(sessionId: string) {
   return `${ownerTokenPrefix}${sessionId}`;
 }
 
@@ -136,7 +136,8 @@ with check (true);
 create policy "Only retro creators can delete retros"
 on retros for delete
 using (
-  -- Supabase/PostgREST exposes request headers through request.headers.
+  -- Supabase exposes REST request headers through request.headers;
+  -- keep this policy paired with the x-owner-token-hash header sent by the app.
   owner_token_hash = current_setting('request.headers', true)::json->>'x-owner-token-hash'
 );`;
 
@@ -466,10 +467,10 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
   };
 
   const deleteRetro = async () => {
-    if (!activeRetro || !isOwner || !ownerTokenHash) return;
+    const verifiedOwnerTokenHash = ownerTokenHash;
+    if (!activeRetro || !isOwner || !verifiedOwnerTokenHash) return;
     if (!window.confirm('Delete this retro and all of its items?')) return;
 
-    const verifiedOwnerTokenHash = ownerTokenHash;
     setLoading(true);
     try {
       const sessionFilter = encodeURIComponent(activeRetro.session_id);

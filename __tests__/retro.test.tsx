@@ -7,7 +7,7 @@ import {
 } from '@testing-library/react';
 
 import RetroSessionPage from '@/app/retro/[retroId]/page';
-import RetroPage from '@/app/retro/page';
+import RetroPage, { getOwnerTokenKey } from '@/app/retro/page';
 
 const mockUseParams = jest.fn();
 
@@ -235,7 +235,7 @@ describe('RetroPage', () => {
         anonKey: 'anon-key',
       }),
     );
-    localStorage.setItem('acolyte-retro-owner-token:ABC123', 'stale-token');
+    localStorage.setItem(getOwnerTokenKey('ABC123'), 'stale-token');
 
     mockFetch.mockImplementation((url: string) => {
       if (url.includes('owner_token_hash=eq.')) {
