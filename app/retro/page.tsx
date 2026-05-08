@@ -114,7 +114,8 @@ interface RetroPageProps {
   initialSessionId?: string;
 }
 
-export default function RetroPage({ initialSessionId }: RetroPageProps = {}) {
+export default function RetroPage(props: RetroPageProps = {}) {
+  const { initialSessionId } = props;
   const [mode, setMode] = useState<Mode>('join');
   const [config, setConfig] = useState<SupabaseConfig>({
     url: '',
@@ -515,7 +516,11 @@ export default function RetroPage({ initialSessionId }: RetroPageProps = {}) {
                   </Button>
                 </form>
               ) : (
-                <form className="space-y-3" onSubmit={joinRetro}>
+                <form
+                  className="space-y-3"
+                  onSubmit={joinRetro}
+                  aria-describedby="join-retro-help"
+                >
                   <div className="space-y-2">
                     <label className="text-sm font-medium" htmlFor="session-id">
                       Session id
@@ -546,7 +551,10 @@ export default function RetroPage({ initialSessionId }: RetroPageProps = {}) {
                   <Button type="submit" disabled={loading} className="w-full">
                     Join session
                   </Button>
-                  <p className="text-xs text-muted-foreground">
+                  <p
+                    id="join-retro-help"
+                    className="text-xs text-muted-foreground"
+                  >
                     Joining uses the Supabase connection saved in this browser.
                     Switch to create to update project settings.
                   </p>
