@@ -295,7 +295,6 @@ describe('RetroPage', () => {
           {
             id: 'retro-1',
             session_id: 'ABC123',
-            owner_token_hash: 'owner-token-hash',
             name: 'Route retro',
             columns: ['Wins'],
           },

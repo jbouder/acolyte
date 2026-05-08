@@ -136,6 +136,7 @@ with check (true);
 create policy "Only retro creators can delete retros"
 on retros for delete
 using (
+  -- Supabase/PostgREST exposes request headers through request.headers.
   owner_token_hash = current_setting('request.headers', true)::json->>'x-owner-token-hash'
 );`;
 
@@ -468,18 +469,19 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
     if (!activeRetro || !isOwner || !ownerTokenHash) return;
     if (!window.confirm('Delete this retro and all of its items?')) return;
 
+    const verifiedOwnerTokenHash = ownerTokenHash;
     setLoading(true);
     try {
       const sessionFilter = encodeURIComponent(activeRetro.session_id);
       await requestSupabase<undefined>(
         `retros?session_id=eq.${sessionFilter}&owner_token_hash=eq.${encodeURIComponent(
-          ownerTokenHash,
+          verifiedOwnerTokenHash,
         )}`,
         {
           method: 'DELETE',
           headers: {
             Prefer: 'return=minimal',
-            'x-owner-token-hash': ownerTokenHash,
+            'x-owner-token-hash': verifiedOwnerTokenHash,
           },
         },
       );
@@ -683,8 +685,8 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
                 <CardHeader>
                   <CardTitle>Required Supabase tables</CardTitle>
                   <CardDescription>
-                    Run this SQL in Supabase, then add Row Level Security
-                    policies that fit your project.
+                    Run this SQL in Supabase to create the tables and RLS policy
+                    for creator-only retro deletion.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
