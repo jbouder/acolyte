@@ -159,6 +159,10 @@ using (
 );`;
 
 interface RetroPageProps {
+  /**
+   * Optional route-provided session id used to prefill and auto-load a retro
+   * when visiting /retro/[retroId].
+   */
   initialSessionId?: string;
 }
 
@@ -213,7 +217,9 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
     return localStorage.getItem(getOwnerTokenKey(activeRetro.session_id));
   }, [activeRetro]);
 
-  const isOwner = Boolean(activeRetro && ownerVerified);
+  const isOwner = Boolean(
+    activeRetro && ownerToken && ownerTokenHash && ownerVerified,
+  );
 
   const columns = activeRetro?.columns ?? parseColumns(columnsInput);
 
@@ -629,10 +635,7 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
                   <Button type="submit" disabled={loading} className="w-full">
                     Join session
                   </Button>
-                  <p
-                    id="join-retro-help"
-                    className="text-xs text-muted-foreground"
-                  >
+                  <p className="text-xs text-muted-foreground">
                     Joining uses the Supabase connection saved in this browser.
                     Switch to Create retro mode to update project settings.
                   </p>
