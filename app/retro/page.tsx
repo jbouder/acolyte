@@ -197,7 +197,7 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
   }, []);
 
   useEffect(() => {
-    const routeSessionId = normalizeRouteSessionId(initialSessionId);
+    const routeSessionId = initialRouteSessionId;
     if (!routeSessionId || routeSessionId === processedRouteSessionId.current) {
       return;
     }
@@ -206,7 +206,7 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
     setMode('join');
     setSessionInput(routeSessionId);
     setPendingSessionIdToLoad(routeSessionId);
-  }, [initialSessionId]);
+  }, [initialRouteSessionId]);
 
   const ownerToken = useMemo(() => {
     if (!activeRetro) return null;
@@ -483,8 +483,7 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
   };
 
   const deleteRetro = async () => {
-    const verifiedOwnerTokenHash = ownerTokenHash;
-    if (!activeRetro || !isOwner || !verifiedOwnerTokenHash) return;
+    if (!activeRetro || !isOwner || !ownerTokenHash) return;
     if (!window.confirm('Delete this retro and all of its items?')) return;
 
     setLoading(true);
@@ -496,7 +495,7 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
           method: 'DELETE',
           headers: {
             Prefer: 'return=minimal',
-            'x-owner-token-hash': verifiedOwnerTokenHash,
+            'x-owner-token-hash': ownerTokenHash,
           },
         },
       );
@@ -606,7 +605,6 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
                     </label>
                     <Input
                       id="session-id"
-                      aria-describedby="join-retro-help"
                       placeholder="ABC123"
                       value={sessionInput}
                       onChange={(event) => setSessionInput(event.target.value)}
