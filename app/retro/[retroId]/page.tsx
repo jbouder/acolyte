@@ -6,7 +6,6 @@ import RetroPage from '../page';
 
 export default function RetroSessionPage() {
   const params = useParams<{ retroId?: string }>();
-  const retroId = params.retroId;
 
-  return <RetroPage initialSessionId={retroId} />;
+  return <RetroPage initialSessionId={params.retroId} />;
 }

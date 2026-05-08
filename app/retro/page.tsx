@@ -142,7 +142,7 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [ownerTokenHash, setOwnerTokenHash] = useState<string | null>(null);
-  const [autoLoadSessionId, setAutoLoadSessionId] = useState(
+  const [pendingSessionIdToLoad, setPendingSessionIdToLoad] = useState(
     initialRouteSessionId,
   );
   const processedRouteSessionId = useRef(initialRouteSessionId);
@@ -167,7 +167,7 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
     processedRouteSessionId.current = routeSessionId;
     setMode('join');
     setSessionInput(routeSessionId);
-    setAutoLoadSessionId(routeSessionId);
+    setPendingSessionIdToLoad(routeSessionId);
   }, [initialSessionId]);
 
   const ownerToken = useMemo(() => {
@@ -347,10 +347,10 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
 
   useEffect(() => {
     if (
-      !autoLoadSessionId ||
+      !pendingSessionIdToLoad ||
       !config.url.trim() ||
       !config.anonKey.trim() ||
-      activeRetro?.session_id === autoLoadSessionId
+      activeRetro?.session_id === pendingSessionIdToLoad
     ) {
       return;
     }
@@ -358,7 +358,7 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
     let cancelled = false;
     setLoading(true);
 
-    loadRetro(autoLoadSessionId)
+    loadRetro(pendingSessionIdToLoad)
       .then(() => {
         if (!cancelled) {
           toast.success('Joined retro session');
@@ -373,7 +373,7 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
       })
       .finally(() => {
         if (!cancelled) {
-          setAutoLoadSessionId('');
+          setPendingSessionIdToLoad('');
           setLoading(false);
         }
       });
@@ -383,10 +383,10 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
     };
   }, [
     activeRetro?.session_id,
-    autoLoadSessionId,
     config.anonKey,
     config.url,
     loadRetro,
+    pendingSessionIdToLoad,
   ]);
 
   const addItem = async (column: string) => {
@@ -569,8 +569,7 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
                     className="text-xs text-muted-foreground"
                   >
                     Joining uses the Supabase connection saved in this browser.
-                    Use the Create retro button above to update project
-                    settings.
+                    Switch to Create retro mode to update project settings.
                   </p>
                 </form>
               )}
