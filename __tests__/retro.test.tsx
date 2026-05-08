@@ -91,11 +91,8 @@ describe('RetroPage', () => {
         return createMockResponse(201, [{ id: 'retro-1', ...body }]);
       }
 
-      if (
-        url.includes('/rest/v1/retros') &&
-        url.includes('owner_token_hash=eq.')
-      ) {
-        return createMockResponse(200, [{ id: 'retro-1' }]);
+      if (url.includes('/rest/v1/rpc/verify_retro_owner')) {
+        return createMockResponse(200, true);
       }
 
       if (url.includes('/rest/v1/retro_items') && init?.method === 'POST') {
@@ -163,11 +160,7 @@ describe('RetroPage', () => {
       expect.objectContaining({ method: 'POST' }),
     );
     expect(mockFetch).toHaveBeenCalledWith(
-      expect.stringContaining(
-        `/rest/v1/retros?session_id=eq.1111111111111111&owner_token_hash=eq.${'02'.repeat(
-          32,
-        )}`,
-      ),
+      expect.stringContaining('/rest/v1/retros?session_id=eq.1111111111111111'),
       expect.objectContaining({
         method: 'DELETE',
         headers: expect.objectContaining({
@@ -192,7 +185,6 @@ describe('RetroPage', () => {
           {
             id: 'retro-1',
             session_id: 'ABC123',
-            owner_token_hash: 'owner-token-hash',
             name: 'Team retro',
             columns: ['Happy', 'Puzzled'],
           },
@@ -238,8 +230,8 @@ describe('RetroPage', () => {
     localStorage.setItem(getOwnerTokenKey('ABC123'), 'stale-token');
 
     mockFetch.mockImplementation((url: string) => {
-      if (url.includes('owner_token_hash=eq.')) {
-        return createMockResponse(200, []);
+      if (url.includes('/rest/v1/rpc/verify_retro_owner')) {
+        return createMockResponse(200, false);
       }
 
       if (url.includes('/rest/v1/retros')) {

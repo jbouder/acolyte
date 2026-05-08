@@ -123,7 +123,23 @@ create index retro_items_session_id_idx on retro_items(session_id);
 alter table retros enable row level security;
 
 revoke all on retros from anon;
+-- DELETE is constrained by the RLS policy below; do not disable RLS.
 grant select (id, session_id, name, columns, created_at), insert, delete on retros to anon;
+
+create function verify_retro_owner(retro_session_id text)
+returns boolean
+language sql
+stable
+as $$
+  select exists (
+    select 1
+    from retros
+    where session_id = retro_session_id
+      and owner_token_hash = current_setting('request.headers', true)::json->>'x-owner-token-hash'
+  );
+$$;
+
+grant execute on function verify_retro_owner(text) to anon;
 
 create policy "Anyone can read retros"
 on retros for select
@@ -136,8 +152,8 @@ with check (true);
 create policy "Only retro creators can delete retros"
 on retros for delete
 using (
-  -- Supabase exposes REST request headers through request.headers;
-  -- keep this policy paired with the x-owner-token-hash header sent by the app.
+  -- Supabase-hosted PostgREST exposes REST request headers through request.headers.
+  -- If you self-host PostgREST, ensure request headers are available to policies.
   owner_token_hash = current_setting('request.headers', true)::json->>'x-owner-token-hash'
 );`;
 
@@ -309,14 +325,13 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
       return;
     }
 
-    const sessionFilter = encodeURIComponent(activeRetro.session_id);
-    const ownerFilter = encodeURIComponent(ownerTokenHash);
-
-    requestSupabase<Pick<RetroRecord, 'id'>[]>(
-      `retros?session_id=eq.${sessionFilter}&owner_token_hash=eq.${ownerFilter}&select=id`,
-    )
-      .then((data) => {
-        if (!cancelled) setOwnerVerified(data.length > 0);
+    requestSupabase<boolean>('rpc/verify_retro_owner', {
+      method: 'POST',
+      headers: { 'x-owner-token-hash': ownerTokenHash },
+      body: JSON.stringify({ retro_session_id: activeRetro.session_id }),
+    })
+      .then((verified) => {
+        if (!cancelled) setOwnerVerified(verified);
       })
       .catch((error) => {
         console.warn('Failed to verify retro ownership:', error);
@@ -475,9 +490,7 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
     try {
       const sessionFilter = encodeURIComponent(activeRetro.session_id);
       await requestSupabase<undefined>(
-        `retros?session_id=eq.${sessionFilter}&owner_token_hash=eq.${encodeURIComponent(
-          verifiedOwnerTokenHash,
-        )}`,
+        `retros?session_id=eq.${sessionFilter}`,
         {
           method: 'DELETE',
           headers: {
