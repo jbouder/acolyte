@@ -512,7 +512,7 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
       setItems([]);
       setSessionInput(sessionId);
       toast.success(
-        'Retro created. Use the share link below to invite teammates.',
+        'Retro created. Use the share link below to invite team members.',
       );
     } catch (error) {
       toast.error(
@@ -910,9 +910,9 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
                   onFocus={(event) => event.target.select()}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Teammates can use this link to join without entering Supabase
-                  project settings. It includes your public anon key so their
-                  browsers can connect directly to Supabase.
+                  Team members can use this link to join without entering
+                  Supabase project settings. It includes your public anon key so
+                  their browsers can connect directly to Supabase.
                 </p>
               </div>
             ) : null}
