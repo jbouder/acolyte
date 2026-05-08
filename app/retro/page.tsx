@@ -166,7 +166,7 @@ function getJoinValueFromInput(value: string) {
   try {
     const url = new URL(trimmedValue);
     const retroPathMatch = url.pathname.match(/\/retro\/([^/]+)$/);
-    return decodeURIComponent(retroPathMatch?.[1] ?? trimmedValue);
+    return retroPathMatch ? decodeURIComponent(retroPathMatch[1]) : '';
   } catch {
     return trimmedValue;
   }
@@ -911,7 +911,8 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
                 />
                 <p className="text-xs text-muted-foreground">
                   Teammates can use this link to join without entering Supabase
-                  project settings.
+                  project settings. It includes your public anon key so their
+                  browsers can connect directly to Supabase.
                 </p>
               </div>
             ) : null}
