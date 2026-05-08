@@ -103,6 +103,12 @@ export default function Home() {
             </p>
             <div className="flex flex-wrap gap-2">
               <Link
+                href="/retro"
+                className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90 transition-colors"
+              >
+                Retro Board
+              </Link>
+              <Link
                 href="/markdown-preview"
                 className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90 transition-colors"
               >
