@@ -118,8 +118,7 @@ interface RetroPageProps {
   initialSessionId?: string;
 }
 
-export default function RetroPage(props?: RetroPageProps) {
-  const { initialSessionId } = props ?? {};
+export default function RetroPage({ initialSessionId }: RetroPageProps) {
   const [mode, setMode] = useState<Mode>('join');
   const [config, setConfig] = useState<SupabaseConfig>({
     url: '',
@@ -351,7 +350,6 @@ export default function RetroPage(props?: RetroPageProps) {
       .then(() => {
         if (!cancelled) {
           toast.success('Joined retro session');
-          setPendingRouteSessionId('');
         }
       })
       .catch((error) => {
@@ -359,11 +357,13 @@ export default function RetroPage(props?: RetroPageProps) {
           toast.error(
             error instanceof Error ? error.message : 'Failed to join retro',
           );
-          setPendingRouteSessionId('');
         }
       })
       .finally(() => {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) {
+          setPendingRouteSessionId('');
+          setLoading(false);
+        }
       });
 
     return () => {
@@ -520,17 +520,14 @@ export default function RetroPage(props?: RetroPageProps) {
                   </Button>
                 </form>
               ) : (
-                <form
-                  className="space-y-3"
-                  onSubmit={joinRetro}
-                  aria-describedby="join-retro-help"
-                >
+                <form className="space-y-3" onSubmit={joinRetro}>
                   <div className="space-y-2">
                     <label className="text-sm font-medium" htmlFor="session-id">
                       Session id
                     </label>
                     <Input
                       id="session-id"
+                      aria-describedby="join-retro-help"
                       placeholder="ABC123"
                       value={sessionInput}
                       onChange={(event) => setSessionInput(event.target.value)}
