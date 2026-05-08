@@ -49,6 +49,7 @@ interface RetroItem {
 const defaultColumns = 'Went well\nCould improve\nAction items';
 const configStorageKey = 'acolyte-retro-supabase-config';
 const ownerTokenPrefix = 'acolyte-retro-owner-token:';
+const retroSelectFields = 'id,session_id,name,columns,created_at';
 
 function generateRandomId(length = 8) {
   const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -281,7 +282,7 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
       const data = await requestSupabase<RetroRecord[]>(
         `retros?session_id=eq.${encodeURIComponent(
           sessionId,
-        )}&select=id,session_id,name,columns,created_at`,
+        )}&select=${retroSelectFields}`,
       );
 
       if (!data.length) {
@@ -362,7 +363,7 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
       const nextOwnerToken = generateRandomId(48);
       const nextOwnerTokenHash = await hashToken(nextOwnerToken);
       const data = await requestSupabase<RetroRecord[]>(
-        'retros?select=id,session_id,name,columns,created_at',
+        `retros?select=${retroSelectFields}`,
         {
           method: 'POST',
           body: JSON.stringify({

@@ -112,6 +112,8 @@ describe('RetroPage', () => {
     render(<RetroPage />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Create retro' }));
+    expect(screen.getByLabelText('Project URL')).toBeInTheDocument();
+
     fireEvent.change(screen.getByLabelText('Project URL'), {
       target: { value: 'https://example.supabase.co/' },
     });
