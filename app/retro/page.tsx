@@ -79,6 +79,10 @@ function getOwnerTokenKey(sessionId: string) {
   return `${ownerTokenPrefix}${sessionId}`;
 }
 
+function normalizeRouteSessionId(sessionId?: string) {
+  return sessionId?.trim().toUpperCase() ?? '';
+}
+
 async function hashToken(token: string) {
   const digest = await crypto.subtle.digest(
     'SHA-256',
@@ -114,8 +118,8 @@ interface RetroPageProps {
   initialSessionId?: string;
 }
 
-export default function RetroPage(props: RetroPageProps = {}) {
-  const { initialSessionId } = props;
+export default function RetroPage(props?: RetroPageProps) {
+  const { initialSessionId } = props ?? {};
   const [mode, setMode] = useState<Mode>('join');
   const [config, setConfig] = useState<SupabaseConfig>({
     url: '',
@@ -132,7 +136,7 @@ export default function RetroPage(props: RetroPageProps = {}) {
   const [refreshing, setRefreshing] = useState(false);
   const [ownerTokenHash, setOwnerTokenHash] = useState<string | null>(null);
   const [pendingRouteSessionId, setPendingRouteSessionId] = useState(
-    initialSessionId?.trim().toUpperCase() ?? '',
+    normalizeRouteSessionId(initialSessionId),
   );
 
   useEffect(() => {
@@ -147,7 +151,7 @@ export default function RetroPage(props: RetroPageProps = {}) {
   }, []);
 
   useEffect(() => {
-    const routeSessionId = initialSessionId?.trim().toUpperCase() ?? '';
+    const routeSessionId = normalizeRouteSessionId(initialSessionId);
     if (!routeSessionId) return;
 
     setMode('join');

@@ -16,6 +16,10 @@ jest.mock('sonner', () => ({
   },
 }));
 
+jest.mock('next/navigation', () => ({
+  useParams: () => ({ retroId: 'abc123' }),
+}));
+
 const mockFetch = jest.fn();
 
 function createMockResponse(status: number, body?: unknown) {
@@ -233,11 +237,7 @@ describe('RetroPage', () => {
       return createMockResponse(200, []);
     });
 
-    render(
-      await RetroSessionPage({
-        params: Promise.resolve({ retroId: 'abc123' }),
-      }),
-    );
+    render(<RetroSessionPage />);
 
     expect(screen.getByLabelText('Session id')).toHaveValue('ABC123');
 
