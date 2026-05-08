@@ -39,6 +39,11 @@ describe('RetroPage', () => {
           values.fill(1);
           return values;
         },
+        subtle: {
+          digest: jest.fn(() =>
+            Promise.resolve(new Uint8Array(32).fill(2).buffer),
+          ),
+        },
       },
     });
 
@@ -100,7 +105,7 @@ describe('RetroPage', () => {
     fireEvent.submit(screen.getByText('Create session').closest('form')!);
 
     await waitFor(() => {
-      expect(screen.getByText('Session 1111111111')).toBeInTheDocument();
+      expect(screen.getByText('Session 1111111111111111')).toBeInTheDocument();
     });
 
     const wentWellColumn = screen
@@ -137,7 +142,9 @@ describe('RetroPage', () => {
     );
     expect(mockFetch).toHaveBeenCalledWith(
       expect.stringContaining(
-        '/rest/v1/retros?session_id=eq.1111111111&owner_token=eq.11111111111111111111111111111111',
+        `/rest/v1/retros?session_id=eq.1111111111111111&owner_token_hash=eq.${'02'.repeat(
+          32,
+        )}`,
       ),
       expect.objectContaining({ method: 'DELETE' }),
     );
@@ -150,7 +157,7 @@ describe('RetroPage', () => {
           {
             id: 'retro-1',
             session_id: 'ABC123',
-            owner_token: 'owner-token',
+            owner_token_hash: 'owner-token-hash',
             name: 'Team retro',
             columns: ['Happy', 'Puzzled'],
           },

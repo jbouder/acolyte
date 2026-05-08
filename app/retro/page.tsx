@@ -25,7 +25,7 @@ interface SupabaseConfig {
 interface RetroRecord {
   id?: string;
   session_id: string;
-  owner_token: string;
+  owner_token_hash: string;
   name: string;
   columns: string[];
   created_at?: string;
@@ -79,10 +79,20 @@ function getOwnerTokenKey(sessionId: string) {
   return `${ownerTokenPrefix}${sessionId}`;
 }
 
+async function hashToken(token: string) {
+  const digest = await crypto.subtle.digest(
+    'SHA-256',
+    new TextEncoder().encode(token),
+  );
+  return Array.from(new Uint8Array(digest), (value) =>
+    value.toString(16).padStart(2, '0'),
+  ).join('');
+}
+
 const schemaSql = `create table retros (
   id uuid primary key default gen_random_uuid(),
   session_id text not null unique,
-  owner_token text not null,
+  owner_token_hash text not null,
   name text not null,
   columns jsonb not null,
   created_at timestamptz not null default now()
@@ -112,6 +122,7 @@ export default function RetroPage() {
   const [newItems, setNewItems] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [ownerTokenHash, setOwnerTokenHash] = useState<string | null>(null);
 
   useEffect(() => {
     try {
@@ -130,7 +141,10 @@ export default function RetroPage() {
   }, [activeRetro]);
 
   const isOwner = Boolean(
-    activeRetro && ownerToken && ownerToken === activeRetro.owner_token,
+    activeRetro &&
+      ownerToken &&
+      ownerTokenHash &&
+      ownerTokenHash === activeRetro.owner_token_hash,
   );
 
   const columns = activeRetro?.columns ?? parseColumns(columnsInput);
@@ -215,6 +229,7 @@ export default function RetroPage() {
     if (!activeRetro) return;
 
     const interval = window.setInterval(() => {
+      if (document.visibilityState === 'hidden') return;
       loadItems(activeRetro.session_id, false).catch((error) => {
         console.warn('Failed to refresh retro items:', error);
       });
@@ -222,6 +237,28 @@ export default function RetroPage() {
 
     return () => window.clearInterval(interval);
   }, [activeRetro, loadItems]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    if (!ownerToken) {
+      setOwnerTokenHash(null);
+      return;
+    }
+
+    hashToken(ownerToken)
+      .then((hash) => {
+        if (!cancelled) setOwnerTokenHash(hash);
+      })
+      .catch((error) => {
+        console.warn('Failed to verify retro ownership:', error);
+        if (!cancelled) setOwnerTokenHash(null);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [ownerToken]);
 
   const createRetro = async (event: FormEvent) => {
     event.preventDefault();
@@ -238,13 +275,14 @@ export default function RetroPage() {
 
       saveConfig();
 
-      const sessionId = generateRandomId(10);
-      const nextOwnerToken = generateRandomId(32);
+      const sessionId = generateRandomId(16);
+      const nextOwnerToken = generateRandomId(48);
+      const nextOwnerTokenHash = await hashToken(nextOwnerToken);
       const data = await requestSupabase<RetroRecord[]>('retros?select=*', {
         method: 'POST',
         body: JSON.stringify({
           session_id: sessionId,
-          owner_token: nextOwnerToken,
+          owner_token_hash: nextOwnerTokenHash,
           name: retroName.trim(),
           columns: parsedColumns,
         }),
@@ -314,15 +352,15 @@ export default function RetroPage() {
   };
 
   const deleteRetro = async () => {
-    if (!activeRetro || !isOwner || !ownerToken) return;
+    if (!activeRetro || !isOwner || !ownerTokenHash) return;
     if (!window.confirm('Delete this retro and all of its items?')) return;
 
     setLoading(true);
     try {
       const sessionFilter = encodeURIComponent(activeRetro.session_id);
       await requestSupabase<undefined>(
-        `retros?session_id=eq.${sessionFilter}&owner_token=eq.${encodeURIComponent(
-          ownerToken,
+        `retros?session_id=eq.${sessionFilter}&owner_token_hash=eq.${encodeURIComponent(
+          ownerTokenHash,
         )}`,
         {
           method: 'DELETE',
