@@ -6,8 +6,8 @@ import {
   within,
 } from '@testing-library/react';
 
-import RetroPage from '@/app/retro/page';
 import RetroSessionPage from '@/app/retro/[retroId]/page';
+import RetroPage from '@/app/retro/page';
 
 jest.mock('sonner', () => ({
   toast: {
