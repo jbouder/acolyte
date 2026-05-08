@@ -121,7 +121,9 @@ describe('RetroPage', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Delete retro' })).toBeEnabled();
+      expect(
+        screen.getByRole('button', { name: 'Delete retro' }),
+      ).toBeEnabled();
     });
     fireEvent.click(screen.getByRole('button', { name: 'Delete retro' }));
 
