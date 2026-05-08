@@ -12,7 +12,14 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ClipboardList, Plus, RefreshCw, Trash2, Users } from 'lucide-react';
-import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  FormEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { toast } from 'sonner';
 
 type Mode = 'create' | 'join';
@@ -119,6 +126,7 @@ interface RetroPageProps {
 }
 
 export default function RetroPage({ initialSessionId }: RetroPageProps) {
+  const initialRouteSessionId = normalizeRouteSessionId(initialSessionId);
   const [mode, setMode] = useState<Mode>('join');
   const [config, setConfig] = useState<SupabaseConfig>({
     url: '',
@@ -126,7 +134,7 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
   });
   const [retroName, setRetroName] = useState('');
   const [columnsInput, setColumnsInput] = useState(defaultColumns);
-  const [sessionInput, setSessionInput] = useState('');
+  const [sessionInput, setSessionInput] = useState(initialRouteSessionId);
   const [participantName, setParticipantName] = useState('');
   const [activeRetro, setActiveRetro] = useState<RetroRecord | null>(null);
   const [items, setItems] = useState<RetroItem[]>([]);
@@ -135,8 +143,9 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
   const [refreshing, setRefreshing] = useState(false);
   const [ownerTokenHash, setOwnerTokenHash] = useState<string | null>(null);
   const [pendingRouteSessionId, setPendingRouteSessionId] = useState(
-    normalizeRouteSessionId(initialSessionId),
+    initialRouteSessionId,
   );
+  const processedRouteSessionId = useRef(pendingRouteSessionId);
 
   useEffect(() => {
     try {
@@ -151,8 +160,11 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
 
   useEffect(() => {
     const routeSessionId = normalizeRouteSessionId(initialSessionId);
-    if (!routeSessionId) return;
+    if (!routeSessionId || routeSessionId === processedRouteSessionId.current) {
+      return;
+    }
 
+    processedRouteSessionId.current = routeSessionId;
     setMode('join');
     setSessionInput(routeSessionId);
     setPendingRouteSessionId(routeSessionId);
@@ -557,7 +569,8 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
                     className="text-xs text-muted-foreground"
                   >
                     Joining uses the Supabase connection saved in this browser.
-                    Switch to create to update project settings.
+                    Use the Create retro button above to update project
+                    settings.
                   </p>
                 </form>
               )}
