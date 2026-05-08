@@ -7,6 +7,7 @@ import {
 } from '@testing-library/react';
 
 import RetroPage from '@/app/retro/page';
+import RetroSessionPage from '@/app/retro/[retroId]/page';
 
 jest.mock('sonner', () => ({
   toast: {
@@ -53,20 +54,26 @@ describe('RetroPage', () => {
     });
   });
 
-  it('renders create and join controls with setup SQL', () => {
+  it('renders join and create controls before setup sections', () => {
     render(<RetroPage />);
 
     expect(
       screen.getByRole('heading', { name: 'Retro Board' }),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText('Project URL')).toBeInTheDocument();
-    expect(screen.getByLabelText('Anon key')).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: 'Create retro' }),
-    ).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: 'Join retro' }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Create retro' }),
+    ).toBeInTheDocument();
+    expect(screen.queryByLabelText('Project URL')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Anon key')).not.toBeInTheDocument();
+    expect(screen.queryByText(/create table retros/)).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create retro' }));
+
+    expect(screen.getByLabelText('Project URL')).toBeInTheDocument();
+    expect(screen.getByLabelText('Anon key')).toBeInTheDocument();
     expect(screen.getByText(/create table retros/)).toBeInTheDocument();
   });
 
@@ -93,6 +100,7 @@ describe('RetroPage', () => {
 
     render(<RetroPage />);
 
+    fireEvent.click(screen.getByRole('button', { name: 'Create retro' }));
     fireEvent.change(screen.getByLabelText('Project URL'), {
       target: { value: 'https://example.supabase.co/' },
     });
@@ -151,6 +159,14 @@ describe('RetroPage', () => {
   });
 
   it('joins an existing retro session and loads board items', async () => {
+    localStorage.setItem(
+      'acolyte-retro-supabase-config',
+      JSON.stringify({
+        url: 'https://example.supabase.co',
+        anonKey: 'anon-key',
+      }),
+    );
+
     mockFetch.mockImplementation((url: string) => {
       if (url.includes('/rest/v1/retros')) {
         return createMockResponse(200, [
@@ -177,13 +193,6 @@ describe('RetroPage', () => {
 
     render(<RetroPage />);
 
-    fireEvent.change(screen.getByLabelText('Project URL'), {
-      target: { value: 'https://example.supabase.co' },
-    });
-    fireEvent.change(screen.getByLabelText('Anon key'), {
-      target: { value: 'anon-key' },
-    });
-    fireEvent.click(screen.getByRole('button', { name: 'Join retro' }));
     fireEvent.change(screen.getByLabelText('Session id'), {
       target: { value: 'abc123' },
     });
@@ -197,5 +206,48 @@ describe('RetroPage', () => {
     expect(
       screen.queryByRole('button', { name: 'Delete retro' }),
     ).not.toBeInTheDocument();
+  });
+
+  it('loads a retro session from the dynamic route id', async () => {
+    localStorage.setItem(
+      'acolyte-retro-supabase-config',
+      JSON.stringify({
+        url: 'https://example.supabase.co',
+        anonKey: 'anon-key',
+      }),
+    );
+
+    mockFetch.mockImplementation((url: string) => {
+      if (url.includes('/rest/v1/retros')) {
+        return createMockResponse(200, [
+          {
+            id: 'retro-1',
+            session_id: 'ABC123',
+            owner_token_hash: 'owner-token-hash',
+            name: 'Route retro',
+            columns: ['Wins'],
+          },
+        ]);
+      }
+
+      return createMockResponse(200, []);
+    });
+
+    render(
+      await RetroSessionPage({
+        params: Promise.resolve({ retroId: 'abc123' }),
+      }),
+    );
+
+    expect(screen.getByLabelText('Session id')).toHaveValue('ABC123');
+
+    await waitFor(() => {
+      expect(screen.getByText('Route retro')).toBeInTheDocument();
+    });
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining('/rest/v1/retros?session_id=eq.ABC123&select=*'),
+      expect.any(Object),
+    );
   });
 });

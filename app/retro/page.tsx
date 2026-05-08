@@ -110,8 +110,12 @@ create table retro_items (
 create index retros_session_id_idx on retros(session_id);
 create index retro_items_session_id_idx on retro_items(session_id);`;
 
-export default function RetroPage() {
-  const [mode, setMode] = useState<Mode>('create');
+interface RetroPageProps {
+  initialSessionId?: string;
+}
+
+export default function RetroPage({ initialSessionId }: RetroPageProps = {}) {
+  const [mode, setMode] = useState<Mode>('join');
   const [config, setConfig] = useState<SupabaseConfig>({
     url: '',
     anonKey: '',
@@ -126,6 +130,9 @@ export default function RetroPage() {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [ownerTokenHash, setOwnerTokenHash] = useState<string | null>(null);
+  const [pendingRouteSessionId, setPendingRouteSessionId] = useState(
+    initialSessionId?.trim().toUpperCase() ?? '',
+  );
 
   useEffect(() => {
     try {
@@ -137,6 +144,15 @@ export default function RetroPage() {
       localStorage.removeItem(configStorageKey);
     }
   }, []);
+
+  useEffect(() => {
+    const routeSessionId = initialSessionId?.trim().toUpperCase() ?? '';
+    if (!routeSessionId) return;
+
+    setMode('join');
+    setSessionInput(routeSessionId);
+    setPendingRouteSessionId(routeSessionId);
+  }, [initialSessionId]);
 
   const ownerToken = useMemo(() => {
     if (!activeRetro) return null;
@@ -313,6 +329,49 @@ export default function RetroPage() {
     }
   };
 
+  useEffect(() => {
+    if (
+      !pendingRouteSessionId ||
+      !config.url.trim() ||
+      !config.anonKey.trim() ||
+      activeRetro?.session_id === pendingRouteSessionId
+    ) {
+      return;
+    }
+
+    let cancelled = false;
+    setLoading(true);
+
+    loadRetro(pendingRouteSessionId)
+      .then(() => {
+        if (!cancelled) {
+          toast.success('Joined retro session');
+          setPendingRouteSessionId('');
+        }
+      })
+      .catch((error) => {
+        if (!cancelled) {
+          toast.error(
+            error instanceof Error ? error.message : 'Failed to join retro',
+          );
+          setPendingRouteSessionId('');
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    activeRetro?.session_id,
+    config.anonKey,
+    config.url,
+    loadRetro,
+    pendingRouteSessionId,
+  ]);
+
   const addItem = async (column: string) => {
     const content = newItems[column]?.trim();
     if (!activeRetro || !content) return;
@@ -398,51 +457,6 @@ export default function RetroPage() {
         <div className="flex flex-col gap-4">
           <Card>
             <CardHeader>
-              <CardTitle>Supabase connection</CardTitle>
-              <CardDescription>
-                Use your project URL and anon key. The key stays in this browser
-                and is sent directly to Supabase.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="space-y-2">
-                <label className="text-sm font-medium" htmlFor="supabase-url">
-                  Project URL
-                </label>
-                <Input
-                  id="supabase-url"
-                  placeholder="https://project-ref.supabase.co"
-                  value={config.url}
-                  onChange={(event) =>
-                    setConfig((currentConfig) => ({
-                      ...currentConfig,
-                      url: event.target.value,
-                    }))
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium" htmlFor="supabase-key">
-                  Anon key
-                </label>
-                <Input
-                  id="supabase-key"
-                  type="password"
-                  placeholder="eyJhbGciOi..."
-                  value={config.anonKey}
-                  onChange={(event) =>
-                    setConfig((currentConfig) => ({
-                      ...currentConfig,
-                      anonKey: event.target.value,
-                    }))
-                  }
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
               <CardTitle>Start</CardTitle>
               <CardDescription>
                 Create a new retro or join an existing session.
@@ -452,17 +466,17 @@ export default function RetroPage() {
               <div className="grid grid-cols-2 gap-2">
                 <Button
                   type="button"
-                  variant={mode === 'create' ? 'default' : 'outline'}
-                  onClick={() => setMode('create')}
-                >
-                  Create retro
-                </Button>
-                <Button
-                  type="button"
                   variant={mode === 'join' ? 'default' : 'outline'}
                   onClick={() => setMode('join')}
                 >
                   Join retro
+                </Button>
+                <Button
+                  type="button"
+                  variant={mode === 'create' ? 'default' : 'outline'}
+                  onClick={() => setMode('create')}
+                >
+                  Create retro
                 </Button>
               </div>
 
@@ -532,25 +546,84 @@ export default function RetroPage() {
                   <Button type="submit" disabled={loading} className="w-full">
                     Join session
                   </Button>
+                  <p className="text-xs text-muted-foreground">
+                    Joining uses the Supabase connection saved in this browser.
+                    Switch to create to update project settings.
+                  </p>
                 </form>
               )}
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Required Supabase tables</CardTitle>
-              <CardDescription>
-                Run this SQL in Supabase, then add Row Level Security policies
-                that fit your project.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <pre className="max-h-72 overflow-auto rounded-lg bg-muted p-3 text-xs">
-                {schemaSql}
-              </pre>
-            </CardContent>
-          </Card>
+          {mode === 'create' ? (
+            <>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Supabase connection</CardTitle>
+                  <CardDescription>
+                    Use your project URL and anon key. The key stays in this
+                    browser and is sent directly to Supabase.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="space-y-2">
+                    <label
+                      className="text-sm font-medium"
+                      htmlFor="supabase-url"
+                    >
+                      Project URL
+                    </label>
+                    <Input
+                      id="supabase-url"
+                      placeholder="https://project-ref.supabase.co"
+                      value={config.url}
+                      onChange={(event) =>
+                        setConfig((currentConfig) => ({
+                          ...currentConfig,
+                          url: event.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label
+                      className="text-sm font-medium"
+                      htmlFor="supabase-key"
+                    >
+                      Anon key
+                    </label>
+                    <Input
+                      id="supabase-key"
+                      type="password"
+                      placeholder="eyJhbGciOi..."
+                      value={config.anonKey}
+                      onChange={(event) =>
+                        setConfig((currentConfig) => ({
+                          ...currentConfig,
+                          anonKey: event.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Required Supabase tables</CardTitle>
+                  <CardDescription>
+                    Run this SQL in Supabase, then add Row Level Security
+                    policies that fit your project.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <pre className="max-h-72 overflow-auto rounded-lg bg-muted p-3 text-xs">
+                    {schemaSql}
+                  </pre>
+                </CardContent>
+              </Card>
+            </>
+          ) : null}
         </div>
 
         <Card>
