@@ -103,7 +103,7 @@ export function getOwnerTokenKey(sessionId: string) {
   return `${ownerTokenPrefix}${sessionId}`;
 }
 
-function normalizeRouteSessionId(sessionId?: string) {
+function normalizeInitialJoinValue(sessionId?: string) {
   return sessionId?.trim() ?? '';
 }
 
@@ -259,7 +259,7 @@ interface RetroPageProps {
 }
 
 export default function RetroPage({ initialSessionId }: RetroPageProps) {
-  const initialRouteSessionId = normalizeRouteSessionId(initialSessionId);
+  const initialRouteSessionId = normalizeInitialJoinValue(initialSessionId);
   const initialJoinDetails = initialRouteSessionId
     ? parseRetroJoinInput(initialRouteSessionId)
     : null;
@@ -511,8 +511,10 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
       localStorage.setItem(getOwnerTokenKey(sessionId), nextOwnerToken);
       setActiveRetro(data[0]);
       setItems([]);
-      setSessionInput(createRetroShareToken(sessionId, nextConfig));
-      toast.success(`Retro created. Share link ready for session ${sessionId}`);
+      setSessionInput(sessionId);
+      toast.success(
+        'Retro created. Use the share link below to invite teammates.',
+      );
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : 'Failed to create retro',
