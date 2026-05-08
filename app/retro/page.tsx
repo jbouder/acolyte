@@ -145,7 +145,7 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
   const [autoLoadSessionId, setAutoLoadSessionId] = useState(
     initialRouteSessionId,
   );
-  const processedRouteSessionId = useRef(autoLoadSessionId);
+  const processedRouteSessionId = useRef(initialRouteSessionId);
 
   useEffect(() => {
     try {

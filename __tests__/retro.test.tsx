@@ -9,6 +9,8 @@ import {
 import RetroSessionPage from '@/app/retro/[retroId]/page';
 import RetroPage from '@/app/retro/page';
 
+const mockUseParams = jest.fn();
+
 jest.mock('sonner', () => ({
   toast: {
     success: jest.fn(),
@@ -17,7 +19,7 @@ jest.mock('sonner', () => ({
 }));
 
 jest.mock('next/navigation', () => ({
-  useParams: () => ({ retroId: 'abc123' }),
+  useParams: () => mockUseParams(),
 }));
 
 const mockFetch = jest.fn();
@@ -34,6 +36,7 @@ function createMockResponse(status: number, body?: unknown) {
 describe('RetroPage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUseParams.mockReturnValue({});
     localStorage.clear();
     global.fetch = mockFetch;
 
@@ -213,6 +216,7 @@ describe('RetroPage', () => {
   });
 
   it('loads a retro session from the dynamic route id', async () => {
+    mockUseParams.mockReturnValue({ retroId: 'abc123' });
     localStorage.setItem(
       'acolyte-retro-supabase-config',
       JSON.stringify({
