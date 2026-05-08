@@ -142,10 +142,10 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [ownerTokenHash, setOwnerTokenHash] = useState<string | null>(null);
-  const [pendingRouteSessionId, setPendingRouteSessionId] = useState(
+  const [autoLoadSessionId, setAutoLoadSessionId] = useState(
     initialRouteSessionId,
   );
-  const processedRouteSessionId = useRef(pendingRouteSessionId);
+  const processedRouteSessionId = useRef(autoLoadSessionId);
 
   useEffect(() => {
     try {
@@ -167,7 +167,7 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
     processedRouteSessionId.current = routeSessionId;
     setMode('join');
     setSessionInput(routeSessionId);
-    setPendingRouteSessionId(routeSessionId);
+    setAutoLoadSessionId(routeSessionId);
   }, [initialSessionId]);
 
   const ownerToken = useMemo(() => {
@@ -347,10 +347,10 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
 
   useEffect(() => {
     if (
-      !pendingRouteSessionId ||
+      !autoLoadSessionId ||
       !config.url.trim() ||
       !config.anonKey.trim() ||
-      activeRetro?.session_id === pendingRouteSessionId
+      activeRetro?.session_id === autoLoadSessionId
     ) {
       return;
     }
@@ -358,7 +358,7 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
     let cancelled = false;
     setLoading(true);
 
-    loadRetro(pendingRouteSessionId)
+    loadRetro(autoLoadSessionId)
       .then(() => {
         if (!cancelled) {
           toast.success('Joined retro session');
@@ -373,7 +373,7 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
       })
       .finally(() => {
         if (!cancelled) {
-          setPendingRouteSessionId('');
+          setAutoLoadSessionId('');
           setLoading(false);
         }
       });
@@ -383,10 +383,10 @@ export default function RetroPage({ initialSessionId }: RetroPageProps) {
     };
   }, [
     activeRetro?.session_id,
+    autoLoadSessionId,
     config.anonKey,
     config.url,
     loadRetro,
-    pendingRouteSessionId,
   ]);
 
   const addItem = async (column: string) => {
