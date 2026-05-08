@@ -45,11 +45,23 @@ const configStorageKey = 'acolyte-retro-supabase-config';
 const ownerTokenPrefix = 'acolyte-retro-owner-token:';
 
 function generateRandomId(length = 8) {
-  const values = new Uint8Array(length);
-  crypto.getRandomValues(values);
-  return Array.from(values, (value) => (value % 36).toString(36))
-    .join('')
-    .toUpperCase();
+  const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const maxUnbiasedValue = Math.floor(256 / alphabet.length) * alphabet.length;
+  let id = '';
+
+  while (id.length < length) {
+    const values = new Uint8Array(length - id.length);
+    crypto.getRandomValues(values);
+
+    for (const value of values) {
+      if (value < maxUnbiasedValue) {
+        id += alphabet[value % alphabet.length];
+      }
+      if (id.length === length) break;
+    }
+  }
+
+  return id;
 }
 
 function normalizeSupabaseUrl(url: string) {
@@ -206,7 +218,7 @@ export default function RetroPage() {
       loadItems(activeRetro.session_id, false).catch((error) => {
         console.warn('Failed to refresh retro items:', error);
       });
-    }, 5000);
+    }, 10000);
 
     return () => window.clearInterval(interval);
   }, [activeRetro, loadItems]);
@@ -308,13 +320,6 @@ export default function RetroPage() {
     setLoading(true);
     try {
       const sessionFilter = encodeURIComponent(activeRetro.session_id);
-      await requestSupabase<undefined>(
-        `retro_items?session_id=eq.${sessionFilter}`,
-        {
-          method: 'DELETE',
-          headers: { Prefer: 'return=minimal' },
-        },
-      );
       await requestSupabase<undefined>(
         `retros?session_id=eq.${sessionFilter}&owner_token=eq.${encodeURIComponent(
           ownerToken,
