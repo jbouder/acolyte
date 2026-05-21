@@ -118,7 +118,7 @@ export default function GenAIChatPage() {
     useState<ProviderId>('llama-cpp');
   const [baseUrl, setBaseUrl] = useState(PROVIDERS[0].baseUrl);
   const [apiKey, setApiKey] = useState('');
-  const [rememberApiKey, setRememberApiKey] = useState(false);
+  const [saveCredential, setSaveCredential] = useState(false);
   const [model, setModel] = useState(PROVIDERS[0].defaultModel);
   const [systemPrompt, setSystemPrompt] = useState(
     'You are a helpful developer assistant.',
@@ -143,7 +143,7 @@ export default function GenAIChatPage() {
           const parsed = JSON.parse(savedSettings) as Partial<{
             selectedProvider: ProviderId;
             baseUrl: string;
-            rememberApiKey: boolean;
+            saveCredential: boolean;
             model: string;
             systemPrompt: string;
           }>;
@@ -155,10 +155,10 @@ export default function GenAIChatPage() {
             setSelectedProvider(parsed.selectedProvider);
           }
           if (parsed.baseUrl) setBaseUrl(parsed.baseUrl);
-          if (parsed.rememberApiKey) {
+          if (parsed.saveCredential) {
             const savedApiKey = await genAIChatStorage.getApiKey();
             setApiKey(savedApiKey);
-            setRememberApiKey(true);
+            setSaveCredential(true);
           }
           if (parsed.model) setModel(parsed.model);
           if (parsed.systemPrompt) setSystemPrompt(parsed.systemPrompt);
@@ -179,14 +179,14 @@ export default function GenAIChatPage() {
     const settings = {
       selectedProvider,
       baseUrl,
-      rememberApiKey,
+      saveCredential,
       model,
       systemPrompt,
     };
 
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
 
-    if (rememberApiKey && apiKey.trim()) {
+    if (saveCredential && apiKey.trim()) {
       void genAIChatStorage.saveApiKey(apiKey);
     } else {
       void genAIChatStorage.deleteApiKey();
@@ -196,7 +196,7 @@ export default function GenAIChatPage() {
     baseUrl,
     hasLoadedSettings,
     model,
-    rememberApiKey,
+    saveCredential,
     selectedProvider,
     systemPrompt,
   ]);
@@ -409,8 +409,8 @@ export default function GenAIChatPage() {
                 <input
                   id="genai-remember-api-key"
                   type="checkbox"
-                  checked={rememberApiKey}
-                  onChange={(event) => setRememberApiKey(event.target.checked)}
+                  checked={saveCredential}
+                  onChange={(event) => setSaveCredential(event.target.checked)}
                   className="mt-1 rounded"
                 />
                 <label

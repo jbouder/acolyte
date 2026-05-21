@@ -72,7 +72,7 @@ describe('GenAIChatPage', () => {
       JSON.stringify({
         selectedProvider: 'custom',
         baseUrl: 'https://example.test/v1',
-        rememberApiKey: true,
+        saveCredential: true,
         model: 'external-model',
         systemPrompt: 'Saved system prompt',
       }),
