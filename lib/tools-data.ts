@@ -78,8 +78,8 @@ const tools: Tool[] = [
     keywords: ['http3', 'quic', 'transport', 'protocol'],
   },
   {
-    title: 'GenAI Chat',
-    url: '/genai-chat',
+    title: 'Chat',
+    url: '/chat',
     icon: BotMessageSquare,
     description: 'Chat with OpenAI v1-compatible model providers',
     category: 'API Testing',

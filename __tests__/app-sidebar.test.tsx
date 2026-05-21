@@ -23,9 +23,9 @@ describe('AppSidebar', () => {
 
     expect(retroLink).toHaveAttribute('href', '/retro');
     expect(retroLink).toHaveAttribute('data-active', 'true');
-    expect(screen.getByRole('link', { name: /GenAI Chat/i })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /^Chat$/i })).toHaveAttribute(
       'href',
-      '/genai-chat',
+      '/chat',
     );
   });
 });

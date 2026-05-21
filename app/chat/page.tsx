@@ -343,7 +343,7 @@ export default function GenAIChatPage() {
   return (
     <div className="flex flex-1 flex-col gap-4">
       <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold">GenAI Chat</h1>
+        <h1 className="text-3xl font-bold">Chat</h1>
         <p className="text-muted-foreground">
           Chat with local or external OpenAI v1-compatible model providers.
           Provider URL and API key can be stored in local browser storage.

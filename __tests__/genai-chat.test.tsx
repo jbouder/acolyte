@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import 'fake-indexeddb/auto';
-import GenAIChatPage from '../app/genai-chat/page';
+import GenAIChatPage from '../app/chat/page';
 import { genAIChatStorage } from '../lib/genai-chat-storage';
 
 jest.mock('sonner', () => ({
@@ -33,7 +33,9 @@ describe('GenAIChatPage', () => {
   it('renders local provider presets and connection fields', () => {
     render(<GenAIChatPage />);
 
-    expect(screen.getByText('GenAI Chat')).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Chat', level: 1 }),
+    ).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: /llama.cpp/i }),
     ).toBeInTheDocument();

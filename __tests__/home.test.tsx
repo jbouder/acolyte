@@ -52,9 +52,9 @@ describe('Page', () => {
     const { baseElement } = render(<Page />);
 
     expect(baseElement).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /GenAI Chat/i })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /^Chat$/i })).toHaveAttribute(
       'href',
-      '/genai-chat',
+      '/chat',
     );
   });
 });
