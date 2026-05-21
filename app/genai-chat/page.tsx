@@ -70,7 +70,9 @@ const PROVIDERS: ProviderPreset[] = [
   },
 ];
 
-const providerById = new Map(PROVIDERS.map((provider) => [provider.id, provider]));
+const providerById = new Map(
+  PROVIDERS.map((provider) => [provider.id, provider]),
+);
 
 function buildChatCompletionUrl(baseUrl: string) {
   const url = new URL(baseUrl.trim());
@@ -143,7 +145,10 @@ export default function GenAIChatPage() {
           systemPrompt: string;
         }>;
 
-        if (parsed.selectedProvider && providerById.has(parsed.selectedProvider)) {
+        if (
+          parsed.selectedProvider &&
+          providerById.has(parsed.selectedProvider)
+        ) {
           setSelectedProvider(parsed.selectedProvider);
         }
         if (parsed.baseUrl) setBaseUrl(parsed.baseUrl);
@@ -170,7 +175,14 @@ export default function GenAIChatPage() {
     };
 
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-  }, [apiKey, baseUrl, hasLoadedSettings, model, selectedProvider, systemPrompt]);
+  }, [
+    apiKey,
+    baseUrl,
+    hasLoadedSettings,
+    model,
+    selectedProvider,
+    systemPrompt,
+  ]);
 
   const selectProvider = (provider: ProviderPreset) => {
     setSelectedProvider(provider.id);
@@ -479,7 +491,10 @@ export default function GenAIChatPage() {
                 placeholder="Ask your model a question..."
                 className="min-h-28"
                 onKeyDown={(event) => {
-                  if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
+                  if (
+                    event.key === 'Enter' &&
+                    (event.metaKey || event.ctrlKey)
+                  ) {
                     event.preventDefault();
                     void sendMessage();
                   }
@@ -489,7 +504,11 @@ export default function GenAIChatPage() {
                 <span className="text-xs text-muted-foreground">
                   Press Ctrl+Enter or Cmd+Enter to send.
                 </span>
-                <Button type="button" onClick={sendMessage} disabled={isSending}>
+                <Button
+                  type="button"
+                  onClick={sendMessage}
+                  disabled={isSending}
+                >
                   <Send />
                   {isSending ? 'Sending...' : 'Send'}
                 </Button>
