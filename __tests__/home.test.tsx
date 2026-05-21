@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import Page from '../app/page';
 
 // Mock fetch for this test suite only
@@ -52,5 +52,9 @@ describe('Page', () => {
     const { baseElement } = render(<Page />);
 
     expect(baseElement).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /GenAI Chat/i })).toHaveAttribute(
+      'href',
+      '/genai-chat',
+    );
   });
 });

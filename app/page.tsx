@@ -27,8 +27,8 @@ export default function Home() {
           <div>
             <h3 className="font-semibold mb-2">API Testing</h3>
             <p className="text-sm text-muted-foreground mb-3">
-              Comprehensive API testing tools for REST, SSE, and WebSocket
-              endpoints. Test and debug your APIs with ease.
+              Comprehensive API testing tools for REST, SSE, WebSocket, and
+              GenAI chat endpoints. Test and debug your APIs with ease.
             </p>
             <div className="flex flex-wrap gap-2">
               <Link
@@ -48,6 +48,12 @@ export default function Home() {
                 className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90 transition-colors"
               >
                 WebSockets
+              </Link>
+              <Link
+                href="/genai-chat"
+                className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90 transition-colors"
+              >
+                GenAI Chat
               </Link>
             </div>
           </div>
