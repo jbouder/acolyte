@@ -1,3 +1,5 @@
+import type { Metadata } from 'next';
+import { Geist, Geist_Mono } from 'next/font/google';
 import { AppSidebar } from '@/components/app-sidebar';
 import { GitHubLink } from '@/components/github-link';
 import { SiteSearch } from '@/components/site-search';
@@ -9,8 +11,6 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { Toaster } from '@/components/ui/sonner';
-import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 
 const geistSans = Geist({

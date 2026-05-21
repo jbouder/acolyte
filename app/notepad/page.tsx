@@ -1,5 +1,8 @@
 'use client';
 
+import { Download, FileText, Save, Trash2, Upload } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -10,9 +13,6 @@ import {
 } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { notepadStorage } from '@/lib/notepad-storage';
-import { Download, FileText, Save, Trash2, Upload } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
-import { toast } from 'sonner';
 
 export default function NotepadPage() {
   const [content, setContent] = useState('');

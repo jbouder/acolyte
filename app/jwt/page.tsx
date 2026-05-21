@@ -1,5 +1,8 @@
 'use client';
 
+import { AlertCircle, CheckCircle, Copy, XCircle } from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -16,16 +19,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
+  type DecodedJWT,
   decodeJWT,
   formatTimestamp,
   generateSampleJWT,
   isTokenExpired,
   verifySignature,
-  type DecodedJWT,
 } from '@/lib/jwt-utils';
-import { AlertCircle, CheckCircle, Copy, XCircle } from 'lucide-react';
-import { useState } from 'react';
-import { toast } from 'sonner';
 
 export default function JWTPage() {
   const [token, setToken] = useState('');

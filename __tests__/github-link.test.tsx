@@ -1,5 +1,5 @@
-import { GitHubLink } from '@/components/github-link';
 import { render, screen } from '@testing-library/react';
+import { GitHubLink } from '@/components/github-link';
 
 describe('GitHubLink', () => {
   it('renders a link to GitHub repository', () => {

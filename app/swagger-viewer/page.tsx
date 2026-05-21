@@ -1,5 +1,8 @@
 'use client';
 
+import { Upload } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -17,9 +20,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Upload } from 'lucide-react';
-import { useRef, useState } from 'react';
-import { toast } from 'sonner';
 
 interface OpenAPIEndpoint {
   method: string;

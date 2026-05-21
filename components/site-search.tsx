@@ -1,5 +1,8 @@
 'use client';
 
+import { Search } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
 import {
   CommandDialog,
   CommandEmpty,
@@ -9,9 +12,6 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import { searchableTools, type ToolCategory } from '@/lib/tools-data';
-import { Search } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
 
 const groupedTools = searchableTools.reduce(
   (acc, tool) => {
