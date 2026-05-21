@@ -25,7 +25,7 @@ jobs:
       - name: Run Build
         run: npm run build
 
-  run-lint-checks:
+  run-check:
     runs-on: ubuntu-latest
     needs: run-build
     steps:
@@ -40,26 +40,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Lint code
-        run: npm run lint:ci
-
-  run-format-checks:
-    runs-on: ubuntu-latest
-    needs: run-build
-    steps:
-      - name: Check out repo
-        uses: actions/checkout@v3
-
-      - name: Set up Node environment
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20.x
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Format code
-        run: npm run format:ci
+      - name: Run Biome check
+        run: npm run check:ci
 
   run-test-checks:
     runs-on: ubuntu-latest
