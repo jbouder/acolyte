@@ -62,7 +62,7 @@ describe('GenAI chat completion proxy route', () => {
     );
 
     const request = createRequest({
-      url: 'http://localhost:8080/v1/chat/completions',
+      providerId: 'llama-cpp',
       headers: {
         'Content-Type': 'application/json',
         Authorization: 'Bearer test-key',
@@ -82,7 +82,7 @@ describe('GenAI chat completion proxy route', () => {
       choices: [{ message: { content: 'Hello from the provider' } }],
     });
     expect(mockFetch).toHaveBeenCalledWith(
-      new URL('http://localhost:8080/v1/chat/completions'),
+      'http://localhost:8080/v1/chat/completions',
       expect.objectContaining({
         method: 'POST',
         headers: {
@@ -98,9 +98,9 @@ describe('GenAI chat completion proxy route', () => {
     );
   });
 
-  it('rejects invalid provider URLs', async () => {
+  it('rejects unsupported providers', async () => {
     const request = createRequest({
-      url: 'file:///etc/passwd',
+      providerId: 'custom',
       body: {},
     });
 
@@ -108,7 +108,7 @@ describe('GenAI chat completion proxy route', () => {
 
     expect(response.status).toBe(400);
     await expect(response.json()).resolves.toEqual({
-      error: 'Provider URL must use HTTP or HTTPS',
+      error: 'Unsupported local provider',
     });
     expect(mockFetch).not.toHaveBeenCalled();
   });

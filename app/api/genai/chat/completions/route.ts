@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 
 interface ChatCompletionProxyRequest {
-  url?: unknown;
+  providerId?: unknown;
   headers?: unknown;
   body?: unknown;
 }
@@ -27,22 +27,17 @@ function getForwardedHeaders(headers: unknown) {
   return forwardedHeaders;
 }
 
-function parseTargetUrl(url: unknown) {
-  if (typeof url !== 'string' || !url.trim()) {
-    throw new Error('Provider URL is required');
+function getProviderChatCompletionUrl(providerId: unknown) {
+  switch (providerId) {
+    case 'llama-cpp':
+      return 'http://localhost:8080/v1/chat/completions';
+    case 'ollama':
+      return 'http://localhost:11434/v1/chat/completions';
+    case 'docker-model-runner':
+      return 'http://localhost:12434/engines/v1/chat/completions';
+    default:
+      throw new Error('Unsupported local provider');
   }
-
-  const targetUrl = new URL(url);
-
-  if (!['http:', 'https:'].includes(targetUrl.protocol)) {
-    throw new Error('Provider URL must use HTTP or HTTPS');
-  }
-
-  if (targetUrl.username || targetUrl.password) {
-    throw new Error('Provider URL must not include credentials');
-  }
-
-  return targetUrl;
 }
 
 export async function POST(request: NextRequest) {
@@ -55,7 +50,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const targetUrl = parseTargetUrl(payload.url);
+    const targetUrl = getProviderChatCompletionUrl(payload.providerId);
     const headers = {
       'Content-Type': 'application/json',
       ...getForwardedHeaders(payload.headers),

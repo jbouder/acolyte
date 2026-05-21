@@ -129,7 +129,7 @@ describe('GenAIChatPage', () => {
     const [, requestInit] = mockFetch.mock.calls[0];
     const body = JSON.parse(requestInit.body);
 
-    expect(body.url).toBe('http://localhost:8080/v1/chat/completions');
+    expect(body.providerId).toBe('llama-cpp');
     expect(body.headers).toEqual({ 'Content-Type': 'application/json' });
     expect(body.body).toMatchObject({
       model: 'local-model',
@@ -145,5 +145,37 @@ describe('GenAIChatPage', () => {
         content: 'Hello model',
       },
     ]);
+  });
+
+  it('sends custom provider requests directly to the configured URL', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      text: () =>
+        Promise.resolve(
+          JSON.stringify({
+            choices: [{ message: { content: 'Custom response' } }],
+          }),
+        ),
+    });
+    render(<GenAIChatPage />);
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /Custom \/ External/i }),
+    );
+    fireEvent.change(screen.getByLabelText('Message'), {
+      target: { value: 'Hello custom model' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /^Send$/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Custom response')).toBeInTheDocument();
+    });
+    expect(mockFetch).toHaveBeenCalledWith(
+      'https://api.openai.com/v1/chat/completions',
+      expect.objectContaining({
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    );
   });
 });

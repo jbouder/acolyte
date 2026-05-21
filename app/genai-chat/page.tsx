@@ -264,21 +264,33 @@ export default function GenAIChatPage() {
         headers.Authorization = `Bearer ${apiKey.trim()}`;
       }
 
-      const response = await fetch('/api/genai/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          url: chatUrl,
-          headers,
-          body: {
-            model: model.trim(),
-            messages: requestMessages,
-            stream: false,
-          },
-        }),
-      });
+      const requestBody = {
+        model: model.trim(),
+        messages: requestMessages,
+        stream: false,
+      };
+      const defaultProviderChatUrl = buildChatCompletionUrl(
+        currentProvider.baseUrl,
+      );
+      const shouldUseLocalProxy =
+        selectedProvider !== 'custom' && chatUrl === defaultProviderChatUrl;
+      const response = shouldUseLocalProxy
+        ? await fetch('/api/genai/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              providerId: selectedProvider,
+              headers,
+              body: requestBody,
+            }),
+          })
+        : await fetch(chatUrl, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(requestBody),
+          });
 
       const responseText = await response.text();
       const payload = responseText ? JSON.parse(responseText) : {};
