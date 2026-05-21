@@ -1,6 +1,7 @@
 import {
   BarChart3,
   BookOpen,
+  BotMessageSquare,
   Braces,
   Cable,
   ClipboardList,
@@ -75,6 +76,23 @@ const tools: Tool[] = [
     description: 'WebTransport protocol testing',
     category: 'API Testing',
     keywords: ['http3', 'quic', 'transport', 'protocol'],
+  },
+  {
+    title: 'GenAI Chat',
+    url: '/genai-chat',
+    icon: BotMessageSquare,
+    description: 'Chat with OpenAI v1-compatible model providers',
+    category: 'API Testing',
+    keywords: [
+      'genai',
+      'ai',
+      'chat',
+      'llm',
+      'openai',
+      'ollama',
+      'llama.cpp',
+      'docker model runner',
+    ],
   },
   {
     title: 'Web Stats',
