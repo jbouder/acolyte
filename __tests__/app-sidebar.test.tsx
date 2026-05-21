@@ -4,7 +4,7 @@ import { AppSidebar } from '@/components/app-sidebar';
 import { SidebarProvider } from '@/components/ui/sidebar';
 
 jest.mock('next/navigation', () => ({
-  usePathname: () => '/retro',
+  usePathname: () => '/chat',
 }));
 
 jest.mock('@/hooks/use-mobile', () => ({
@@ -12,20 +12,16 @@ jest.mock('@/hooks/use-mobile', () => ({
 }));
 
 describe('AppSidebar', () => {
-  it('includes the Retro Board tool link in the sidebar', () => {
+  it('includes tool links in the sidebar and marks the active route', () => {
     render(
       <SidebarProvider>
         <AppSidebar />
       </SidebarProvider>,
     );
 
-    const retroLink = screen.getByRole('link', { name: /Retro Board/i });
+    const chatLink = screen.getByRole('link', { name: /^Chat$/i });
 
-    expect(retroLink).toHaveAttribute('href', '/retro');
-    expect(retroLink).toHaveAttribute('data-active', 'true');
-    expect(screen.getByRole('link', { name: /^Chat$/i })).toHaveAttribute(
-      'href',
-      '/chat',
-    );
+    expect(chatLink).toHaveAttribute('href', '/chat');
+    expect(chatLink).toHaveAttribute('data-active', 'true');
   });
 });

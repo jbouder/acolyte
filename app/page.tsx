@@ -27,8 +27,8 @@ export default function Home() {
           <div>
             <h3 className="font-semibold mb-2">API Testing</h3>
             <p className="text-sm text-muted-foreground mb-3">
-              Comprehensive API testing tools for REST, SSE, WebSocket, and
-              chat endpoints. Test and debug your APIs with ease.
+              Comprehensive API testing tools for REST, SSE, WebSocket, and chat
+              endpoints. Test and debug your APIs with ease.
             </p>
             <div className="flex flex-wrap gap-2">
               <Link
@@ -108,12 +108,6 @@ export default function Home() {
               Swagger/OpenAPI viewer, and more to streamline your workflow.
             </p>
             <div className="flex flex-wrap gap-2">
-              <Link
-                href="/retro"
-                className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90 transition-colors"
-              >
-                Retro Board
-              </Link>
               <Link
                 href="/markdown-preview"
                 className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90 transition-colors"

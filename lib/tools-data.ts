@@ -4,7 +4,6 @@ import {
   BotMessageSquare,
   Braces,
   Cable,
-  ClipboardList,
   Code2,
   Eye,
   FileText,
@@ -124,14 +123,6 @@ const tools: Tool[] = [
     description: 'Software Bill of Materials report',
     category: 'Analysis',
     keywords: ['sbom', 'inventory', 'supply chain', 'components', 'license'],
-  },
-  {
-    title: 'Retro Board',
-    url: '/retro',
-    icon: ClipboardList,
-    description: 'Create and join team retrospectives',
-    category: 'Utilities',
-    keywords: ['retro', 'retrospective', 'board', 'supabase', 'team'],
   },
   {
     title: 'Markdown Preview',
