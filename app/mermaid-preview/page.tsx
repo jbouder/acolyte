@@ -1,5 +1,9 @@
 'use client';
 
+import { Copy, Download, Eye, FileText, Upload } from 'lucide-react';
+import mermaid from 'mermaid';
+import { useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -9,10 +13,6 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Copy, Download, Eye, FileText, Upload } from 'lucide-react';
-import mermaid from 'mermaid';
-import { useEffect, useRef, useState } from 'react';
-import { toast } from 'sonner';
 
 export default function MermaidViewerPage() {
   const [mermaidCode, setMermaidCode] = useState(`graph TD

@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
       html.includes('Drupal') ||
       html.includes('sites/all/') ||
       html.includes('sites/default/') ||
-      html.match(/\/sites\/[^\/]+\/files\//i) ||
+      html.match(/\/sites\/[^/]+\/files\//i) ||
       headers['x-drupal-cache'] ||
       headers['x-generator']?.includes('Drupal') ||
       html.includes('drupal.js') ||

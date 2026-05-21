@@ -1,5 +1,8 @@
 'use client';
 
+import { AlertCircle, AlertTriangle, CheckCircle, Info } from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -17,9 +20,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { AlertCircle, AlertTriangle, CheckCircle, Info } from 'lucide-react';
-import { useState } from 'react';
-import { toast } from 'sonner';
 
 interface AccessibilityIssue {
   type: 'error' | 'warning' | 'info';

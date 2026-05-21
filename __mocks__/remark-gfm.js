@@ -1,8 +1,6 @@
 // Mock for remark-gfm
 function remarkGfm() {
-  return function (tree) {
-    return tree;
-  };
+  return (tree) => tree;
 }
 
 module.exports = remarkGfm;

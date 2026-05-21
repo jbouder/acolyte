@@ -1,5 +1,7 @@
 'use client';
 
+import { useRef, useState } from 'react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -15,8 +17,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useRef, useState } from 'react';
-import { toast } from 'sonner';
 
 export default function Base64Page() {
   const [inputText, setInputText] = useState('');

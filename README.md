@@ -81,8 +81,7 @@
 
 - **[Jest](https://jestjs.io/)** - JavaScript testing framework with comprehensive test coverage
 - **[React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)** - Simple and complete testing utilities
-- **[ESLint](https://eslint.org/)** - Code analysis and linting for consistent code quality
-- **[Prettier](https://prettier.io/)** - Code formatting for consistent style across the codebase
+- **[Biome](https://biomejs.dev/)** - Fast unified linter and formatter for consistent code quality and style
 
 ### Storage & Data
 
@@ -231,7 +230,7 @@ npm run test
 # Lint code and auto-fix issues
 npm run lint
 
-# Format code with Prettier
+# Format code with Biome
 npm run format
 
 # Check formatting without making changes

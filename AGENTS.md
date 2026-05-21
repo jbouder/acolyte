@@ -181,8 +181,7 @@ Scan websites for accessibility issues and WCAG compliance:
 
 - **Jest** - JavaScript testing framework with comprehensive test coverage
 - **React Testing Library** - Simple and complete testing utilities
-- **ESLint** - Code analysis and linting for consistent code quality
-- **Prettier** - Code formatting for consistent style across the codebase
+- **Biome** - Fast unified linter and formatter for consistent code quality and style
 
 ### Storage & Data
 
@@ -295,7 +294,7 @@ npm run test
 # Lint code and auto-fix issues
 npm run lint
 
-# Format code with Prettier
+# Format code with Biome
 npm run format
 
 # Check formatting without making changes

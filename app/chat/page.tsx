@@ -1,5 +1,8 @@
 'use client';
 
+import { Bot, Send, Trash2, User } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -12,9 +15,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { genAIChatStorage } from '@/lib/genai-chat-storage';
-import { Bot, Send, Trash2, User } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
-import { toast } from 'sonner';
 
 type ChatRole = 'user' | 'assistant';
 type ProviderId = 'llama-cpp' | 'ollama' | 'docker-model-runner' | 'custom';
