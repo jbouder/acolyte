@@ -20,7 +20,6 @@ import {
   SearchCode,
   Settings,
   StickyNote,
-  Wifi,
   Zap,
 } from 'lucide-react';
 
@@ -68,14 +67,6 @@ const tools: Tool[] = [
     description: 'WebSocket connection testing',
     category: 'API Testing',
     keywords: ['ws', 'wss', 'socket', 'realtime', 'bidirectional'],
-  },
-  {
-    title: 'WebTransport',
-    url: '/webtransport',
-    icon: Wifi,
-    description: 'WebTransport protocol testing',
-    category: 'API Testing',
-    keywords: ['http3', 'quic', 'transport', 'protocol'],
   },
   {
     title: 'Chat',
