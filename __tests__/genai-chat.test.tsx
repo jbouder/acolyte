@@ -1,6 +1,8 @@
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import 'fake-indexeddb/auto';
 import GenAIChatPage from '../app/genai-chat/page';
+import { genAIChatStorage } from '../lib/genai-chat-storage';
 
 jest.mock('sonner', () => ({
   toast: {
@@ -20,10 +22,11 @@ Object.defineProperty(global, 'crypto', {
 });
 
 describe('GenAIChatPage', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     jest.clearAllMocks();
     randomId = 0;
     window.localStorage.clear();
+    await genAIChatStorage.deleteApiKey();
     global.fetch = mockFetch;
   });
 
@@ -69,12 +72,12 @@ describe('GenAIChatPage', () => {
       JSON.stringify({
         selectedProvider: 'custom',
         baseUrl: 'https://example.test/v1',
-        apiKey: 'saved-key',
         rememberApiKey: true,
         model: 'external-model',
         systemPrompt: 'Saved system prompt',
       }),
     );
+    await genAIChatStorage.saveApiKey('saved-key');
 
     render(<GenAIChatPage />);
 
@@ -82,10 +85,10 @@ describe('GenAIChatPage', () => {
       expect(screen.getByLabelText('Provider URL')).toHaveValue(
         'https://example.test/v1',
       );
+      expect(
+        screen.getByPlaceholderText('Only stored when you opt in below'),
+      ).toHaveValue('saved-key');
     });
-    expect(
-      screen.getByPlaceholderText('Only stored when you opt in below'),
-    ).toHaveValue('saved-key');
     expect(
       screen.getByLabelText(/Remember API key in local storage/i),
     ).toBeChecked();

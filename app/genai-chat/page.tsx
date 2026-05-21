@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { genAIChatStorage } from '@/lib/genai-chat-storage';
 import { Bot, Send, Trash2, User } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
@@ -134,38 +135,42 @@ export default function GenAIChatPage() {
   );
 
   useEffect(() => {
-    try {
-      const savedSettings = window.localStorage.getItem(STORAGE_KEY);
+    const loadSettings = async () => {
+      try {
+        const savedSettings = window.localStorage.getItem(STORAGE_KEY);
 
-      if (savedSettings) {
-        const parsed = JSON.parse(savedSettings) as Partial<{
-          selectedProvider: ProviderId;
-          baseUrl: string;
-          apiKey: string;
-          rememberApiKey: boolean;
-          model: string;
-          systemPrompt: string;
-        }>;
+        if (savedSettings) {
+          const parsed = JSON.parse(savedSettings) as Partial<{
+            selectedProvider: ProviderId;
+            baseUrl: string;
+            rememberApiKey: boolean;
+            model: string;
+            systemPrompt: string;
+          }>;
 
-        if (
-          parsed.selectedProvider &&
-          providerById.has(parsed.selectedProvider)
-        ) {
-          setSelectedProvider(parsed.selectedProvider);
+          if (
+            parsed.selectedProvider &&
+            providerById.has(parsed.selectedProvider)
+          ) {
+            setSelectedProvider(parsed.selectedProvider);
+          }
+          if (parsed.baseUrl) setBaseUrl(parsed.baseUrl);
+          if (parsed.rememberApiKey) {
+            const savedApiKey = await genAIChatStorage.getApiKey();
+            setApiKey(savedApiKey);
+            setRememberApiKey(true);
+          }
+          if (parsed.model) setModel(parsed.model);
+          if (parsed.systemPrompt) setSystemPrompt(parsed.systemPrompt);
         }
-        if (parsed.baseUrl) setBaseUrl(parsed.baseUrl);
-        if (parsed.rememberApiKey && parsed.apiKey) {
-          setApiKey(parsed.apiKey);
-          setRememberApiKey(true);
-        }
-        if (parsed.model) setModel(parsed.model);
-        if (parsed.systemPrompt) setSystemPrompt(parsed.systemPrompt);
+      } catch (loadError) {
+        console.warn('Failed to load GenAI chat settings:', loadError);
+      } finally {
+        setHasLoadedSettings(true);
       }
-    } catch (loadError) {
-      console.warn('Failed to load GenAI chat settings:', loadError);
-    } finally {
-      setHasLoadedSettings(true);
-    }
+    };
+
+    void loadSettings();
   }, []);
 
   useEffect(() => {
@@ -174,13 +179,18 @@ export default function GenAIChatPage() {
     const settings = {
       selectedProvider,
       baseUrl,
-      ...(rememberApiKey ? { apiKey } : {}),
       rememberApiKey,
       model,
       systemPrompt,
     };
 
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+
+    if (rememberApiKey && apiKey.trim()) {
+      void genAIChatStorage.saveApiKey(apiKey);
+    } else {
+      void genAIChatStorage.deleteApiKey();
+    }
   }, [
     apiKey,
     baseUrl,
@@ -318,7 +328,7 @@ export default function GenAIChatPage() {
         <h1 className="text-3xl font-bold">GenAI Chat</h1>
         <p className="text-muted-foreground">
           Chat with local or external OpenAI v1-compatible model providers.
-          Provider URL and API key are stored in local browser storage.
+          Provider URL and API key can be stored in local browser storage.
         </p>
       </div>
 
