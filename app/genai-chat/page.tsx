@@ -117,6 +117,7 @@ export default function GenAIChatPage() {
     useState<ProviderId>('llama-cpp');
   const [baseUrl, setBaseUrl] = useState(PROVIDERS[0].baseUrl);
   const [apiKey, setApiKey] = useState('');
+  const [rememberApiKey, setRememberApiKey] = useState(false);
   const [model, setModel] = useState(PROVIDERS[0].defaultModel);
   const [systemPrompt, setSystemPrompt] = useState(
     'You are a helpful developer assistant.',
@@ -141,6 +142,7 @@ export default function GenAIChatPage() {
           selectedProvider: ProviderId;
           baseUrl: string;
           apiKey: string;
+          rememberApiKey: boolean;
           model: string;
           systemPrompt: string;
         }>;
@@ -152,7 +154,10 @@ export default function GenAIChatPage() {
           setSelectedProvider(parsed.selectedProvider);
         }
         if (parsed.baseUrl) setBaseUrl(parsed.baseUrl);
-        if (parsed.apiKey) setApiKey(parsed.apiKey);
+        if (parsed.rememberApiKey && parsed.apiKey) {
+          setApiKey(parsed.apiKey);
+          setRememberApiKey(true);
+        }
         if (parsed.model) setModel(parsed.model);
         if (parsed.systemPrompt) setSystemPrompt(parsed.systemPrompt);
       }
@@ -169,7 +174,8 @@ export default function GenAIChatPage() {
     const settings = {
       selectedProvider,
       baseUrl,
-      apiKey,
+      ...(rememberApiKey ? { apiKey } : {}),
+      rememberApiKey,
       model,
       systemPrompt,
     };
@@ -180,6 +186,7 @@ export default function GenAIChatPage() {
     baseUrl,
     hasLoadedSettings,
     model,
+    rememberApiKey,
     selectedProvider,
     systemPrompt,
   ]);
@@ -384,8 +391,28 @@ export default function GenAIChatPage() {
                   type="password"
                   value={apiKey}
                   onChange={(event) => setApiKey(event.target.value)}
-                  placeholder="Stored locally in this browser"
+                  placeholder="Only stored when you opt in below"
                 />
+              </div>
+
+              <div className="flex items-start gap-2 rounded-md border bg-muted/40 p-3">
+                <input
+                  id="genai-remember-api-key"
+                  type="checkbox"
+                  checked={rememberApiKey}
+                  onChange={(event) => setRememberApiKey(event.target.checked)}
+                  className="mt-1 rounded"
+                />
+                <label
+                  htmlFor="genai-remember-api-key"
+                  className="text-sm leading-5"
+                >
+                  Remember API key in local storage
+                  <span className="block text-xs text-muted-foreground">
+                    Only enable this on a trusted device. Local provider presets
+                    usually do not need a key.
+                  </span>
+                </label>
               </div>
 
               <div className="space-y-2">

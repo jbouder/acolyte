@@ -44,7 +44,12 @@ describe('GenAIChatPage', () => {
     expect(screen.getByLabelText('Provider URL')).toHaveValue(
       'http://localhost:8080/v1',
     );
-    expect(screen.getByLabelText(/API Key/i)).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText('Only stored when you opt in below'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText(/Remember API key in local storage/i),
+    ).not.toBeChecked();
   });
 
   it('updates URL and model when selecting a local provider', () => {
@@ -65,6 +70,7 @@ describe('GenAIChatPage', () => {
         selectedProvider: 'custom',
         baseUrl: 'https://example.test/v1',
         apiKey: 'saved-key',
+        rememberApiKey: true,
         model: 'external-model',
         systemPrompt: 'Saved system prompt',
       }),
@@ -77,7 +83,12 @@ describe('GenAIChatPage', () => {
         'https://example.test/v1',
       );
     });
-    expect(screen.getByLabelText(/API Key/i)).toHaveValue('saved-key');
+    expect(
+      screen.getByPlaceholderText('Only stored when you opt in below'),
+    ).toHaveValue('saved-key');
+    expect(
+      screen.getByLabelText(/Remember API key in local storage/i),
+    ).toBeChecked();
     expect(screen.getByLabelText('Model')).toHaveValue('external-model');
     expect(screen.getByLabelText('System Prompt')).toHaveValue(
       'Saved system prompt',
