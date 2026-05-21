@@ -264,13 +264,19 @@ export default function GenAIChatPage() {
         headers.Authorization = `Bearer ${apiKey.trim()}`;
       }
 
-      const response = await fetch(chatUrl, {
+      const response = await fetch('/api/genai/chat/completions', {
         method: 'POST',
-        headers,
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
-          model: model.trim(),
-          messages: requestMessages,
-          stream: false,
+          url: chatUrl,
+          headers,
+          body: {
+            model: model.trim(),
+            messages: requestMessages,
+            stream: false,
+          },
         }),
       });
 

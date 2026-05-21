@@ -119,7 +119,7 @@ describe('GenAIChatPage', () => {
       expect(screen.getByText('Hello from the model')).toBeInTheDocument();
     });
     expect(mockFetch).toHaveBeenCalledWith(
-      'http://localhost:8080/v1/chat/completions',
+      '/api/genai/chat/completions',
       expect.objectContaining({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -129,11 +129,13 @@ describe('GenAIChatPage', () => {
     const [, requestInit] = mockFetch.mock.calls[0];
     const body = JSON.parse(requestInit.body);
 
-    expect(body).toMatchObject({
+    expect(body.url).toBe('http://localhost:8080/v1/chat/completions');
+    expect(body.headers).toEqual({ 'Content-Type': 'application/json' });
+    expect(body.body).toMatchObject({
       model: 'local-model',
       stream: false,
     });
-    expect(body.messages).toEqual([
+    expect(body.body.messages).toEqual([
       {
         role: 'system',
         content: 'You are a helpful developer assistant.',
