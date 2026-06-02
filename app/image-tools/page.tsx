@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import Image from 'next/image';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
@@ -588,9 +589,12 @@ export default function ImageToolsPage() {
           <CardContent>
             {previewUrl ? (
               <div className="flex min-h-[420px] items-center justify-center rounded-lg border bg-muted/30 p-4">
-                <img
+                <Image
                   src={previewUrl}
-                  alt="Selected image preview"
+                  alt="Selected preview"
+                  width={image?.width || 1}
+                  height={image?.height || 1}
+                  unoptimized
                   className="max-h-[640px] max-w-full rounded-md object-contain shadow-sm"
                 />
               </div>
