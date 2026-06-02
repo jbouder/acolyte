@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import Image from 'next/image';
+import NextImage from 'next/image';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
@@ -589,7 +589,7 @@ export default function ImageToolsPage() {
           <CardContent>
             {previewUrl ? (
               <div className="flex min-h-[420px] items-center justify-center rounded-lg border bg-muted/30 p-4">
-                <Image
+                <NextImage
                   src={previewUrl}
                   alt="Selected preview"
                   width={image?.width || 1}
