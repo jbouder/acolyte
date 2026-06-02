@@ -57,6 +57,7 @@
 - **JSON Formatter** - Beautify, validate, and minify JSON with syntax highlighting and error detection
 - **Regex Tester** - Test and debug regular expressions with real-time matching and explanation
 - **Color Picker** - Advanced color selection tool with support for HEX, RGB, HSL, and HSV color spaces
+- **Image Tools** - Crop, resize, convert, and generate favicon assets from uploaded images
 - **JWT Decoder** - Decode and validate JSON Web Tokens with header and payload inspection
 - **Swagger Viewer** - Parse and display OpenAPI/Swagger specifications in organized, readable tables grouped by endpoint categories
 - **Developer Notepad** - Persistent note-taking with markdown support and local storage
@@ -184,6 +185,7 @@ For detailed deployment instructions and troubleshooting, see [DEPLOYMENT.md](DE
 - **Markdown Preview**: Write and preview markdown with live rendering, syntax highlighting, and export options
 - **Base64 Tools**: Encode/decode text and files
 - **Color Picker**: Select colors and get values in multiple formats
+- **Image Tools**: Crop, resize, convert, and export favicon assets
 - **Swagger Viewer**: Upload or paste OpenAPI/Swagger JSON specifications to view endpoints in organized tables with color-coded HTTP methods
 
 ## Project Structure
@@ -198,6 +200,7 @@ acolyte/
 │   ├── color-picker/      # Color selection utility
 │   ├── dependency-analysis/# Package analysis tool
 │   ├── games/             # Browser games
+│   ├── image-tools/       # Image crop, conversion, and favicon utility
 │   ├── json-formatter/    # JSON formatting utility
 │   ├── jwt/               # JWT decoder tool
 │   ├── markdown-preview/  # Markdown editor and preview tool

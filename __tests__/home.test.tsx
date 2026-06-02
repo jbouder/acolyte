@@ -56,5 +56,9 @@ describe('Page', () => {
       'href',
       '/chat',
     );
+    expect(screen.getByRole('link', { name: 'Image Tools' })).toHaveAttribute(
+      'href',
+      '/image-tools',
+    );
   });
 });
