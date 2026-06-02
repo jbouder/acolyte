@@ -1,7 +1,7 @@
 'use client';
 
-import { useRef, useState } from 'react';
 import NextImage from 'next/image';
+import { useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
@@ -115,11 +115,7 @@ const createIcoBlob = (pngBuffers: ArrayBuffer[]) => {
     view.setUint32(directoryOffset + 8, buffer.byteLength, true);
     view.setUint32(directoryOffset + 12, imageOffset, true);
 
-    imageOffset = appendBytes(
-      icoBytes,
-      new Uint8Array(buffer),
-      imageOffset,
-    );
+    imageOffset = appendBytes(icoBytes, new Uint8Array(buffer), imageOffset);
   });
 
   return new Blob([icoBytes], { type: 'image/x-icon' });
@@ -153,6 +149,32 @@ export default function ImageToolsPage() {
       ...currentCrop,
       [field]: Math.max(0, Math.round(Number(value) || 0)),
     }));
+    if (image) {
+      setPreviewUrl(image.dataUrl);
+    }
+  };
+
+  const getCropOverlayStyle = () => {
+    if (!image) return null;
+
+    const cropX = Math.min(crop.x, image.width - 1);
+    const cropY = Math.min(crop.y, image.height - 1);
+    const cropWidth = Math.max(
+      1,
+      Math.min(crop.width || image.width, image.width - cropX),
+    );
+    const cropHeight = Math.max(
+      1,
+      Math.min(crop.height || image.height, image.height - cropY),
+    );
+
+    return {
+      left: `${(cropX / image.width) * 100}%`,
+      top: `${(cropY / image.height) * 100}%`,
+      width: `${(cropWidth / image.width) * 100}%`,
+      height: `${(cropHeight / image.height) * 100}%`,
+      boxShadow: '0 0 0 9999px rgb(0 0 0 / 45%)',
+    };
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -327,6 +349,9 @@ export default function ImageToolsPage() {
       setIsProcessing(false);
     }
   };
+
+  const cropOverlayStyle =
+    image && previewUrl === image.dataUrl ? getCropOverlayStyle() : null;
 
   return (
     <div className="flex flex-1 flex-col gap-4">
@@ -589,14 +614,24 @@ export default function ImageToolsPage() {
           <CardContent>
             {previewUrl ? (
               <div className="flex min-h-[420px] items-center justify-center rounded-lg border bg-muted/30 p-4">
-                <NextImage
-                  src={previewUrl}
-                  alt="Selected preview"
-                  width={image?.width || 1}
-                  height={image?.height || 1}
-                  unoptimized
-                  className="max-h-[640px] max-w-full rounded-md object-contain shadow-sm"
-                />
+                <div className="relative inline-block max-h-[640px] max-w-full overflow-hidden rounded-md shadow-sm">
+                  <NextImage
+                    src={previewUrl}
+                    alt="Selected preview"
+                    width={image?.width || 1}
+                    height={image?.height || 1}
+                    unoptimized
+                    className="block h-auto max-h-[640px] max-w-full object-contain"
+                  />
+                  {cropOverlayStyle && (
+                    <div
+                      aria-hidden="true"
+                      className="pointer-events-none absolute border-2 border-primary bg-primary/10"
+                      data-testid="crop-preview-overlay"
+                      style={cropOverlayStyle}
+                    />
+                  )}
+                </div>
               </div>
             ) : (
               <div className="flex min-h-[420px] items-center justify-center rounded-lg border border-dashed text-center text-muted-foreground">
