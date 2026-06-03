@@ -9,6 +9,7 @@
     "includes": [
       "**",
       "!node_modules",
+      "!docs",
       "!.next",
       "!out",
       "!build",
