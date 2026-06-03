@@ -71,7 +71,7 @@ const config: Config = {
           label: 'Docs',
         },
         {
-          href: 'https://acolyte.vercel.app',
+          href: 'https://project-acolyte.vercel.app/',
           label: 'Live App',
           position: 'right',
         },
