@@ -1,0 +1,9 @@
+{
+  "label": "API Testing",
+  "position": 1,
+  "link": {
+    "type": "generated-index",
+    "title": "API Testing",
+    "description": "Tools for exercising HTTP, streaming, and real-time protocols: REST, Server-Sent Events, WebSockets, and a chat client for OpenAI-compatible model providers."
+  }
+}

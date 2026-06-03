@@ -1,0 +1,28 @@
+/**
+ * Acolyte documentation theme.
+ * Infima provides the base CSS variables overridden below.
+ */
+
+:root {
+  --ifm-color-primary: #2563eb;
+  --ifm-color-primary-dark: #1d56d6;
+  --ifm-color-primary-darker: #1b51ca;
+  --ifm-color-primary-darkest: #1643a6;
+  --ifm-color-primary-light: #3d75ee;
+  --ifm-color-primary-lighter: #4a7fef;
+  --ifm-color-primary-lightest: #6f99f2;
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+}
+
+/* Dark mode palette */
+[data-theme='dark'] {
+  --ifm-color-primary: #60a5fa;
+  --ifm-color-primary-dark: #3f90f9;
+  --ifm-color-primary-darker: #2e87f8;
+  --ifm-color-primary-darkest: #0a6bef;
+  --ifm-color-primary-light: #81bafb;
+  --ifm-color-primary-lighter: #92c3fc;
+  --ifm-color-primary-lightest: #c5dffd;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}
