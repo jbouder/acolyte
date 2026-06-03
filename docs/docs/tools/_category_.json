@@ -1,0 +1,10 @@
+{
+  "label": "Tools",
+  "position": 4,
+  "link": {
+    "type": "generated-index",
+    "slug": "/tools",
+    "title": "Tools",
+    "description": "Every tool Acolyte ships, grouped by category: API testing, analysis, utilities, and entertainment."
+  }
+}

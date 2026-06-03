@@ -1,0 +1,9 @@
+{
+  "label": "Utilities",
+  "position": 3,
+  "link": {
+    "type": "generated-index",
+    "title": "Utilities",
+    "description": "Everyday developer utilities that run entirely in your browser: previews, encoders, formatters, and generators."
+  }
+}
