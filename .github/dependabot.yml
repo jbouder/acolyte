@@ -11,6 +11,13 @@ updates:
     labels:
       - 'security'
     groups:
+      babel:
+        patterns:
+          - '@babel/*'
+        update-types:
+          - 'major'
+          - 'minor'
+          - 'patch'
       minor-and-patch:
         patterns:
           - '*'
