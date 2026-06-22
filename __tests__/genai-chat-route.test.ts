@@ -1,3 +1,6 @@
+/**
+ * @jest-environment node
+ */
 import { POST } from '../app/api/genai/chat/completions/route';
 
 const mockFetch = jest.fn();
