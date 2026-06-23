@@ -1,9 +1,0 @@
-{
-  "label": "Analysis",
-  "position": 2,
-  "link": {
-    "type": "generated-index",
-    "title": "Analysis",
-    "description": "Tools that inspect web clients, websites, and software supply chains: web stats, website analysis, accessibility, dependency analysis, and SBOM reports."
-  }
-}
