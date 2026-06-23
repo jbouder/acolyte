@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { AppSidebar } from '@/components/app-sidebar';
-import { DocsLink } from '@/components/docs-link';
 import { GitHubLink } from '@/components/github-link';
 import { SiteSearch } from '@/components/site-search';
 import { ThemeProvider } from '@/components/theme-provider';
@@ -67,7 +66,6 @@ export default function RootLayout({
                 <SidebarTrigger className="-ml-1" />
                 <div className="ml-auto flex items-center gap-2">
                   <SiteSearch />
-                  <DocsLink />
                   <GitHubLink />
                   <ThemeToggle />
                 </div>
