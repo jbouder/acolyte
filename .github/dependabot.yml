@@ -43,3 +43,6 @@ updates:
       - dependency-name: '@types/react-dom'
         versions:
           - '>=19.0.0'
+      - dependency-name: typescript
+        versions:
+          - '>=7.0.0'
