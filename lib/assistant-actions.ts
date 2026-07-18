@@ -56,6 +56,7 @@ export function executeAssistantAction(action: AssistantAction): string {
         document.documentElement.classList.remove('light', 'dark');
         document.documentElement.classList.add(theme);
         localStorage.setItem('acolyte-theme', theme);
+        window.dispatchEvent(new Event('acolyte-theme-change'));
 
         return `Switched to ${theme} mode.`;
       }

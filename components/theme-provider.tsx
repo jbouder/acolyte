@@ -38,6 +38,14 @@ export function ThemeProvider({
     if (storedTheme) {
       setTheme(storedTheme);
     }
+
+    const syncTheme = () => {
+      const updatedTheme = localStorage?.getItem(storageKey) as Theme;
+      if (updatedTheme) setTheme(updatedTheme);
+    };
+
+    window.addEventListener('acolyte-theme-change', syncTheme);
+    return () => window.removeEventListener('acolyte-theme-change', syncTheme);
   }, [storageKey]);
 
   useEffect(() => {

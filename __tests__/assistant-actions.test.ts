@@ -34,17 +34,17 @@ describe('assistant actions', () => {
   });
 
   it('lists available Acolyte tools', () => {
-    expect(
-      executeAssistantAction({ name: 'list_tools', input: '' }),
-    ).toContain('JSON Formatter: Format and validate JSON data');
+    expect(executeAssistantAction({ name: 'list_tools', input: '' })).toContain(
+      'JSON Formatter: Format and validate JSON data',
+    );
   });
 
   it('toggles the theme and saves the preference', () => {
     document.documentElement.classList.add('light');
 
-    expect(
-      executeAssistantAction({ name: 'toggle_theme', input: '' }),
-    ).toBe('Switched to dark mode.');
+    expect(executeAssistantAction({ name: 'toggle_theme', input: '' })).toBe(
+      'Switched to dark mode.',
+    );
     expect(document.documentElement).toHaveClass('dark');
     expect(window.localStorage.getItem('acolyte-theme')).toBe('dark');
   });
