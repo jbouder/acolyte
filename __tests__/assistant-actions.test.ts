@@ -1,0 +1,35 @@
+import { executeAssistantAction } from '../lib/assistant-actions';
+
+describe('assistant actions', () => {
+  it('formats JSON text', () => {
+    expect(
+      executeAssistantAction({
+        name: 'format_json',
+        input: '{"tool":"acolyte"}',
+      }),
+    ).toBe('{\n  "tool": "acolyte"\n}');
+  });
+
+  it('reports invalid JSON without throwing', () => {
+    expect(
+      executeAssistantAction({ name: 'validate_json', input: '{invalid}' }),
+    ).toMatch(/Unable to complete validate_json/);
+  });
+
+  it('encodes and decodes Unicode Base64 text', () => {
+    const encoded = executeAssistantAction({
+      name: 'encode_base64',
+      input: 'Acolyte ⚡',
+    });
+
+    expect(
+      executeAssistantAction({ name: 'decode_base64', input: encoded }),
+    ).toBe('Acolyte ⚡');
+  });
+
+  it('limits tool discovery to the action allowlist', () => {
+    expect(
+      executeAssistantAction({ name: 'find_tools', input: 'json' }),
+    ).toContain('format_json');
+  });
+});

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { AppSidebar } from '@/components/app-sidebar';
+import { FloatingAssistant } from '@/components/floating-assistant';
 import { GitHubLink } from '@/components/github-link';
 import { SiteSearch } from '@/components/site-search';
 import { ThemeProvider } from '@/components/theme-provider';
@@ -74,6 +75,7 @@ export default function RootLayout({
             </SidebarInset>
           </SidebarProvider>
           <Toaster />
+          <FloatingAssistant />
         </ThemeProvider>
       </body>
     </html>
