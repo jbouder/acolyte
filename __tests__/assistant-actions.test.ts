@@ -1,4 +1,7 @@
-import { executeAssistantAction } from '../lib/assistant-actions';
+import {
+  executeAssistantAction,
+  getAssistantAction,
+} from '../lib/assistant-actions';
 
 describe('assistant actions', () => {
   it('formats JSON text', () => {
@@ -47,5 +50,41 @@ describe('assistant actions', () => {
     );
     expect(document.documentElement).toHaveClass('dark');
     expect(window.localStorage.getItem('acolyte-theme')).toBe('dark');
+  });
+
+  it.each([
+    ['list available tools', { name: 'list_tools', input: '' }],
+    ['switch to dark mode', { name: 'toggle_theme', input: '' }],
+    [
+      'format JSON: {"tool":"acolyte"}',
+      {
+        name: 'format_json',
+        input: '{"tool":"acolyte"}',
+      },
+    ],
+    [
+      'validate JSON: {"tool":"acolyte"}',
+      {
+        name: 'validate_json',
+        input: '{"tool":"acolyte"}',
+      },
+    ],
+    [
+      'encode Acolyte as base64',
+      {
+        name: 'encode_base64',
+        input: 'Acolyte',
+      },
+    ],
+    [
+      'decode QWNvbHl0ZQ== from base64',
+      {
+        name: 'decode_base64',
+        input: 'QWNvbHl0ZQ==',
+      },
+    ],
+    ['find tools for json', { name: 'find_tools', input: 'json' }],
+  ])('recognizes the "%s" tool request', (message, expected) => {
+    expect(getAssistantAction(message)).toEqual(expected);
   });
 });

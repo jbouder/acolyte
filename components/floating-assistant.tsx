@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import {
   type AssistantAction,
   executeAssistantAction,
+  getAssistantAction,
 } from '@/lib/assistant-actions';
 import { assistantContent } from '@/lib/assistant-content.generated';
 import { assistantTools } from '@/lib/assistant-tools';
@@ -89,6 +90,18 @@ export function FloatingAssistant() {
     const history = [...messages, userMessage].slice(-MAX_HISTORY);
     setMessages(history);
     setPrompt('');
+
+    const directAction = getAssistantAction(input);
+    if (directAction) {
+      setMessages([
+        ...history,
+        {
+          role: 'assistant',
+          content: executeAssistantAction(directAction),
+        },
+      ]);
+      return;
+    }
 
     try {
       const localEngine = await loadEngine();
