@@ -1,7 +1,10 @@
 import { assistantTools } from '@/lib/assistant-tools';
+import { searchableTools } from '@/lib/tools-data';
 
 export type AssistantActionName =
   | 'find_tools'
+  | 'list_tools'
+  | 'toggle_theme'
   | 'format_json'
   | 'validate_json'
   | 'encode_base64'
@@ -41,6 +44,21 @@ export function executeAssistantAction(action: AssistantAction): string {
               .map((tool) => `${tool.name}: ${tool.description}`)
               .join('\n')
           : 'No matching assistant action was found.';
+      }
+      case 'list_tools':
+        return searchableTools
+          .map((tool) => `${tool.title}: ${tool.description}`)
+          .join('\n');
+      case 'toggle_theme': {
+        const isDark = document.documentElement.classList.contains('dark');
+        const theme = isDark ? 'light' : 'dark';
+
+        document.documentElement.classList.remove('light', 'dark');
+        document.documentElement.classList.add(theme);
+        localStorage.setItem('acolyte-theme', theme);
+        window.dispatchEvent(new Event('acolyte-theme-change'));
+
+        return `Switched to ${theme} mode.`;
       }
       case 'format_json':
         return JSON.stringify(JSON.parse(action.input), null, 2);
