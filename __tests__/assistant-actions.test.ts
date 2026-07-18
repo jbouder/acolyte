@@ -1,4 +1,5 @@
 import {
+  assistantActionNames,
   executeAssistantAction,
   isAssistantAction,
 } from '../lib/assistant-actions';
@@ -53,6 +54,7 @@ describe('assistant actions', () => {
   });
 
   it('accepts only allowlisted model actions', () => {
+    expect(assistantActionNames).toContain('format_json');
     expect(
       isAssistantAction({ name: 'format_json', input: '{"tool":"acolyte"}' }),
     ).toBe(true);

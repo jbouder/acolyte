@@ -1,21 +1,7 @@
 import { assistantTools } from '@/lib/assistant-tools';
 import { searchableTools } from '@/lib/tools-data';
 
-export type AssistantActionName =
-  | 'find_tools'
-  | 'list_tools'
-  | 'toggle_theme'
-  | 'format_json'
-  | 'validate_json'
-  | 'encode_base64'
-  | 'decode_base64';
-
-export interface AssistantAction {
-  name: AssistantActionName;
-  input: string;
-}
-
-const actionNames = new Set<AssistantActionName>([
+export const assistantActionNames = [
   'find_tools',
   'list_tools',
   'toggle_theme',
@@ -23,7 +9,16 @@ const actionNames = new Set<AssistantActionName>([
   'validate_json',
   'encode_base64',
   'decode_base64',
-]);
+] as const;
+
+export type AssistantActionName = (typeof assistantActionNames)[number];
+
+export interface AssistantAction {
+  name: AssistantActionName;
+  input: string;
+}
+
+const actionNames = new Set<AssistantActionName>(assistantActionNames);
 
 export function isAssistantAction(value: unknown): value is AssistantAction {
   return (

@@ -7,15 +7,31 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
   type AssistantAction,
+  assistantActionNames,
   executeAssistantAction,
   isAssistantAction,
 } from '@/lib/assistant-actions';
 import { assistantContent } from '@/lib/assistant-content.generated';
 import { assistantTools } from '@/lib/assistant-tools';
 
-const MODEL_ID = 'Qwen2.5-0.5B-Instruct-q4f16_1-MLC';
+const MODEL_ID = 'Qwen3-0.6B-q4f16_1-MLC';
 const MAX_HISTORY = 6;
 const MAX_TOOL_CALLS = 3;
+const REPLY_SCHEMA = JSON.stringify({
+  type: 'object',
+  properties: {
+    reply: { type: 'string' },
+    action: {
+      type: 'object',
+      properties: {
+        name: { type: 'string', enum: assistantActionNames },
+        input: { type: 'string' },
+      },
+      required: ['name', 'input'],
+    },
+  },
+  required: ['reply'],
+});
 
 interface Message {
   role: 'user' | 'assistant';
@@ -28,19 +44,11 @@ interface ModelReply {
 }
 
 function parseModelReply(content: string): ModelReply {
-  try {
-    const parsed = JSON.parse(content) as ModelReply;
-    if (typeof parsed.reply === 'string') {
-      return {
-        reply: parsed.reply,
-        ...(isAssistantAction(parsed.action) ? { action: parsed.action } : {}),
-      };
-    }
-  } catch {
-    // Plain-text answers remain useful when a small local model does not follow JSON.
-  }
-
-  return { reply: content };
+  const parsed = JSON.parse(content) as ModelReply;
+  return {
+    reply: parsed.reply,
+    ...(isAssistantAction(parsed.action) ? { action: parsed.action } : {}),
+  };
 }
 
 const systemPrompt = `You are Acolyte's local assistant. Answer concise questions about the app using this catalog:
@@ -106,6 +114,13 @@ export function FloatingAssistant() {
           messages: agentMessages,
           temperature: 0.2,
           max_tokens: 256,
+          extra_body: {
+            enable_thinking: false,
+          },
+          response_format: {
+            type: 'json_object',
+            schema: REPLY_SCHEMA,
+          },
         });
         const content = response.choices[0]?.message.content?.trim();
         if (!content) throw new Error('The local model returned no response.');
