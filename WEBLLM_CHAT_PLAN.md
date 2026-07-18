@@ -20,5 +20,8 @@
 
 ## Phase 4 — Verification
 
-- [ ] Add focused assistant and tool-action tests.
-- [ ] Run formatting, linting, tests, build, secret scanning, and CodeQL.
+- [x] Add focused assistant-action tests.
+- [x] Run formatting, linting, tests, build, secret scanning, and CodeQL.
+
+Formatting and tests pass. The production build is blocked only because this
+sandbox cannot retrieve the existing Google-hosted Geist fonts.

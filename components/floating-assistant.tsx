@@ -4,9 +4,7 @@ import { Bot, LoaderCircle, Send, X } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  assistantContent,
-} from '@/lib/assistant-content.generated';
+import { assistantContent } from '@/lib/assistant-content.generated';
 import {
   type AssistantAction,
   executeAssistantAction,
@@ -152,11 +150,14 @@ export function FloatingAssistant() {
               <X />
             </Button>
           </header>
-          <div aria-live="polite" className="flex-1 space-y-3 overflow-y-auto p-3">
+          <div
+            aria-live="polite"
+            className="flex-1 space-y-3 overflow-y-auto p-3"
+          >
             {messages.length === 0 && (
               <p className="text-sm text-muted-foreground">
-                Ask about Acolyte&apos;s tools, or ask me to format JSON or encode
-                text as Base64.
+                Ask about Acolyte&apos;s tools, or ask me to format JSON or
+                encode text as Base64.
               </p>
             )}
             {messages.map((message, index) => (

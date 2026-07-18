@@ -37,7 +37,9 @@ export function executeAssistantAction(action: AssistantAction): string {
             .includes(query),
         );
         return results.length
-          ? results.map((tool) => `${tool.name}: ${tool.description}`).join('\n')
+          ? results
+              .map((tool) => `${tool.name}: ${tool.description}`)
+              .join('\n')
           : 'No matching assistant action was found.';
       }
       case 'format_json':
