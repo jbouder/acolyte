@@ -60,6 +60,8 @@
 - **Image Tools** - Crop, resize, convert, and generate favicon assets from uploaded images
 - **JWT Decoder** - Decode and validate JSON Web Tokens with header and payload inspection
 - **Swagger Viewer** - Parse and display OpenAPI/Swagger specifications in organized, readable tables grouped by endpoint categories
+- **Chat** - Connect to local or external OpenAI v1-compatible model providers for configurable AI conversations
+- **Acolyte Assistant** - A floating, browser-local assistant that can answer tool questions and run safe text-only actions
 - **Developer Notepad** - Persistent note-taking with markdown support and local storage
 
 ### 🎮 Entertainment
@@ -157,6 +159,15 @@ For detailed deployment instructions and troubleshooting, see [DEPLOYMENT.md](DE
 4. Send requests and analyze responses with syntax highlighting
 5. Save and load project configurations for reuse
 
+### Chat
+
+1. Open **Chat** from the development utilities.
+2. Select a preset for llama.cpp, Ollama, or Docker Model Runner, or enter a custom OpenAI v1-compatible endpoint.
+3. Set the model and optional system prompt, then send messages to the provider's `/chat/completions` endpoint.
+4. API keys are used only for the request unless you explicitly choose to save one locally in the browser. Only save credentials on trusted devices.
+
+The floating **Acolyte Assistant** is available throughout the application from the bot button in the lower-right corner. It runs a WebLLM model locally in browsers with WebGPU support, so it can help discover Acolyte tools, format or validate JSON, encode or decode Base64, and switch themes without sending conversation content to a remote chat provider.
+
 ### Dependency Analysis
 
 1. Go to **Dependency Analysis** from the Analysis section
@@ -197,6 +208,7 @@ acolyte/
 │   ├── accessibility-checker/# Accessibility scanning tool
 │   ├── apis/              # REST API testing interface
 │   ├── base64/            # Base64 encoding/decoding tool
+│   ├── chat/              # OpenAI-compatible model chat client
 │   ├── color-picker/      # Color selection utility
 │   ├── dependency-analysis/# Package analysis tool
 │   ├── games/             # Browser games
