@@ -1,5 +1,6 @@
 'use client';
 
+import type { ChatCompletionMessageParam } from '@mlc-ai/web-llm';
 import { Bot, LoaderCircle, Send, X } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -93,7 +94,7 @@ export function FloatingAssistant() {
     try {
       const localEngine = await loadEngine();
       setIsLoading(true);
-      const agentMessages = [
+      const agentMessages: ChatCompletionMessageParam[] = [
         { role: 'system', content: systemPrompt },
         ...history.map(({ role, content }) => ({ role, content })),
       ];
