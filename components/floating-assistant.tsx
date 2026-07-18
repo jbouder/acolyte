@@ -1,5 +1,6 @@
 'use client';
 
+import type { ChatCompletionMessageParam } from '@mlc-ai/web-llm';
 import { Bot, LoaderCircle, Send, X } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -7,13 +8,14 @@ import { Input } from '@/components/ui/input';
 import {
   type AssistantAction,
   executeAssistantAction,
-  getAssistantAction,
+  isAssistantAction,
 } from '@/lib/assistant-actions';
 import { assistantContent } from '@/lib/assistant-content.generated';
 import { assistantTools } from '@/lib/assistant-tools';
 
 const MODEL_ID = 'Qwen2.5-0.5B-Instruct-q4f16_1-MLC';
 const MAX_HISTORY = 6;
+const MAX_TOOL_CALLS = 3;
 
 interface Message {
   role: 'user' | 'assistant';
@@ -28,13 +30,11 @@ interface ModelReply {
 function parseModelReply(content: string): ModelReply {
   try {
     const parsed = JSON.parse(content) as ModelReply;
-    if (
-      typeof parsed.reply === 'string' &&
-      (!parsed.action ||
-        (typeof parsed.action.name === 'string' &&
-          typeof parsed.action.input === 'string'))
-    ) {
-      return parsed;
+    if (typeof parsed.reply === 'string') {
+      return {
+        reply: parsed.reply,
+        ...(isAssistantAction(parsed.action) ? { action: parsed.action } : {}),
+      };
     }
   } catch {
     // Plain-text answers remain useful when a small local model does not follow JSON.
@@ -47,10 +47,10 @@ const systemPrompt = `You are Acolyte's local assistant. Answer concise question
 ${assistantContent}
 
 You may use only these text-only actions: ${assistantTools
-  .map((tool) => tool.name)
+  .map((tool) => `${tool.name} (${tool.description})`)
   .join(', ')}.
-When an action would help, respond with strict JSON: {"reply":"brief explanation","action":{"name":"action name","input":"exact text to process"}}.
-Otherwise respond with strict JSON: {"reply":"brief answer"}. Never claim an action ran unless you requested it.`;
+Select an action only when it will help answer the user's request. When an action would help, respond with strict JSON: {"reply":"brief explanation","action":{"name":"action name","input":"exact text to process"}}.
+After receiving an action result, use it to answer the user or select another action if needed. Otherwise respond with strict JSON: {"reply":"brief answer"}. Never claim an action ran unless you requested it.`;
 
 export function FloatingAssistant() {
   const engine = useRef<import('@mlc-ai/web-llm').MLCEngineInterface | null>(
@@ -91,39 +91,51 @@ export function FloatingAssistant() {
     setMessages(history);
     setPrompt('');
 
-    const directAction = getAssistantAction(input);
-    if (directAction) {
-      setMessages([
-        ...history,
-        {
-          role: 'assistant',
-          content: executeAssistantAction(directAction),
-        },
-      ]);
-      return;
-    }
-
     try {
       const localEngine = await loadEngine();
       setIsLoading(true);
-      const response = await localEngine.chat.completions.create({
-        messages: [
-          { role: 'system', content: systemPrompt },
-          ...history.map(({ role, content }) => ({ role, content })),
-        ],
-        temperature: 0.2,
-        max_tokens: 256,
-      });
-      const content = response.choices[0]?.message.content?.trim();
-      if (!content) throw new Error('The local model returned no response.');
+      const agentMessages: ChatCompletionMessageParam[] = [
+        { role: 'system', content: systemPrompt },
+        ...history.map(({ role, content }) => ({ role, content })),
+      ];
+      let lastReply = '';
+      let lastActionResult = '';
 
-      const reply = parseModelReply(content);
-      const actionResult = reply.action
-        ? `\n\n${executeAssistantAction(reply.action)}`
-        : '';
+      for (let toolCalls = 0; toolCalls <= MAX_TOOL_CALLS; toolCalls++) {
+        const response = await localEngine.chat.completions.create({
+          messages: agentMessages,
+          temperature: 0.2,
+          max_tokens: 256,
+        });
+        const content = response.choices[0]?.message.content?.trim();
+        if (!content) throw new Error('The local model returned no response.');
+
+        const reply = parseModelReply(content);
+        lastReply = reply.reply;
+        if (!reply.action) {
+          setMessages((current) => [
+            ...current,
+            { role: 'assistant', content: reply.reply },
+          ]);
+          return;
+        }
+
+        if (toolCalls === MAX_TOOL_CALLS) break;
+
+        lastActionResult = executeAssistantAction(reply.action);
+        agentMessages.push({ role: 'assistant', content });
+        agentMessages.push({
+          role: 'user',
+          content: `The ${reply.action.name} action returned:\n${lastActionResult}\n\nUse this result to answer the original request. Select another action only if necessary.`,
+        });
+      }
+
       setMessages((current) => [
         ...current,
-        { role: 'assistant', content: `${reply.reply}${actionResult}` },
+        {
+          role: 'assistant',
+          content: `${lastReply}\n\n${lastActionResult}`.trim(),
+        },
       ]);
     } catch (error) {
       setMessages((current) => [

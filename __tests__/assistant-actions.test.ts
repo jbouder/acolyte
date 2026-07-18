@@ -1,6 +1,6 @@
 import {
   executeAssistantAction,
-  getAssistantAction,
+  isAssistantAction,
 } from '../lib/assistant-actions';
 
 describe('assistant actions', () => {
@@ -52,39 +52,13 @@ describe('assistant actions', () => {
     expect(window.localStorage.getItem('acolyte-theme')).toBe('dark');
   });
 
-  it.each([
-    ['list available tools', { name: 'list_tools', input: '' }],
-    ['switch to dark mode', { name: 'toggle_theme', input: '' }],
-    [
-      'format JSON: {"tool":"acolyte"}',
-      {
-        name: 'format_json',
-        input: '{"tool":"acolyte"}',
-      },
-    ],
-    [
-      'validate JSON: {"tool":"acolyte"}',
-      {
-        name: 'validate_json',
-        input: '{"tool":"acolyte"}',
-      },
-    ],
-    [
-      'encode Acolyte as base64',
-      {
-        name: 'encode_base64',
-        input: 'Acolyte',
-      },
-    ],
-    [
-      'decode QWNvbHl0ZQ== from base64',
-      {
-        name: 'decode_base64',
-        input: 'QWNvbHl0ZQ==',
-      },
-    ],
-    ['find tools for json', { name: 'find_tools', input: 'json' }],
-  ])('recognizes the "%s" tool request', (message, expected) => {
-    expect(getAssistantAction(message)).toEqual(expected);
+  it('accepts only allowlisted model actions', () => {
+    expect(
+      isAssistantAction({ name: 'format_json', input: '{"tool":"acolyte"}' }),
+    ).toBe(true);
+    expect(isAssistantAction({ name: 'delete_all_data', input: '' })).toBe(
+      false,
+    );
+    expect(isAssistantAction({ name: 'list_tools' })).toBe(false);
   });
 });
