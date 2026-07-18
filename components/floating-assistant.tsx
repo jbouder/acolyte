@@ -155,10 +155,13 @@ export function FloatingAssistant() {
             className="flex-1 space-y-3 overflow-y-auto p-3"
           >
             {messages.length === 0 && (
-              <p className="text-sm text-muted-foreground">
-                Ask about Acolyte&apos;s tools, or ask me to format JSON or
-                encode text as Base64.
-              </p>
+              <div className="space-y-2 text-sm text-muted-foreground">
+                <p>
+                  Ask about Acolyte&apos;s tools, or ask me to format JSON or
+                  encode text as Base64.
+                </p>
+                <p>Try: “List available tools and switch to dark mode.”</p>
+              </div>
             )}
             {messages.map((message, index) => (
               <p

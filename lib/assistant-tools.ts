@@ -11,6 +11,16 @@ export const assistantTools: AssistantTool[] = [
     keywords: ['tool', 'find', 'help', 'feature'],
   },
   {
+    name: 'list_tools',
+    description: 'List all available Acolyte tools.',
+    keywords: ['tool', 'list', 'all', 'available', 'feature'],
+  },
+  {
+    name: 'toggle_theme',
+    description: 'Switch between the light and dark themes.',
+    keywords: ['theme', 'dark', 'light', 'appearance', 'preference'],
+  },
+  {
     name: 'format_json',
     description: 'Format JSON text with two-space indentation.',
     keywords: ['json', 'format', 'prettify'],
