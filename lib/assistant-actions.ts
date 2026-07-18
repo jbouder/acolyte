@@ -15,57 +15,26 @@ export interface AssistantAction {
   input: string;
 }
 
-function getCommandInput(message: string, pattern: RegExp) {
-  return message
-    .replace(pattern, '')
-    .trim()
-    .replace(/^[:-]\s*/, '');
-}
+const actionNames = new Set<AssistantActionName>([
+  'find_tools',
+  'list_tools',
+  'toggle_theme',
+  'format_json',
+  'validate_json',
+  'encode_base64',
+  'decode_base64',
+]);
 
-export function getAssistantAction(message: string): AssistantAction | null {
-  const normalized = message.trim().toLowerCase();
-
-  if (
-    /\b(list|show)\b.*\b(tools?|features?)\b/.test(normalized) ||
-    /\bwhat\b.*\btools?\b/.test(normalized)
-  ) {
-    return { name: 'list_tools', input: '' };
-  }
-
-  if (
-    /\b(toggle|switch|change|set)\b.*\b(theme|dark|light)\b/.test(normalized) ||
-    /\b(dark|light)\s+mode\b/.test(normalized)
-  ) {
-    return { name: 'toggle_theme', input: '' };
-  }
-
-  const actionPatterns: Array<[AssistantActionName, RegExp]> = [
-    ['format_json', /\b(?:format|prettify|beautify)\s+(?:this\s+)?json\b/i],
-    ['validate_json', /\b(?:validate|check)\s+(?:this\s+)?json\b/i],
-    ['encode_base64', /\bencode\s+(?:this\s+)?(?:text\s+)?(?:as\s+)?base64\b/i],
-    ['decode_base64', /\bdecode\s+(?:this\s+)?base64\b/i],
-  ];
-
-  for (const [name, pattern] of actionPatterns) {
-    if (pattern.test(message)) {
-      return { name, input: getCommandInput(message, pattern) };
-    }
-  }
-
-  const encodeMatch = message.match(/\bencode\s+(.+?)\s+(?:as|to)\s+base64\b/i);
-  if (encodeMatch) return { name: 'encode_base64', input: encodeMatch[1] };
-
-  const decodeMatch = message.match(/\bdecode\s+(.+?)\s+from\s+base64\b/i);
-  if (decodeMatch) return { name: 'decode_base64', input: decodeMatch[1] };
-
-  const findMatch = message.match(
-    /\b(?:find|search for)\s+(?:tools?\s+(?:for|about)\s+)?(.+)/i,
+export function isAssistantAction(value: unknown): value is AssistantAction {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'name' in value &&
+    'input' in value &&
+    typeof value.name === 'string' &&
+    actionNames.has(value.name as AssistantActionName) &&
+    typeof value.input === 'string'
   );
-  if (findMatch && /\btools?\b/.test(normalized)) {
-    return { name: 'find_tools', input: findMatch[1] };
-  }
-
-  return null;
 }
 
 function encodeBase64(value: string) {
