@@ -56,9 +56,9 @@ describe('assistant actions', () => {
     expect(
       isAssistantAction({ name: 'format_json', input: '{"tool":"acolyte"}' }),
     ).toBe(true);
-    expect(
-      isAssistantAction({ name: 'delete_all_data', input: '' }),
-    ).toBe(false);
+    expect(isAssistantAction({ name: 'delete_all_data', input: '' })).toBe(
+      false,
+    );
     expect(isAssistantAction({ name: 'list_tools' })).toBe(false);
   });
 });
