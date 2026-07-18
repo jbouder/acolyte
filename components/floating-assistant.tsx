@@ -4,11 +4,11 @@ import { Bot, LoaderCircle, Send, X } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { assistantContent } from '@/lib/assistant-content.generated';
 import {
   type AssistantAction,
   executeAssistantAction,
 } from '@/lib/assistant-actions';
+import { assistantContent } from '@/lib/assistant-content.generated';
 import { assistantTools } from '@/lib/assistant-tools';
 
 const MODEL_ID = 'Qwen2.5-0.5B-Instruct-q4f16_1-MLC';
