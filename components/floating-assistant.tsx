@@ -114,7 +114,9 @@ export function FloatingAssistant() {
           messages: agentMessages,
           temperature: 0.2,
           max_tokens: 256,
-          enable_thinking: false,
+          extra_body: {
+            enable_thinking: false,
+          },
           response_format: {
             type: 'json_object',
             schema: REPLY_SCHEMA,
