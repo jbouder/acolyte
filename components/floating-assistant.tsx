@@ -43,12 +43,69 @@ interface ModelReply {
   action?: AssistantAction;
 }
 
+function extractJsonObject(content: string): string | undefined {
+  // Small models often wrap their output in <think> blocks or markdown code
+  // fences, and sometimes add prose around the JSON. Strip the noise and pull
+  // out the first balanced { ... } object before parsing.
+  const withoutThinking = content.replace(/<think>[\s\S]*?<\/think>/gi, '');
+  const withoutFences = withoutThinking.replace(/```(?:json)?/gi, '');
+
+  const start = withoutFences.indexOf('{');
+  if (start === -1) return undefined;
+
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+  for (let i = start; i < withoutFences.length; i++) {
+    const char = withoutFences[i];
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+    if (char === '\\') {
+      escaped = true;
+      continue;
+    }
+    if (char === '"') {
+      inString = !inString;
+      continue;
+    }
+    if (inString) continue;
+    if (char === '{') depth++;
+    else if (char === '}') {
+      depth--;
+      if (depth === 0) return withoutFences.slice(start, i + 1);
+    }
+  }
+  return undefined;
+}
+
 function parseModelReply(content: string): ModelReply {
-  const parsed = JSON.parse(content) as ModelReply;
-  return {
-    reply: parsed.reply,
-    ...(isAssistantAction(parsed.action) ? { action: parsed.action } : {}),
-  };
+  const json = extractJsonObject(content);
+  if (json) {
+    try {
+      const parsed = JSON.parse(json) as ModelReply;
+      if (typeof parsed.reply === 'string') {
+        return {
+          reply: parsed.reply,
+          ...(isAssistantAction(parsed.action)
+            ? { action: parsed.action }
+            : {}),
+        };
+      }
+    } catch {
+      // Fall through to the plain-text fallback below.
+    }
+  }
+
+  // The model returned prose instead of JSON; surface it as the reply rather
+  // than failing the whole exchange.
+  const fallback = content
+    .replace(/<think>[\s\S]*?<\/think>/gi, '')
+    .replace(/```(?:json)?/gi, '')
+    .trim();
+  if (!fallback) throw new Error('The local model returned no response.');
+  return { reply: fallback };
 }
 
 function getUnavailableReason() {
@@ -285,7 +342,7 @@ export function FloatingAssistant() {
       <Button
         aria-expanded={isOpen}
         aria-label="Open Acolyte assistant"
-        className="rounded-full shadow-lg"
+        className="size-14 rounded-full shadow-lg [&_svg:not([class*='size-'])]:size-6"
         onClick={() => setIsOpen((open) => !open)}
         size="icon"
       >
