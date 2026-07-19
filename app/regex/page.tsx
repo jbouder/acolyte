@@ -20,12 +20,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-
-interface Match {
-  match: string;
-  index: number;
-  groups: string[];
-}
+import { findMatches, type RegexMatch as Match } from '@/lib/regex-utils';
 
 export default function RegexPage() {
   const [pattern, setPattern] = useState('');
@@ -94,7 +89,8 @@ export default function RegexPage() {
     }
 
     try {
-      const regex = new RegExp(pattern, flags);
+      // Constructing the RegExp validates the pattern/flags (throws if bad).
+      new RegExp(pattern, flags);
       setIsValid(true);
       setError('');
 
@@ -106,33 +102,7 @@ export default function RegexPage() {
       const fullMatch = fullMatchRegex.test(testString);
       setIsFullMatch(fullMatch);
 
-      const foundMatches: Match[] = [];
-      let match;
-
-      if (flags.includes('g')) {
-        while ((match = regex.exec(testString)) !== null) {
-          foundMatches.push({
-            match: match[0],
-            index: match.index,
-            groups: match.slice(1),
-          });
-          // Prevent infinite loops with zero-length matches
-          if (match[0].length === 0) {
-            regex.lastIndex++;
-          }
-        }
-      } else {
-        match = regex.exec(testString);
-        if (match) {
-          foundMatches.push({
-            match: match[0],
-            index: match.index,
-            groups: match.slice(1),
-          });
-        }
-      }
-
-      setMatches(foundMatches);
+      setMatches(findMatches(pattern, flags, testString));
     } catch (err) {
       setError((err as Error).message);
       setIsValid(false);
