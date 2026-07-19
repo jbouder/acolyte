@@ -116,6 +116,22 @@ function parseModelReply(content: string): ModelReply {
   return { reply: fallback };
 }
 
+function getUnavailableReason() {
+  const isMobileBrowser =
+    /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+  if (isMobileBrowser) {
+    return 'The local assistant is unavailable on mobile browsers to prevent device memory exhaustion.';
+  }
+
+  if (!('gpu' in navigator)) {
+    return 'WebGPU is unavailable in this browser.';
+  }
+
+  return '';
+}
+
 const systemPrompt = `You are Acolyte's local assistant. Answer concise questions about the app using this catalog:
 ${assistantContent}
 
@@ -168,9 +184,8 @@ export function FloatingAssistant() {
   const loadEngine = async () => {
     if (engine.current) return engine.current;
     if (engineLoad.current) return engineLoad.current;
-    if (!('gpu' in navigator)) {
-      throw new Error('WebGPU is unavailable in this browser.');
-    }
+    const unavailableReason = getUnavailableReason();
+    if (unavailableReason) throw new Error(unavailableReason);
 
     setIsLoading(true);
     setLoadStatus('Preparing the local model…');
