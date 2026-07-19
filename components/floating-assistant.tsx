@@ -23,6 +23,14 @@ import { assistantTools } from '@/lib/assistant-tools';
 // lightweight 0.6B model (~0.5 GB, far less memory) instead of no chat at all.
 const DESKTOP_MODEL_ID = 'Qwen3-1.7B-q4f16_1-MLC';
 const MOBILE_MODEL_ID = 'Qwen3-0.6B-q4f16_1-MLC';
+
+// Turn a raw WebLLM model id (e.g. "Qwen3-1.7B-q4f16_1-MLC") into a short,
+// human-readable label ("Qwen3 1.7B") for display in the assistant header.
+function formatModelName(id: string): string {
+  const match = id.match(/^([A-Za-z]+\d*)-([\d.]+B)/);
+  if (match) return `${match[1]} ${match[2]}`;
+  return id;
+}
 const MAX_HISTORY = 6;
 const MAX_TOOL_CALLS = 3;
 const REPLY_SCHEMA = JSON.stringify({
@@ -117,14 +125,8 @@ function parseModelReply(content: string): ModelReply {
 }
 
 function getUnavailableReason() {
-  const isMobileBrowser =
-    /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-
-  if (isMobileBrowser) {
-    return 'The local assistant is unavailable on mobile browsers to prevent device memory exhaustion.';
-  }
-
+  // Mobile devices are served the lightweight 0.6B model (see MOBILE_MODEL_ID)
+  // rather than being blocked outright, so the only hard requirement is WebGPU.
   if (!('gpu' in navigator)) {
     return 'WebGPU is unavailable in this browser.';
   }
@@ -317,7 +319,7 @@ export function FloatingAssistant() {
             <div>
               <h2 className="font-semibold">Acolyte Assistant</h2>
               <p className="text-xs text-muted-foreground">
-                Local and powered by WebLLM
+                Local and powered by WebLLM · {formatModelName(modelId)}
               </p>
             </div>
             <div className="flex items-center gap-1">
