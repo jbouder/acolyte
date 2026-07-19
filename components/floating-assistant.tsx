@@ -2,7 +2,7 @@
 
 import type { ChatCompletionMessageParam } from '@mlc-ai/web-llm';
 import { Bot, LoaderCircle, Send, X } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -64,31 +64,52 @@ export function FloatingAssistant() {
   const engine = useRef<import('@mlc-ai/web-llm').MLCEngineInterface | null>(
     null,
   );
+  const engineLoad = useRef<
+    Promise<import('@mlc-ai/web-llm').MLCEngineInterface> | undefined
+  >(undefined);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [loadStatus, setLoadStatus] = useState('');
+  const [loadError, setLoadError] = useState('');
   const [prompt, setPrompt] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
 
   const loadEngine = async () => {
     if (engine.current) return engine.current;
+    if (engineLoad.current) return engineLoad.current;
     if (!('gpu' in navigator)) {
       throw new Error('WebGPU is unavailable in this browser.');
     }
 
     setIsLoading(true);
     setLoadStatus('Preparing the local model…');
-    try {
+    setLoadError('');
+    engineLoad.current = (async () => {
       const { CreateMLCEngine } = await import('@mlc-ai/web-llm');
       engine.current = await CreateMLCEngine(MODEL_ID, {
         initProgressCallback: (report) => setLoadStatus(report.text),
       });
       setLoadStatus('');
       return engine.current;
+    })();
+
+    try {
+      return await engineLoad.current;
     } finally {
+      engineLoad.current = undefined;
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!isOpen || engine.current) return;
+
+    void loadEngine().catch((error) => {
+      setLoadError(
+        error instanceof Error ? error.message : 'Unknown error occurred.',
+      );
+    });
+  }, [isOpen]);
 
   const sendMessage = async () => {
     const input = prompt.trim();
@@ -219,6 +240,11 @@ export function FloatingAssistant() {
               <p className="flex items-center gap-2 text-sm text-muted-foreground">
                 <LoaderCircle className="size-4 animate-spin" />
                 {loadStatus || 'Thinking…'}
+              </p>
+            )}
+            {loadError && (
+              <p className="text-sm text-destructive" role="alert">
+                Unable to start the local assistant: {loadError}
               </p>
             )}
           </div>
