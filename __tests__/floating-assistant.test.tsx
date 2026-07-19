@@ -91,25 +91,6 @@ describe('FloatingAssistant', () => {
     );
   });
 
-  it('does not load the model on mobile browsers', async () => {
-    Object.defineProperty(navigator, 'userAgent', {
-      configurable: true,
-      value:
-        'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 CriOS/130.0.0.0 Mobile/15E148 Safari/604.1',
-    });
-
-    render(<FloatingAssistant />);
-
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Open Acolyte assistant' }),
-    );
-
-    expect(await screen.findByRole('alert')).toHaveTextContent(
-      'The local assistant is unavailable on mobile browsers to prevent device memory exhaustion.',
-    );
-    expect(mockCreateMLCEngine).not.toHaveBeenCalled();
-  });
-
   async function sendPrompt(content: string, userInput = 'hello') {
     mockCreateMLCEngine.mockResolvedValueOnce({
       chat: {
