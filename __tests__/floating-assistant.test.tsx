@@ -126,7 +126,7 @@ describe('FloatingAssistant', () => {
 
     expect(
       await screen.findByText('Acolyte has several tools you can use.'),
-    ).toBeInTheDocument(    );
+    ).toBeInTheDocument();
     expect(screen.queryByText(/is not valid JSON/)).not.toBeInTheDocument();
   });
 });
