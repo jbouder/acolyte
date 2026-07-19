@@ -166,7 +166,7 @@ For detailed deployment instructions and troubleshooting, see [DEPLOYMENT.md](DE
 3. Set the model and optional system prompt, then send messages to the provider's `/chat/completions` endpoint.
 4. API keys are used only for the request unless you explicitly choose to save one locally in the browser. Only save credentials on trusted devices.
 
-The floating **Acolyte Assistant** is available throughout the application from the bot button in the lower-right corner. It runs a WebLLM model locally in browsers with WebGPU support, so it can help discover Acolyte tools, format or validate JSON, encode or decode Base64, and switch themes without sending conversation content to a remote chat provider.
+The floating **Acolyte Assistant** is available throughout the application from the bot button in the lower-right corner. It runs a WebLLM model locally in browsers with WebGPU support, so it can help discover Acolyte tools, format or validate JSON, encode or decode Base64, decode JWTs, generate secure passwords, and switch themes without sending conversation content to a remote chat provider.
 
 ### Dependency Analysis
 

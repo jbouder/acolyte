@@ -1,20 +1,28 @@
 'use client';
 
 import type { ChatCompletionMessageParam } from '@mlc-ai/web-llm';
-import { Bot, LoaderCircle, Send, X } from 'lucide-react';
+import { Bot, Eraser, LoaderCircle, Send, X } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useIsMobile } from '@/hooks/use-mobile';
 import {
   type AssistantAction,
   assistantActionNames,
+  detectAssistantAction,
   executeAssistantAction,
   isAssistantAction,
+  resolveAppTool,
 } from '@/lib/assistant-actions';
 import { assistantContent } from '@/lib/assistant-content.generated';
 import { assistantTools } from '@/lib/assistant-tools';
 
-const MODEL_ID = 'Qwen3-0.6B-q4f16_1-MLC';
+// Match the model to the device so phones don't have to download and hold the
+// larger weights: desktops get the more capable 1.7B model, phones get the
+// lightweight 0.6B model (~0.5 GB, far less memory) instead of no chat at all.
+const DESKTOP_MODEL_ID = 'Qwen3-1.7B-q4f16_1-MLC';
+const MOBILE_MODEL_ID = 'Qwen3-0.6B-q4f16_1-MLC';
 const MAX_HISTORY = 6;
 const MAX_TOOL_CALLS = 3;
 const REPLY_SCHEMA = JSON.stringify({
@@ -115,7 +123,18 @@ You may use only these text-only actions: ${assistantTools
   .map((tool) => `${tool.name} (${tool.description})`)
   .join(', ')}.
 Select an action only when it will help answer the user's request. When an action would help, respond with strict JSON: {"reply":"brief explanation","action":{"name":"action name","input":"exact text to process"}}.
-After receiving an action result, use it to answer the user or select another action if needed. Otherwise respond with strict JSON: {"reply":"brief answer"}. Never claim an action ran unless you requested it.`;
+Guidance for choosing an action:
+- Use list_tools when the user asks what you (the chat/assistant) can do.
+- Use list_app_tools when the user asks what tools or features the Acolyte app has.
+- Use open_tool to navigate to a tool the user names; put the tool name in "input".
+- Use decode_base64 to decode Base64 (e.g. input "SGVsbG8=") and encode_base64 to encode text.
+- Use generate_password when the user wants a password; put the desired length in "input" (or "" for the default).
+- Use decode_jwt when the user provides a JWT; put the whole token in "input".
+- Use format_json to pretty-print JSON and minify_json to compact it; put the JSON in "input".
+- Use convert_color to convert a color; put the color (hex, RGB, or HSL) in "input".
+- Use test_regex to test a regular expression; set "input" to JSON like {"pattern":"\\\\d+","flags":"g","text":"a1 b2"}.
+Put the exact value to process in "input" (for example the Base64 string, the JWT, or the JSON). The action result is shown to the user verbatim, so keep "reply" to a brief sentence and never invent the result yourself.
+After receiving an action result, respond with strict JSON: {"reply":"brief answer"}, or select another action if one is still needed. Never claim an action ran unless you requested it.`;
 
 export function FloatingAssistant() {
   const engine = useRef<import('@mlc-ai/web-llm').MLCEngineInterface | null>(
@@ -130,6 +149,21 @@ export function FloatingAssistant() {
   const [loadError, setLoadError] = useState('');
   const [prompt, setPrompt] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
+  const isMobile = useIsMobile();
+  const modelId = isMobile ? MOBILE_MODEL_ID : DESKTOP_MODEL_ID;
+  const router = useRouter();
+
+  // Run an action, handling the one action with a side effect (navigation)
+  // here in the component and delegating the rest to the pure executor.
+  const runAction = (action: AssistantAction): string => {
+    if (action.name === 'open_tool') {
+      const tool = resolveAppTool(action.input);
+      if (!tool) return 'No matching Acolyte tool was found.';
+      router.push(tool.url);
+      return `Opening ${tool.title}…`;
+    }
+    return executeAssistantAction(action);
+  };
 
   const loadEngine = async () => {
     if (engine.current) return engine.current;
@@ -143,7 +177,7 @@ export function FloatingAssistant() {
     setLoadError('');
     engineLoad.current = (async () => {
       const { CreateMLCEngine } = await import('@mlc-ai/web-llm');
-      engine.current = await CreateMLCEngine(MODEL_ID, {
+      engine.current = await CreateMLCEngine(modelId, {
         initProgressCallback: (report) => setLoadStatus(report.text),
       });
       setLoadStatus('');
@@ -177,6 +211,18 @@ export function FloatingAssistant() {
     setMessages(history);
     setPrompt('');
 
+    // Route high-confidence intents (a pasted JWT, "decode base64 …",
+    // "generate a password") deterministically before the model, so they run
+    // instantly and reliably without depending on the small model's routing.
+    const detected = detectAssistantAction(input);
+    if (detected) {
+      setMessages((current) => [
+        ...current,
+        { role: 'assistant', content: runAction(detected) },
+      ]);
+      return;
+    }
+
     try {
       const localEngine = await loadEngine();
       setIsLoading(true);
@@ -205,17 +251,11 @@ export function FloatingAssistant() {
 
         const reply = parseModelReply(content);
         lastReply = reply.reply;
-        if (!reply.action) {
-          setMessages((current) => [
-            ...current,
-            { role: 'assistant', content: reply.reply },
-          ]);
-          return;
-        }
+        if (!reply.action) break;
 
         if (toolCalls === MAX_TOOL_CALLS) break;
 
-        lastActionResult = executeAssistantAction(reply.action);
+        lastActionResult = runAction(reply.action);
         agentMessages.push({ role: 'assistant', content });
         agentMessages.push({
           role: 'user',
@@ -223,12 +263,18 @@ export function FloatingAssistant() {
         });
       }
 
+      // Deterministic action results (decoded text, generated passwords, JWT
+      // claims, etc.) are the real answer, so surface them verbatim rather than
+      // trusting the small model to reproduce them. Skip the append only when
+      // the model already echoed the result back in its reply.
+      const finalContent =
+        lastActionResult && !lastReply.includes(lastActionResult)
+          ? `${lastReply}\n\n${lastActionResult}`.trim()
+          : lastReply || lastActionResult;
+
       setMessages((current) => [
         ...current,
-        {
-          role: 'assistant',
-          content: `${lastReply}\n\n${lastActionResult}`.trim(),
-        },
+        { role: 'assistant', content: finalContent },
       ]);
     } catch (error) {
       setMessages((current) => [
@@ -259,14 +305,25 @@ export function FloatingAssistant() {
                 Local and powered by WebLLM
               </p>
             </div>
-            <Button
-              aria-label="Close assistant"
-              onClick={() => setIsOpen(false)}
-              size="icon"
-              variant="ghost"
-            >
-              <X />
-            </Button>
+            <div className="flex items-center gap-1">
+              <Button
+                aria-label="Clear conversation"
+                disabled={messages.length === 0}
+                onClick={() => setMessages([])}
+                size="icon"
+                variant="ghost"
+              >
+                <Eraser />
+              </Button>
+              <Button
+                aria-label="Close assistant"
+                onClick={() => setIsOpen(false)}
+                size="icon"
+                variant="ghost"
+              >
+                <X />
+              </Button>
+            </div>
           </header>
           <div
             aria-live="polite"
@@ -275,10 +332,11 @@ export function FloatingAssistant() {
             {messages.length === 0 && (
               <div className="space-y-2 text-sm text-muted-foreground">
                 <p>
-                  Ask about Acolyte&apos;s tools, or ask me to format JSON or
-                  encode text as Base64.
+                  Ask what I can do or what tools the app has. I can also format
+                  JSON, encode or decode Base64, decode a JWT, and generate a
+                  password.
                 </p>
-                <p>Try: “List available tools and switch to dark mode.”</p>
+                <p>Try: “List your tools” or “Generate a password.”</p>
               </div>
             )}
             {messages.map((message, index) => (
