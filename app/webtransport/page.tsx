@@ -39,6 +39,11 @@ interface ConnectionStats {
   activeStreams: number;
 }
 
+const streamTypes = {
+  bidirectional: 'Bidirectional Stream',
+  unidirectional: 'Unidirectional Stream',
+};
+
 export default function WebTransportPage() {
   const [url, setUrl] = useState('https://localhost:4433/webtransport');
   const [certificateHash, setCertificateHash] = useState('');
@@ -537,17 +542,20 @@ export default function WebTransportPage() {
             <div className="space-y-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium">Stream Type</label>
-                <Select value={streamType} onValueChange={setStreamType}>
+                <Select
+                  items={streamTypes}
+                  value={streamType}
+                  onValueChange={(value) => value && setStreamType(value)}
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="bidirectional">
-                      Bidirectional Stream
-                    </SelectItem>
-                    <SelectItem value="unidirectional">
-                      Unidirectional Stream
-                    </SelectItem>
+                    {Object.entries(streamTypes).map(([value, label]) => (
+                      <SelectItem key={value} value={value}>
+                        {label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

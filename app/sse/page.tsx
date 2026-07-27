@@ -425,7 +425,7 @@ export default function SSEPage() {
                   <Select
                     value={method}
                     onValueChange={(value) =>
-                      setMethod(value as 'GET' | 'POST')
+                      value && setMethod(value as 'GET' | 'POST')
                     }
                     disabled={isConnected}
                   >

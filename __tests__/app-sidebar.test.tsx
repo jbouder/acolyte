@@ -22,6 +22,10 @@ describe('AppSidebar', () => {
     const chatLink = screen.getByRole('link', { name: /^Chat$/i });
 
     expect(chatLink).toHaveAttribute('href', '/chat');
-    expect(chatLink).toHaveAttribute('data-active', 'true');
+    // Base UI emits boolean state as a valueless data attribute.
+    expect(chatLink).toHaveAttribute('data-active', '');
+
+    const notepadLink = screen.getByRole('link', { name: /^Notepad$/i });
+    expect(notepadLink).not.toHaveAttribute('data-active');
   });
 });

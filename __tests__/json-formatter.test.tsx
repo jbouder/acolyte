@@ -1,14 +1,13 @@
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import JsonFormatterPage from '../app/json-formatter/page';
 
-// Mock navigator.clipboard
+// Mock navigator.clipboard. Reinstalled per-test because userEvent.setup()
+// swaps in its own clipboard stub and does not restore it.
 const mockClipboard = {
   writeText: jest.fn(),
 };
-Object.assign(navigator, {
-  clipboard: mockClipboard,
-});
 
 // Mock toast
 jest.mock('sonner', () => ({
@@ -22,6 +21,11 @@ jest.mock('sonner', () => ({
 describe('JsonFormatterPage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    Object.defineProperty(navigator, 'clipboard', {
+      value: mockClipboard,
+      configurable: true,
+      writable: true,
+    });
   });
 
   it('renders the JSON Formatter page with all components', () => {
@@ -184,9 +188,9 @@ describe('JsonFormatterPage', () => {
     fireEvent.change(input, { target: { value: testJson } });
 
     // Change indentation to 4 spaces
-    const indentSelect = screen.getByRole('combobox');
-    fireEvent.click(indentSelect);
-    fireEvent.click(screen.getByText('4'));
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('combobox'));
+    await user.click(await screen.findByRole('option', { name: '4' }));
 
     // Click format button
     fireEvent.click(formatButton);

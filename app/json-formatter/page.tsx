@@ -126,7 +126,10 @@ export default function JsonFormatterPage() {
             <div className="flex flex-wrap gap-2">
               <div className="flex items-center gap-2">
                 <label className="text-sm font-medium">Indent:</label>
-                <Select value={indentSize} onValueChange={setIndentSize}>
+                <Select
+                  value={indentSize}
+                  onValueChange={(value) => value && setIndentSize(value)}
+                >
                   <SelectTrigger className="w-20">
                     <SelectValue />
                   </SelectTrigger>

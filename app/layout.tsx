@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { JetBrains_Mono, Oxanium } from 'next/font/google';
 import { AppSidebar } from '@/components/app-sidebar';
 import { FloatingAssistant } from '@/components/floating-assistant';
 import { GitHubLink } from '@/components/github-link';
@@ -12,15 +12,16 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { Toaster } from '@/components/ui/sonner';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import './globals.css';
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+const oxanium = Oxanium({
+  variable: '--font-oxanium',
   subsets: ['latin'],
 });
 
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
+const jetbrainsMono = JetBrains_Mono({
+  variable: '--font-jetbrains-mono',
   subsets: ['latin'],
 });
 
@@ -36,7 +37,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    // The font variables live on <html> because `font-family` is applied
+    // there; an undefined var() would invalidate the whole declaration.
+    <html
+      lang="en"
+      className={`${oxanium.variable} ${jetbrainsMono.variable}`}
+      suppressHydrationWarning
+    >
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -56,26 +63,26 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className="antialiased">
         <ThemeProvider defaultTheme="system" storageKey="acolyte-theme">
-          <SidebarProvider>
-            <AppSidebar />
-            <SidebarInset>
-              <header className="sticky top-0 flex h-17 shrink-0 items-center gap-2 border-b bg-background px-4">
-                <SidebarTrigger className="-ml-1" />
-                <div className="ml-auto flex items-center gap-2">
-                  <SiteSearch />
-                  <GitHubLink />
-                  <ThemeToggle />
-                </div>
-              </header>
-              <div className="flex flex-1 flex-col gap-4 p-4">{children}</div>
-            </SidebarInset>
-          </SidebarProvider>
-          <Toaster />
-          <FloatingAssistant />
+          <TooltipProvider>
+            <SidebarProvider>
+              <AppSidebar />
+              <SidebarInset>
+                <header className="sticky top-0 flex h-17 shrink-0 items-center gap-2 border-b bg-background px-4">
+                  <SidebarTrigger className="-ml-1" />
+                  <div className="ml-auto flex items-center gap-2">
+                    <SiteSearch />
+                    <GitHubLink />
+                    <ThemeToggle />
+                  </div>
+                </header>
+                <div className="flex flex-1 flex-col gap-4 p-4">{children}</div>
+              </SidebarInset>
+            </SidebarProvider>
+            <Toaster />
+            <FloatingAssistant />
+          </TooltipProvider>
         </ThemeProvider>
       </body>
     </html>
