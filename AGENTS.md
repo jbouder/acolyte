@@ -175,7 +175,8 @@ Scan websites for accessibility issues and WCAG compliance:
 - **React 19.1.0** - Modern React with latest features and performance improvements
 - **TypeScript** - Static type checking for enhanced developer experience
 - **Tailwind CSS 4** - Utility-first CSS framework for rapid UI development
-- **Shadcn/UI** - High-quality, accessible component library
+- **Shadcn/UI** (`base-lyra` style) - Component library built on **Base UI** (`@base-ui/react`) primitives. Note the Base UI conventions: composition uses a `render` prop rather than `asChild`, and boolean state is exposed as valueless data attributes (`data-active=""`, not `data-active="true"`).
+- **Oxanium / JetBrains Mono** - UI and code typefaces, loaded via `next/font` and exposed as `--font-oxanium` / `--font-jetbrains-mono` on `<html>`
 
 ### Development Tools
 

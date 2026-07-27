@@ -240,7 +240,7 @@ export default function RegexPage() {
                 Common Patterns
               </label>
               <Select
-                onValueChange={(value) => {
+                onValueChange={(value: string | null) => {
                   const selected = commonPatterns.find((p) => p.name === value);
                   if (selected) loadCommonPattern(selected);
                 }}

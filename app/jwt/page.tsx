@@ -310,7 +310,10 @@ export default function JWTPage() {
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">Algorithm</label>
-                <Select value={algorithm} onValueChange={setAlgorithm}>
+                <Select
+                  value={algorithm}
+                  onValueChange={(value) => value && setAlgorithm(value)}
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>

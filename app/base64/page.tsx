@@ -18,6 +18,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
+const charEncodings = {
+  utf8: 'UTF-8',
+  ascii: 'ASCII',
+  latin1: 'Latin-1',
+};
+
 export default function Base64Page() {
   const [inputText, setInputText] = useState('');
   const [base64Input, setBase64Input] = useState('');
@@ -489,14 +495,20 @@ export default function Base64Page() {
                 <label className="text-sm font-medium">
                   Character Encoding
                 </label>
-                <Select value={charEncoding} onValueChange={setCharEncoding}>
+                <Select
+                  items={charEncodings}
+                  value={charEncoding}
+                  onValueChange={(value) => value && setCharEncoding(value)}
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="utf8">UTF-8</SelectItem>
-                    <SelectItem value="ascii">ASCII</SelectItem>
-                    <SelectItem value="latin1">Latin-1</SelectItem>
+                    {Object.entries(charEncodings).map(([value, label]) => (
+                      <SelectItem key={value} value={value}>
+                        {label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

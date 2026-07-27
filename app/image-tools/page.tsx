@@ -121,6 +121,12 @@ const createIcoBlob = (pngBuffers: ArrayBuffer[]) => {
   return new Blob([icoBytes], { type: 'image/x-icon' });
 };
 
+const outputFormats: Record<OutputFormat, string> = {
+  'image/png': 'PNG',
+  'image/jpeg': 'JPEG',
+  'image/webp': 'WebP',
+};
+
 export default function ImageToolsPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [image, setImage] = useState<UploadedImage | null>(null);
@@ -525,18 +531,21 @@ export default function ImageToolsPage() {
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Output Format</label>
                   <Select
+                    items={outputFormats}
                     value={outputFormat}
                     onValueChange={(value) =>
-                      setOutputFormat(value as OutputFormat)
+                      value && setOutputFormat(value as OutputFormat)
                     }
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select output format" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="image/png">PNG</SelectItem>
-                      <SelectItem value="image/jpeg">JPEG</SelectItem>
-                      <SelectItem value="image/webp">WebP</SelectItem>
+                      {Object.entries(outputFormats).map(([value, label]) => (
+                        <SelectItem key={value} value={value}>
+                          {label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>

@@ -167,6 +167,13 @@ function calculateStrength(password: string, charsetSize: number) {
   return { bits: Math.round(bits), label, color, percent };
 }
 
+const presetLabels: Record<Preset, string> = {
+  strong: 'Strong (default)',
+  easy: 'Easy to read',
+  pin: 'Numeric PIN',
+  custom: 'Custom',
+};
+
 export default function PasswordGeneratorPage() {
   const [options, setOptions] = useState<Options>(PRESETS.strong);
   const [preset, setPreset] = useState<Preset>('strong');
@@ -178,7 +185,8 @@ export default function PasswordGeneratorPage() {
     setPreset('custom');
   };
 
-  const handlePresetChange = (value: string) => {
+  const handlePresetChange = (value: string | null) => {
+    if (!value) return;
     const next = value as Preset;
     setPreset(next);
     if (next !== 'custom') {
@@ -347,15 +355,20 @@ export default function PasswordGeneratorPage() {
             <div className="space-y-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium">Preset</label>
-                <Select value={preset} onValueChange={handlePresetChange}>
+                <Select
+                  items={presetLabels}
+                  value={preset}
+                  onValueChange={handlePresetChange}
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="strong">Strong (default)</SelectItem>
-                    <SelectItem value="easy">Easy to read</SelectItem>
-                    <SelectItem value="pin">Numeric PIN</SelectItem>
-                    <SelectItem value="custom">Custom</SelectItem>
+                    {Object.entries(presetLabels).map(([value, label]) => (
+                      <SelectItem key={value} value={value}>
+                        {label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

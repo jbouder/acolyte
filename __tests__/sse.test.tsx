@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { toast } from 'sonner';
 import SSEPage from '../app/sse/page';
 
@@ -11,6 +12,14 @@ jest.mock('sonner', () => ({
     info: jest.fn(),
   },
 }));
+
+// The method Select is a Base UI listbox, so it needs a real pointer sequence
+// to open and commit a choice.
+async function selectPostMethod() {
+  const user = userEvent.setup();
+  await user.click(screen.getByRole('combobox'));
+  await user.click(await screen.findByRole('option', { name: 'POST' }));
+}
 
 describe('SSE Page', () => {
   beforeEach(() => {
@@ -63,13 +72,7 @@ describe('SSE Page', () => {
     ).not.toBeInTheDocument();
 
     // Change to POST method
-    const methodSelect = screen.getByRole('combobox');
-    fireEvent.click(methodSelect);
-
-    await waitFor(() => {
-      const postOption = screen.getByText('POST');
-      fireEvent.click(postOption);
-    });
+    await selectPostMethod();
 
     // Body should now be visible
     await waitFor(() => {
@@ -101,13 +104,7 @@ describe('SSE Page', () => {
     render(<SSEPage />);
 
     // Change to POST method first
-    const methodSelect = screen.getByRole('combobox');
-    fireEvent.click(methodSelect);
-
-    await waitFor(() => {
-      const postOption = screen.getByText('POST');
-      fireEvent.click(postOption);
-    });
+    await selectPostMethod();
 
     // Wait for body field to appear
     await waitFor(() => {
@@ -180,13 +177,7 @@ describe('SSE Page', () => {
     render(<SSEPage />);
 
     // Change to POST method first
-    const methodSelect = screen.getByRole('combobox');
-    fireEvent.click(methodSelect);
-
-    await waitFor(() => {
-      const postOption = screen.getByText('POST');
-      fireEvent.click(postOption);
-    });
+    await selectPostMethod();
 
     // Wait for body field to appear
     await waitFor(() => {
@@ -230,13 +221,7 @@ describe('SSE Page', () => {
     render(<SSEPage />);
 
     // Change to POST method first so we use fetch instead of EventSource
-    const methodSelect = screen.getByRole('combobox');
-    fireEvent.click(methodSelect);
-
-    await waitFor(() => {
-      const postOption = screen.getByText('POST');
-      fireEvent.click(postOption);
-    });
+    await selectPostMethod();
 
     // Wait for body field to appear and set a valid body
     await waitFor(() => {

@@ -78,7 +78,8 @@
 - **[React 19.1.0](https://react.dev/)** - Modern React with latest features and performance improvements
 - **[TypeScript](https://www.typescriptlang.org/)** - Static type checking for enhanced developer experience
 - **[Tailwind CSS 4](https://tailwindcss.com/)** - Utility-first CSS framework for rapid UI development
-- **[Shadcn/UI](https://ui.shadcn.com/)** - High-quality, accessible component library
+- **[Shadcn/UI](https://ui.shadcn.com/)** (`base-lyra` style) - Component library built on [Base UI](https://base-ui.com/) primitives
+- **[Oxanium](https://fonts.google.com/specimen/Oxanium)** / **[JetBrains Mono](https://fonts.google.com/specimen/JetBrains+Mono)** - UI and code typefaces, loaded via `next/font`
 
 ### Development Tools
 

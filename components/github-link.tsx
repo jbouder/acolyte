@@ -19,16 +19,20 @@ function GitHubIcon({ className }: { className?: string }) {
 
 export function GitHubLink() {
   return (
-    <Button variant="ghost" size="icon" asChild>
-      <a
-        href="https://github.com/jbouder/acolyte"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="View source code on GitHub"
-      >
-        <GitHubIcon className="h-[1.2rem] w-[1.2rem]" />
-        <span className="sr-only">View source on GitHub</span>
-      </a>
+    <Button
+      variant="ghost"
+      size="icon"
+      render={
+        <a
+          href="https://github.com/jbouder/acolyte"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="View source code on GitHub"
+        />
+      }
+    >
+      <GitHubIcon className="h-[1.2rem] w-[1.2rem]" />
+      <span className="sr-only">View source on GitHub</span>
     </Button>
   );
 }

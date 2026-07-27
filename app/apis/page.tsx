@@ -311,11 +311,9 @@ export default function BasicAPIsPage() {
 
           {/* Save Project Dialog */}
           <Dialog open={saveDialogOpen} onOpenChange={setSaveDialogOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
-                <Save className="h-4 w-4 mr-2" />
-                {currentProject ? 'Save As New' : 'Save Project'}
-              </Button>
+            <DialogTrigger render={<Button variant="outline" size="sm" />}>
+              <Save className="h-4 w-4 mr-2" />
+              {currentProject ? 'Save As New' : 'Save Project'}
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
@@ -378,11 +376,9 @@ export default function BasicAPIsPage() {
 
           {/* Load Project Dialog */}
           <Dialog open={loadDialogOpen} onOpenChange={setLoadDialogOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
-                <FolderOpen className="h-4 w-4 mr-2" />
-                Load Project
-              </Button>
+            <DialogTrigger render={<Button variant="outline" size="sm" />}>
+              <FolderOpen className="h-4 w-4 mr-2" />
+              Load Project
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>

@@ -61,6 +61,19 @@ interface AccessibilityReport {
   };
 }
 
+const wcagLevels = {
+  A: 'Level A',
+  AA: 'Level AA (Recommended)',
+  AAA: 'Level AAA',
+};
+
+const severityLevels = {
+  all: 'All Issues',
+  error: 'Errors Only',
+  warning: 'Warnings Only',
+  info: 'Info Only',
+};
+
 export default function AccessibilityCheckerPage() {
   const [url, setUrl] = useState('https://example.com');
   const [wcagLevel, setWcagLevel] = useState('AA');
@@ -202,29 +215,40 @@ export default function AccessibilityCheckerPage() {
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <label className="text-sm font-medium">WCAG Level</label>
-                <Select value={wcagLevel} onValueChange={setWcagLevel}>
+                <Select
+                  items={wcagLevels}
+                  value={wcagLevel}
+                  onValueChange={(value) => value && setWcagLevel(value)}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="A">Level A</SelectItem>
-                    <SelectItem value="AA">Level AA (Recommended)</SelectItem>
-                    <SelectItem value="AAA">Level AAA</SelectItem>
+                    {Object.entries(wcagLevels).map(([value, label]) => (
+                      <SelectItem key={value} value={value}>
+                        {label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">Severity Filter</label>
-                <Select value={severityLevel} onValueChange={setSeverityLevel}>
+                <Select
+                  items={severityLevels}
+                  value={severityLevel}
+                  onValueChange={(value) => value && setSeverityLevel(value)}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Issues</SelectItem>
-                    <SelectItem value="error">Errors Only</SelectItem>
-                    <SelectItem value="warning">Warnings Only</SelectItem>
-                    <SelectItem value="info">Info Only</SelectItem>
+                    {Object.entries(severityLevels).map(([value, label]) => (
+                      <SelectItem key={value} value={value}>
+                        {label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
