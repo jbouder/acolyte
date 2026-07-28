@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { ViewTransitionController } from '@/components/view-transition-controller';
 import './globals.css';
 
 const oxanium = Oxanium({
@@ -82,6 +83,7 @@ export default function RootLayout({
             </SidebarProvider>
             <Toaster />
             <FloatingAssistant />
+            <ViewTransitionController />
           </TooltipProvider>
         </ThemeProvider>
       </body>

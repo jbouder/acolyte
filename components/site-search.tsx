@@ -1,7 +1,6 @@
 'use client';
 
 import { Search } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import {
   CommandDialog,
@@ -11,6 +10,7 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command';
+import { useTransitionRouter } from '@/hooks/use-transition-router';
 import { searchableTools, type ToolCategory } from '@/lib/tools-data';
 
 const groupedTools = searchableTools.reduce(
@@ -33,7 +33,7 @@ const categoryOrder: ToolCategory[] = [
 
 export function SiteSearch() {
   const [open, setOpen] = useState(false);
-  const router = useRouter();
+  const router = useTransitionRouter();
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {

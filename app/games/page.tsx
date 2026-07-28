@@ -1,9 +1,8 @@
 'use client';
 
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+import { TransitionLink } from '@/components/transition-link';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -20,6 +19,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { useTransitionRouter } from '@/hooks/use-transition-router';
 
 // This is not the password you're looking for...
 const CORRECT_PASSWORDS = ['plagueis', 'darth plagueis'];
@@ -47,7 +47,7 @@ const games = [
 ];
 
 export default function GamesPage() {
-  const router = useRouter();
+  const router = useTransitionRouter();
   const [isPasswordVerified, setIsPasswordVerified] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [password, setPassword] = useState('');
@@ -140,12 +140,12 @@ export default function GamesPage() {
               <CardDescription>{game.description}</CardDescription>
             </CardHeader>
             <CardContent className="mt-auto">
-              <Link
+              <TransitionLink
                 href={game.url}
                 className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
               >
                 Play Game
-              </Link>
+              </TransitionLink>
             </CardContent>
           </Card>
         ))}

@@ -5,6 +5,8 @@ import { SidebarProvider } from '@/components/ui/sidebar';
 
 jest.mock('next/navigation', () => ({
   usePathname: () => '/chat',
+  // TransitionLink calls useRouter, which needs a mounted app router.
+  useRouter: () => ({ push: jest.fn() }),
 }));
 
 jest.mock('@/hooks/use-mobile', () => ({
