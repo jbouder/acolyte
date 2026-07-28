@@ -360,15 +360,15 @@ export default function DependencyAnalysisPage() {
   const getSeverityColor = (severity: string) => {
     switch (severity.toLowerCase()) {
       case 'critical':
-        return 'bg-red-100 text-red-800';
+        return 'bg-tone-red-soft text-tone-red';
       case 'high':
-        return 'bg-orange-100 text-orange-800';
+        return 'bg-tone-amber-soft text-tone-amber';
       case 'moderate':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-tone-amber-soft text-tone-amber';
       case 'low':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-tone-blue-soft text-tone-blue';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-muted text-foreground';
     }
   };
 
@@ -495,7 +495,7 @@ export default function DependencyAnalysisPage() {
                       {analysis.outdated.map((pkg) => (
                         <div
                           key={pkg}
-                          className="flex items-center justify-between p-2 bg-orange-50 rounded-md"
+                          className="flex items-center justify-between p-2 bg-tone-amber-soft rounded-md"
                         >
                           <span className="font-medium">{pkg}</span>
                           <Badge variant="outline">Update Available</Badge>
@@ -549,7 +549,7 @@ export default function DependencyAnalysisPage() {
                                     href={vuln.references[0]}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="text-xs text-blue-600 hover:underline"
+                                    className="text-xs text-tone-blue hover:underline"
                                   >
                                     View Details
                                   </a>
@@ -706,10 +706,10 @@ function DependencyTreeNode({ node }: { node: DependencyNode }) {
   });
 
   const getNodeTypeColor = (node: DependencyNode) => {
-    if (node.isCircular) return 'text-red-600';
-    if (node.isDev) return 'text-blue-600';
-    if (node.isPeer) return 'text-purple-600';
-    return 'text-gray-800';
+    if (node.isCircular) return 'text-tone-red';
+    if (node.isDev) return 'text-tone-blue';
+    if (node.isPeer) return 'text-tone-violet';
+    return 'text-foreground';
   };
 
   const getNodeTypeLabel = (node: DependencyNode) => {
@@ -725,7 +725,7 @@ function DependencyTreeNode({ node }: { node: DependencyNode }) {
         {node.dependencies.length > 0 && (
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="w-4 h-4 flex items-center justify-center text-xs border rounded hover:bg-gray-100"
+            className="w-4 h-4 flex items-center justify-center text-xs border hover:bg-muted"
           >
             {isExpanded ? '−' : '+'}
           </button>
@@ -759,7 +759,7 @@ function DependencyTreeNode({ node }: { node: DependencyNode }) {
       </div>
 
       {isExpanded && node.dependencies.length > 0 && (
-        <div className="ml-4 border-l-2 border-gray-200 pl-2">
+        <div className="ml-4 border-l-2 border-border pl-2">
           {node.dependencies.map((child, index) => (
             <DependencyTreeNode key={`${child.name}-${index}`} node={child} />
           ))}

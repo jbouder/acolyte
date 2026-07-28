@@ -130,10 +130,10 @@ export default function ColorPickerPage() {
   const getContrastRating = (
     ratio: number,
   ): { rating: string; color: string } => {
-    if (ratio >= 7) return { rating: 'AAA', color: 'text-green-600' };
-    if (ratio >= 4.5) return { rating: 'AA', color: 'text-yellow-600' };
-    if (ratio >= 3) return { rating: 'AA Large', color: 'text-orange-600' };
-    return { rating: 'Fail', color: 'text-red-600' };
+    if (ratio >= 7) return { rating: 'AAA', color: 'text-tone-green' };
+    if (ratio >= 4.5) return { rating: 'AA', color: 'text-tone-cyan' };
+    if (ratio >= 3) return { rating: 'AA Large', color: 'text-tone-amber' };
+    return { rating: 'Fail', color: 'text-tone-red' };
   };
 
   // Update contrast color

@@ -405,7 +405,7 @@ export default function BasicAPIsPage() {
                           <h4 className="font-medium flex items-center gap-2">
                             {project.name}
                             {currentProject?.id === project.id && (
-                              <span className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded">
+                              <span className="text-xs bg-primary text-primary-foreground px-2 py-1">
                                 Current
                               </span>
                             )}

@@ -145,23 +145,23 @@ export function generatePassword(options: Options): string {
 
 function calculateStrength(password: string, charsetSize: number) {
   if (!password || charsetSize <= 1) {
-    return { bits: 0, label: 'None', color: 'bg-gray-400', percent: 0 };
+    return { bits: 0, label: 'None', color: 'bg-muted-foreground', percent: 0 };
   }
   const bits = password.length * Math.log2(charsetSize);
   let label = 'Weak';
-  let color = 'bg-red-500';
+  let color = 'bg-tone-red';
   if (bits >= 128) {
     label = 'Very Strong';
-    color = 'bg-emerald-500';
+    color = 'bg-tone-green';
   } else if (bits >= 80) {
     label = 'Strong';
-    color = 'bg-green-500';
+    color = 'bg-tone-green';
   } else if (bits >= 60) {
     label = 'Good';
-    color = 'bg-yellow-500';
+    color = 'bg-tone-amber';
   } else if (bits >= 40) {
     label = 'Fair';
-    color = 'bg-orange-500';
+    color = 'bg-tone-amber';
   }
   const percent = Math.min(100, (bits / 128) * 100);
   return { bits: Math.round(bits), label, color, percent };
@@ -248,8 +248,8 @@ export default function PasswordGeneratorPage() {
       </div>
 
       {error && (
-        <div className="rounded-md bg-red-50 p-4 border border-red-200">
-          <p className="text-sm text-red-600">{error}</p>
+        <div className="rounded-md bg-tone-red-soft p-4 border border-tone-red">
+          <p className="text-sm text-tone-red">{error}</p>
         </div>
       )}
 
@@ -301,7 +301,7 @@ export default function PasswordGeneratorPage() {
                     ~{strength.bits} bits of entropy
                   </span>
                 </div>
-                <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+                <div className="h-2 w-full bg-muted overflow-hidden">
                   <div
                     className={`h-full transition-all ${strength.color}`}
                     style={{ width: `${strength.percent}%` }}

@@ -429,7 +429,7 @@ export default function GenAIChatPage() {
                   type="checkbox"
                   checked={saveCredential}
                   onChange={(event) => setSaveCredential(event.target.checked)}
-                  className="mt-1 rounded"
+                  className="mt-1"
                 />
                 <label
                   htmlFor="genai-remember-api-key"
@@ -506,7 +506,7 @@ export default function GenAIChatPage() {
                     }`}
                   >
                     {message.role === 'assistant' && (
-                      <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                      <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center bg-primary text-primary-foreground">
                         <Bot className="h-4 w-4" />
                       </div>
                     )}
@@ -520,7 +520,7 @@ export default function GenAIChatPage() {
                       {message.content}
                     </div>
                     {message.role === 'user' && (
-                      <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary text-secondary-foreground">
+                      <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center bg-secondary text-secondary-foreground">
                         <User className="h-4 w-4" />
                       </div>
                     )}

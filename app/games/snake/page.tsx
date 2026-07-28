@@ -254,10 +254,10 @@ export default function SnakePage() {
                 <span
                   className={`font-medium ${
                     gameState.gameOver
-                      ? 'text-red-500'
+                      ? 'text-tone-red'
                       : gameState.isPlaying
-                        ? 'text-green-500'
-                        : 'text-yellow-500'
+                        ? 'text-tone-green'
+                        : 'text-tone-amber'
                   }`}
                 >
                   {gameState.gameOver

@@ -337,15 +337,15 @@ export default function SwaggerViewerPage() {
 
   const getMethodColor = (method: string) => {
     const colors: Record<string, string> = {
-      GET: 'bg-blue-500',
-      POST: 'bg-green-500',
-      PUT: 'bg-yellow-500',
-      DELETE: 'bg-red-500',
-      PATCH: 'bg-purple-500',
-      OPTIONS: 'bg-gray-500',
-      HEAD: 'bg-cyan-500',
+      GET: 'bg-tone-blue',
+      POST: 'bg-tone-green',
+      PUT: 'bg-tone-amber',
+      DELETE: 'bg-tone-red',
+      PATCH: 'bg-tone-violet',
+      OPTIONS: 'bg-muted-foreground',
+      HEAD: 'bg-tone-cyan',
     };
-    return colors[method] || 'bg-gray-500';
+    return colors[method] || 'bg-muted-foreground';
   };
 
   const groupEndpointsByTag = (endpoints: OpenAPIEndpoint[]) => {
@@ -459,7 +459,7 @@ export default function SwaggerViewerPage() {
                           <TableRow key={`${endpoint.method}-${endpoint.path}`}>
                             <TableCell>
                               <Badge
-                                className={`${getMethodColor(endpoint.method)} text-white font-mono`}
+                                className={`${getMethodColor(endpoint.method)} text-background font-mono`}
                               >
                                 {endpoint.method}
                               </Badge>

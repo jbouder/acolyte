@@ -357,12 +357,12 @@ export default function BreakoutPage() {
                 <span
                   className={`font-medium ${
                     gameState.gameWon
-                      ? 'text-green-500'
+                      ? 'text-tone-green'
                       : gameState.gameOver
-                        ? 'text-red-500'
+                        ? 'text-tone-red'
                         : gameState.isPlaying
-                          ? 'text-blue-500'
-                          : 'text-yellow-500'
+                          ? 'text-tone-blue'
+                          : 'text-tone-amber'
                   }`}
                 >
                   {gameState.gameWon

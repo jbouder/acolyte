@@ -161,26 +161,26 @@ export default function AccessibilityCheckerPage() {
   const getIssueIcon = (type: string) => {
     switch (type) {
       case 'error':
-        return <AlertCircle className="h-5 w-5 text-red-500" />;
+        return <AlertCircle className="h-5 w-5 text-tone-red" />;
       case 'warning':
-        return <AlertTriangle className="h-5 w-5 text-yellow-500" />;
+        return <AlertTriangle className="h-5 w-5 text-tone-amber" />;
       case 'info':
-        return <Info className="h-5 w-5 text-blue-500" />;
+        return <Info className="h-5 w-5 text-tone-blue" />;
       default:
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
+        return <CheckCircle className="h-5 w-5 text-tone-green" />;
     }
   };
 
   const getIssueColor = (type: string) => {
     switch (type) {
       case 'error':
-        return 'border-red-200 bg-red-50';
+        return 'border-tone-red bg-tone-red-soft';
       case 'warning':
-        return 'border-yellow-200 bg-yellow-50';
+        return 'border-tone-amber bg-tone-amber-soft';
       case 'info':
-        return 'border-blue-200 bg-blue-50';
+        return 'border-tone-blue bg-tone-blue-soft';
       default:
-        return 'border-green-200 bg-green-50';
+        return 'border-tone-green bg-tone-green-soft';
     }
   };
 
@@ -286,12 +286,12 @@ export default function AccessibilityCheckerPage() {
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-2xl font-bold text-red-600">
+                    <div className="text-2xl font-bold text-tone-red">
                       {report.summary.errors}
                     </div>
                     <p className="text-xs text-muted-foreground">Errors</p>
                   </div>
-                  <AlertCircle className="h-8 w-8 text-red-500" />
+                  <AlertCircle className="h-8 w-8 text-tone-red" />
                 </div>
               </CardContent>
             </Card>
@@ -299,12 +299,12 @@ export default function AccessibilityCheckerPage() {
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-2xl font-bold text-yellow-600">
+                    <div className="text-2xl font-bold text-tone-amber">
                       {report.summary.warnings}
                     </div>
                     <p className="text-xs text-muted-foreground">Warnings</p>
                   </div>
-                  <AlertTriangle className="h-8 w-8 text-yellow-500" />
+                  <AlertTriangle className="h-8 w-8 text-tone-amber" />
                 </div>
               </CardContent>
             </Card>
@@ -312,12 +312,12 @@ export default function AccessibilityCheckerPage() {
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-2xl font-bold text-blue-600">
+                    <div className="text-2xl font-bold text-tone-blue">
                       {report.summary.info}
                     </div>
                     <p className="text-xs text-muted-foreground">Info Items</p>
                   </div>
-                  <Info className="h-8 w-8 text-blue-500" />
+                  <Info className="h-8 w-8 text-tone-blue" />
                 </div>
               </CardContent>
             </Card>
@@ -405,12 +405,12 @@ export default function AccessibilityCheckerPage() {
                                 variant="outline"
                                 className={`text-xs ${
                                   issue.impact === 'critical'
-                                    ? 'border-red-500 text-red-500'
+                                    ? 'border-tone-red text-tone-red'
                                     : issue.impact === 'serious'
-                                      ? 'border-orange-500 text-orange-500'
+                                      ? 'border-tone-amber text-tone-amber'
                                       : issue.impact === 'moderate'
-                                        ? 'border-yellow-500 text-yellow-500'
-                                        : 'border-blue-500 text-blue-500'
+                                        ? 'border-tone-amber text-tone-amber'
+                                        : 'border-tone-blue text-tone-blue'
                                 }`}
                               >
                                 {issue.impact}
@@ -440,7 +440,7 @@ export default function AccessibilityCheckerPage() {
             <Card>
               <CardContent className="pt-6">
                 <div className="flex flex-col items-center justify-center py-8 text-center">
-                  <CheckCircle className="h-16 w-16 text-green-500 mb-4" />
+                  <CheckCircle className="h-16 w-16 text-tone-green mb-4" />
                   <h3 className="text-lg font-semibold mb-2">
                     No Issues Match Filter
                   </h3>
@@ -456,7 +456,7 @@ export default function AccessibilityCheckerPage() {
             <Card>
               <CardContent className="pt-6">
                 <div className="flex flex-col items-center justify-center py-8 text-center">
-                  <CheckCircle className="h-16 w-16 text-green-500 mb-4" />
+                  <CheckCircle className="h-16 w-16 text-tone-green mb-4" />
                   <h3 className="text-lg font-semibold mb-2">
                     No Critical Issues Found!
                   </h3>

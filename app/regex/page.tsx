@@ -161,7 +161,7 @@ export default function RegexPage() {
     let offset = 0;
 
     matches.forEach((match, index) => {
-      const startTag = `<mark class="bg-yellow-200 dark:bg-yellow-800" data-match="${index}">`;
+      const startTag = `<mark class="bg-tone-amber-soft" data-match="${index}">`;
       const endTag = '</mark>';
       const insertPos = match.index + offset;
 
@@ -219,7 +219,7 @@ export default function RegexPage() {
               )}
               {isValid && pattern && (
                 <div className="flex items-center gap-2 mt-2">
-                  <Badge variant="default" className="bg-green-500">
+                  <Badge variant="default" className="bg-tone-green">
                     Valid Regex
                   </Badge>
                   <Button
@@ -301,8 +301,8 @@ export default function RegexPage() {
                   variant={isFullMatch ? 'default' : 'secondary'}
                   className={
                     isFullMatch
-                      ? 'bg-green-500 hover:bg-green-600'
-                      : 'bg-red-500 hover:bg-red-600 text-white'
+                      ? 'bg-tone-green text-background'
+                      : 'bg-tone-red text-background'
                   }
                 >
                   {isFullMatch ? '✓ Valid' : '✗ Invalid'}
@@ -369,7 +369,7 @@ export default function RegexPage() {
                       </Button>
                     </div>
                   </div>
-                  <div className="font-mono text-sm bg-background p-2 rounded border">
+                  <div className="font-mono text-sm bg-background p-2 border">
                     &ldquo;{match.match}&rdquo;
                   </div>
                   {match.groups.length > 0 && (
@@ -406,7 +406,7 @@ export default function RegexPage() {
           </CardHeader>
           <CardContent>
             <div
-              className="p-3 bg-muted/50 rounded border font-mono text-sm whitespace-pre-wrap"
+              className="p-3 bg-muted/50 border font-mono text-sm whitespace-pre-wrap"
               dangerouslySetInnerHTML={{
                 __html: highlightMatches(testString, matches),
               }}

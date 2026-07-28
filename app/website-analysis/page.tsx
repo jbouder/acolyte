@@ -125,17 +125,17 @@ export default function WebStatsPage() {
   };
 
   const getStatusColor = (statusCode: number) => {
-    if (statusCode >= 200 && statusCode < 300) return 'bg-green-500';
-    if (statusCode >= 300 && statusCode < 400) return 'bg-yellow-500';
-    if (statusCode >= 400 && statusCode < 500) return 'bg-orange-500';
-    return 'bg-red-500';
+    if (statusCode >= 200 && statusCode < 300) return 'bg-tone-green';
+    if (statusCode >= 300 && statusCode < 400) return 'bg-tone-cyan';
+    if (statusCode >= 400 && statusCode < 500) return 'bg-tone-amber';
+    return 'bg-tone-red';
   };
 
   const getPerformanceColor = (responseTime: number) => {
-    if (responseTime < 500) return 'text-green-600';
-    if (responseTime < 1000) return 'text-yellow-600';
-    if (responseTime < 2000) return 'text-orange-600';
-    return 'text-red-600';
+    if (responseTime < 500) return 'text-tone-green';
+    if (responseTime < 1000) return 'text-tone-cyan';
+    if (responseTime < 2000) return 'text-tone-amber';
+    return 'text-tone-red';
   };
 
   return (
@@ -185,9 +185,7 @@ export default function WebStatsPage() {
               <CardContent>
                 <div className="flex items-center gap-2">
                   <div
-                    className={`h-2 w-2 rounded-full ${getStatusColor(
-                      stats.statusCode,
-                    )}`}
+                    className={`h-2 w-2 ${getStatusColor(stats.statusCode)}`}
                   ></div>
                   <span className="font-mono text-lg">{stats.statusCode}</span>
                   <span className="text-sm text-muted-foreground">
@@ -253,7 +251,7 @@ export default function WebStatsPage() {
                 <div>
                   <label className="text-sm font-medium">Title</label>
                   <div className="flex items-center gap-2">
-                    <p className="text-sm bg-muted p-2 rounded flex-1 break-words">
+                    <p className="text-sm bg-muted p-2 flex-1 break-words">
                       {stats.content.title}
                     </p>
                     <Button
@@ -271,7 +269,7 @@ export default function WebStatsPage() {
                 <div>
                   <label className="text-sm font-medium">Description</label>
                   <div className="flex items-start gap-2">
-                    <p className="text-sm bg-muted p-2 rounded flex-1 break-words">
+                    <p className="text-sm bg-muted p-2 flex-1 break-words">
                       {stats.content.description}
                     </p>
                     <Button
@@ -359,7 +357,7 @@ export default function WebStatsPage() {
                       <Badge
                         key={framework}
                         variant={detected ? 'default' : 'secondary'}
-                        className={detected ? 'bg-green-500' : ''}
+                        className={detected ? 'bg-tone-green' : ''}
                       >
                         {framework.charAt(0).toUpperCase() + framework.slice(1)}
                       </Badge>
@@ -384,7 +382,7 @@ export default function WebStatsPage() {
                       <Badge
                         key={service}
                         variant={detected ? 'default' : 'secondary'}
-                        className={detected ? 'bg-blue-500' : ''}
+                        className={detected ? 'bg-tone-blue' : ''}
                       >
                         {service === 'googleAnalytics'
                           ? 'Google Analytics'
@@ -423,10 +421,10 @@ export default function WebStatsPage() {
                   {stats.metaTags.map((tag, index) => (
                     <div
                       key={index}
-                      className="border border-border rounded p-2 bg-muted/50"
+                      className="border border-border p-2 bg-muted/50"
                     >
                       <div className="flex items-start gap-2">
-                        <span className="text-xs font-mono text-blue-600 min-w-0 break-all">
+                        <span className="text-xs font-mono text-tone-blue min-w-0 break-all">
                           {tag.name}:
                         </span>
                         <span className="text-xs break-words flex-1">
@@ -452,10 +450,10 @@ export default function WebStatsPage() {
                 {Object.entries(stats.headers).map(([header, value]) => (
                   <div
                     key={header}
-                    className="border border-border rounded p-2 bg-muted/50"
+                    className="border border-border p-2 bg-muted/50"
                   >
                     <div className="flex items-start gap-2">
-                      <span className="text-xs font-mono text-blue-600 min-w-0">
+                      <span className="text-xs font-mono text-tone-blue min-w-0">
                         {header}:
                       </span>
                       <span className="text-xs break-all flex-1">{value}</span>

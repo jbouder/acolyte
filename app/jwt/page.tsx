@@ -119,25 +119,26 @@ export default function JWTPage() {
   };
 
   const getTokenStatus = () => {
-    if (!decodedJWT) return { status: 'Not decoded', color: 'bg-gray-500' };
+    if (!decodedJWT)
+      return { status: 'Not decoded', color: 'bg-muted-foreground' };
 
     if (isTokenExpired(decodedJWT.payload.exp)) {
-      return { status: 'Expired', color: 'bg-red-500' };
+      return { status: 'Expired', color: 'bg-tone-red' };
     }
 
-    return { status: 'Valid', color: 'bg-green-500' };
+    return { status: 'Valid', color: 'bg-tone-green' };
   };
 
   const getVerificationStatusIcon = () => {
     switch (verificationResult) {
       case 'valid':
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
+        return <CheckCircle className="h-4 w-4 text-tone-green" />;
       case 'invalid':
-        return <XCircle className="h-4 w-4 text-red-500" />;
+        return <XCircle className="h-4 w-4 text-tone-red" />;
       case 'pending':
-        return <AlertCircle className="h-4 w-4 text-yellow-500" />;
+        return <AlertCircle className="h-4 w-4 text-tone-amber" />;
       default:
-        return <div className="h-2 w-2 rounded-full bg-gray-500" />;
+        return <div className="h-2 w-2 bg-muted-foreground" />;
     }
   };
 
@@ -182,7 +183,7 @@ export default function JWTPage() {
                 />
               </div>
               {error && (
-                <div className="p-3 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm">
+                <div className="p-3 rounded-md bg-tone-red-soft border border-tone-red text-tone-red text-sm">
                   {error}
                 </div>
               )}
@@ -406,9 +407,7 @@ export default function JWTPage() {
               </div>
               <div className="pt-2 border-t">
                 <div className="flex items-center gap-2">
-                  <div
-                    className={`h-2 w-2 rounded-full ${tokenStatus.color}`}
-                  />
+                  <div className={`h-2 w-2 ${tokenStatus.color}`} />
                   <span className="text-sm">
                     Token Status: {tokenStatus.status}
                   </span>

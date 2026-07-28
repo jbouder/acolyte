@@ -122,7 +122,7 @@ export default function WebStatsPage() {
         <h1 className="text-3xl font-bold">Web Stats</h1>
       </div>
       <div className="grid auto-rows-min gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <div className="aspect-video rounded-xl bg-muted/50 p-4 flex flex-col justify-between">
+        <div className="aspect-video border bg-card p-4 flex flex-col justify-between">
           <div>
             <h3 className="font-semibold mb-2">Browser Stats</h3>
             <div className="space-y-1 text-sm text-muted-foreground">
@@ -160,7 +160,7 @@ export default function WebStatsPage() {
           </div>
         </div>
 
-        <div className="aspect-video rounded-xl bg-muted/50 p-4 flex flex-col justify-between">
+        <div className="aspect-video border bg-card p-4 flex flex-col justify-between">
           <div>
             <h3 className="font-semibold mb-2">Device & Hardware</h3>
             <div className="space-y-1 text-sm text-muted-foreground">
@@ -206,7 +206,7 @@ export default function WebStatsPage() {
           </div>
         </div>
 
-        <div className="aspect-video rounded-xl bg-muted/50 p-4 flex flex-col justify-between">
+        <div className="aspect-video border bg-card p-4 flex flex-col justify-between">
           <div>
             <h3 className="font-semibold mb-2">Performance</h3>
             <div className="space-y-1 text-sm text-muted-foreground">
@@ -244,7 +244,7 @@ export default function WebStatsPage() {
           </div>
         </div>
 
-        <div className="aspect-video rounded-xl bg-muted/50 p-4 flex flex-col justify-between">
+        <div className="aspect-video border bg-card p-4 flex flex-col justify-between">
           <div>
             <h3 className="font-semibold mb-2">Location & Time</h3>
             <div className="space-y-1 text-sm text-muted-foreground">
@@ -262,7 +262,7 @@ export default function WebStatsPage() {
           </div>
         </div>
 
-        <div className="aspect-video rounded-xl bg-muted/50 p-4 flex flex-col justify-between">
+        <div className="aspect-video border bg-card p-4 flex flex-col justify-between">
           <div>
             <h3 className="font-semibold mb-2">Storage & Quota</h3>
             <div className="space-y-1 text-sm text-muted-foreground">
@@ -302,7 +302,7 @@ export default function WebStatsPage() {
           </div>
         </div>
 
-        <div className="aspect-video rounded-xl bg-muted/50 p-4 flex flex-col justify-between">
+        <div className="aspect-video border bg-card p-4 flex flex-col justify-between">
           <div>
             <h3 className="font-semibold mb-2">Network & IP Info</h3>
             <div className="space-y-1 text-sm text-muted-foreground">
@@ -344,7 +344,7 @@ export default function WebStatsPage() {
           </div>
         </div>
 
-        <div className="aspect-video rounded-xl bg-muted/50 p-4 flex flex-col justify-between">
+        <div className="aspect-video border bg-card p-4 flex flex-col justify-between">
           <div>
             <h3 className="font-semibold mb-2">Browser Features</h3>
             <div className="space-y-1 text-sm text-muted-foreground">
@@ -393,7 +393,7 @@ export default function WebStatsPage() {
           </div>
         </div>
 
-        <div className="aspect-video rounded-xl bg-muted/50 p-4 flex flex-col justify-between">
+        <div className="aspect-video border bg-card p-4 flex flex-col justify-between">
           <div>
             <h3 className="font-semibold mb-2">Security Context</h3>
             <div className="space-y-1 text-sm text-muted-foreground">
@@ -438,7 +438,7 @@ export default function WebStatsPage() {
           </div>
         </div>
 
-        <div className="aspect-video rounded-xl bg-muted/50 p-4 flex flex-col justify-between">
+        <div className="aspect-video border bg-card p-4 flex flex-col justify-between">
           <div>
             <h3 className="font-semibold mb-2">Media & Input</h3>
             <div className="space-y-1 text-sm text-muted-foreground">

@@ -147,7 +147,7 @@ export default function JsonFormatterPage() {
                   id="sortKeys"
                   checked={sortKeys}
                   onChange={(e) => setSortKeys(e.target.checked)}
-                  className="rounded"
+                  className=""
                 />
                 <label htmlFor="sortKeys" className="text-sm font-medium">
                   Sort keys

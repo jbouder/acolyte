@@ -15,14 +15,16 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { allTools } from '@/lib/tools-data';
+import { allTools, categoryTones } from '@/lib/tools-data';
 
 export function AppSidebar() {
   const pathname = usePathname();
 
   return (
     <Sidebar>
-      <SidebarHeader className="border-b border-sidebar-border h-17">
+      {/* No bottom rule: the sidebar reads as one uninterrupted column, and the
+          main header's border already carries that line across the content. */}
+      <SidebarHeader className="h-17">
         <TransitionLink
           href="/"
           className="flex items-center gap-2 px-4 py-2 hover:bg-sidebar-accent rounded-md transition-colors"
@@ -43,20 +45,35 @@ export function AppSidebar() {
         </TransitionLink>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
+        {/* pt-0 drops the group's 8px top padding so the first row's highlight
+            starts flush with the main header's bottom border. */}
+        <SidebarGroup className="pt-0">
           <SidebarGroupContent>
             <SidebarMenu>
-              {allTools.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    render={<TransitionLink href={item.url} />}
-                    isActive={pathname === item.url}
-                  >
-                    <item.icon />
-                    <span>{item.title}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {allTools.map((item) => {
+                const tone = categoryTones[item.category];
+                const isActive = pathname === item.url;
+
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                      render={<TransitionLink href={item.url} />}
+                      isActive={isActive}
+                      // The active row gets a 2px rule in its own category
+                      // colour, so the sidebar reads as colour-coded groups
+                      // without needing separate group headings.
+                      className={`border-l-2 ${
+                        isActive ? tone.edge : 'border-l-transparent'
+                      }`}
+                    >
+                      <item.icon />
+                      <span className="text-sidebar-foreground">
+                        {item.title}
+                      </span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

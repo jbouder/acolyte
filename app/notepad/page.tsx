@@ -239,10 +239,10 @@ export default function NotepadPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Disclaimer */}
-            <div className="rounded-md border border-yellow-200 bg-yellow-50 p-3 text-sm">
+            <div className="rounded-md border border-tone-amber bg-tone-amber-soft p-3 text-sm">
               <div className="flex items-start gap-2">
-                <div className="text-yellow-600">⚠️</div>
-                <div className="text-yellow-800">
+                <div className="text-tone-amber">⚠️</div>
+                <div className="text-tone-amber">
                   <strong>Important:</strong> Your notes are stored in your
                   browser&apos;s IndexedDB and may be lost when clearing browser
                   data. Use the export button regularly to backup your important

@@ -366,8 +366,8 @@ export default function ImageToolsPage() {
       </div>
 
       {error && (
-        <div className="rounded-md border border-red-200 bg-red-50 p-4">
-          <p className="text-sm text-red-600">{error}</p>
+        <div className="rounded-md border border-tone-red bg-tone-red-soft p-4">
+          <p className="text-sm text-tone-red">{error}</p>
         </div>
       )}
 
@@ -381,7 +381,7 @@ export default function ImageToolsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="rounded-lg border-2 border-dashed border-gray-300 p-6 text-center">
+              <div className="rounded-lg border-2 border-dashed border-border p-6 text-center">
                 <div className="space-y-2">
                   <p className="text-sm text-muted-foreground">
                     Choose an image to crop, resize, convert, or turn into

@@ -24,6 +24,9 @@ import { assistantTools } from '@/lib/assistant-tools';
 const DESKTOP_MODEL_ID = 'Qwen3-1.7B-q4f16_1-MLC';
 const MOBILE_MODEL_ID = 'Qwen3-0.6B-q4f16_1-MLC';
 
+/** Matches the `acolyte-holo-out` animation duration in `app/globals.css`. */
+const CLOSE_ANIMATION_MS = 220;
+
 // Turn a raw WebLLM model id (e.g. "Qwen3-1.7B-q4f16_1-MLC") into a short,
 // human-readable label ("Qwen3 1.7B") for display in the assistant header.
 function formatModelName(id: string): string {
@@ -162,6 +165,8 @@ export function FloatingAssistant() {
     Promise<import('@mlc-ai/web-llm').MLCEngineInterface> | undefined
   >(undefined);
   const [isOpen, setIsOpen] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [loadStatus, setLoadStatus] = useState('');
   const [loadError, setLoadError] = useState('');
@@ -218,6 +223,29 @@ export function FloatingAssistant() {
       );
     });
   }, [isOpen]);
+
+  useEffect(
+    () => () => {
+      if (closeTimer.current) clearTimeout(closeTimer.current);
+    },
+    [],
+  );
+
+  /*
+   * Closing keeps the panel mounted long enough for the collapse animation to
+   * play. A timer drives the unmount rather than `animationend`, so the panel
+   * still closes where the animation never runs (reduced motion, jsdom).
+   * Must stay in step with the `acolyte-holo-out` duration in globals.css.
+   */
+  const closePanel = () => {
+    if (closeTimer.current) return;
+    setIsClosing(true);
+    closeTimer.current = setTimeout(() => {
+      setIsOpen(false);
+      setIsClosing(false);
+      closeTimer.current = null;
+    }, CLOSE_ANIMATION_MS);
+  };
 
   const sendMessage = async () => {
     const input = prompt.trim();
@@ -309,11 +337,14 @@ export function FloatingAssistant() {
   };
 
   return (
-    <div className="fixed right-4 bottom-4 z-50">
+    // `items-end` keeps the launcher pinned to the right edge when the wider
+    // panel opens, which is also where the panel's projection originates.
+    <div className="fixed right-4 bottom-4 z-50 flex flex-col items-end">
       {isOpen && (
         <section
           aria-label="Acolyte assistant"
-          className="mb-3 flex h-[min(32rem,calc(100vh-8rem))] w-[min(24rem,calc(100vw-2rem))] flex-col rounded-lg border bg-background shadow-xl"
+          className="assistant-holo mb-3 flex h-[min(32rem,calc(100vh-8rem))] w-[min(24rem,calc(100vw-2rem))] flex-col border bg-background shadow-xl"
+          data-closing={isClosing ? 'true' : undefined}
         >
           <header className="flex items-center justify-between border-b p-3">
             <div>
@@ -334,7 +365,7 @@ export function FloatingAssistant() {
               </Button>
               <Button
                 aria-label="Close assistant"
-                onClick={() => setIsOpen(false)}
+                onClick={closePanel}
                 size="icon"
                 variant="ghost"
               >
@@ -402,8 +433,8 @@ export function FloatingAssistant() {
       <Button
         aria-expanded={isOpen}
         aria-label="Open Acolyte assistant"
-        className="size-14 rounded-full shadow-lg [&_svg:not([class*='size-'])]:size-6"
-        onClick={() => setIsOpen((open) => !open)}
+        className="assistant-launcher size-14 rounded-full shadow-lg [&_svg:not([class*='size-'])]:size-6"
+        onClick={() => (isOpen ? closePanel() : setIsOpen(true))}
         size="icon"
       >
         <Bot />

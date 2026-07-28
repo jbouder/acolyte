@@ -275,8 +275,8 @@ export default function Base64Page() {
       </div>
 
       {error && (
-        <div className="rounded-md bg-red-50 p-4 border border-red-200">
-          <p className="text-sm text-red-600">{error}</p>
+        <div className="rounded-md bg-tone-red-soft p-4 border border-tone-red">
+          <p className="text-sm text-tone-red">{error}</p>
         </div>
       )}
 
@@ -304,8 +304,8 @@ export default function Base64Page() {
                 <div
                   className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors ${
                     isDragging
-                      ? 'border-blue-400 bg-blue-50'
-                      : 'border-gray-300 hover:border-gray-400'
+                      ? 'border-tone-blue bg-tone-blue-soft'
+                      : 'border-border hover:border-foreground'
                   }`}
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}

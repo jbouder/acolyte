@@ -198,14 +198,14 @@ export const ApiRequestForm = ({
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <div
-                  className={`h-2 w-2 rounded-full ${
+                  className={`h-2 w-2 ${
                     status.loading
-                      ? 'bg-yellow-500'
+                      ? 'bg-tone-amber'
                       : status.error
-                        ? 'bg-red-500'
+                        ? 'bg-tone-red'
                         : status.response
-                          ? 'bg-green-500'
-                          : 'bg-gray-500'
+                          ? 'bg-tone-green'
+                          : 'bg-muted-foreground'
                   }`}
                 ></div>
                 <span className="text-sm">
@@ -228,7 +228,7 @@ export const ApiRequestForm = ({
                 </p>
                 <p>Content Length: {status.response?.contentLength || '-'}</p>
                 {status.error && (
-                  <p className="text-red-500">Error: {status.error}</p>
+                  <p className="text-tone-red">Error: {status.error}</p>
                 )}
               </div>
             </div>
@@ -274,7 +274,7 @@ export const ApiRequestForm = ({
                 {formatJson(status.response.data)}
               </pre>
             ) : status.error ? (
-              <p className="text-red-500">{status.error}</p>
+              <p className="text-tone-red">{status.error}</p>
             ) : (
               <p className="text-muted-foreground">
                 Response body will appear here after sending a request...

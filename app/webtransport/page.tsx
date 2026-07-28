@@ -427,9 +427,9 @@ export default function WebTransportPage() {
   }, [isConnected]);
 
   const getStatusColor = () => {
-    if (isConnecting) return 'bg-yellow-500';
-    if (isConnected) return 'bg-green-500';
-    return 'bg-red-500';
+    if (isConnecting) return 'bg-tone-amber';
+    if (isConnected) return 'bg-tone-green';
+    return 'bg-tone-red';
   };
 
   const getStatusText = () => {
@@ -512,9 +512,7 @@ export default function WebTransportPage() {
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <div
-                  className={`h-2 w-2 rounded-full ${getStatusColor()}`}
-                ></div>
+                <div className={`h-2 w-2 ${getStatusColor()}`}></div>
                 <span className="text-sm">{getStatusText()}</span>
               </div>
               <div className="text-sm text-muted-foreground">
@@ -678,12 +676,12 @@ export default function WebTransportPage() {
                       <div
                         className={
                           message.type === 'error'
-                            ? 'text-red-400'
+                            ? 'text-tone-red'
                             : message.type === 'system'
-                              ? 'text-blue-400'
+                              ? 'text-tone-blue'
                               : message.direction === 'sent'
-                                ? 'text-green-400'
-                                : 'text-white'
+                                ? 'text-tone-green'
+                                : 'text-foreground'
                         }
                       >
                         {message.data}

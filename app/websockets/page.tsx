@@ -224,33 +224,33 @@ export default function WebSocketsPage() {
   };
 
   const getStatusColor = () => {
-    if (!wsRef.current) return 'bg-red-500';
+    if (!wsRef.current) return 'bg-tone-red';
     switch (wsRef.current.readyState) {
       case WebSocket.CONNECTING:
-        return 'bg-yellow-500';
+        return 'bg-tone-amber';
       case WebSocket.OPEN:
-        return 'bg-green-500';
+        return 'bg-tone-green';
       case WebSocket.CLOSING:
-        return 'bg-orange-500';
+        return 'bg-tone-cyan';
       case WebSocket.CLOSED:
-        return 'bg-red-500';
+        return 'bg-tone-red';
       default:
-        return 'bg-gray-500';
+        return 'bg-muted-foreground';
     }
   };
 
   const getMessageTypeColor = (type: WebSocketMessage['type']) => {
     switch (type) {
       case 'sent':
-        return 'text-blue-600';
+        return 'text-tone-blue';
       case 'received':
-        return 'text-green-600';
+        return 'text-tone-green';
       case 'error':
-        return 'text-red-600';
+        return 'text-tone-red';
       case 'connection':
-        return 'text-gray-600';
+        return 'text-muted-foreground';
       default:
-        return 'text-gray-600';
+        return 'text-muted-foreground';
     }
   };
 
@@ -319,9 +319,7 @@ export default function WebSocketsPage() {
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <div
-                  className={`h-2 w-2 rounded-full ${getStatusColor()}`}
-                ></div>
+                <div className={`h-2 w-2 ${getStatusColor()}`}></div>
                 <span className="text-sm">{getConnectionStatus()}</span>
               </div>
               <div className="text-sm text-muted-foreground">
@@ -439,7 +437,7 @@ export default function WebSocketsPage() {
                   variant="outline"
                   size="sm"
                   onClick={() => setAutoScroll(!autoScroll)}
-                  className={autoScroll ? 'bg-blue-50' : ''}
+                  className={autoScroll ? 'bg-tone-blue-soft' : ''}
                 >
                   Auto-scroll: {autoScroll ? 'On' : 'Off'}
                 </Button>
@@ -457,7 +455,7 @@ export default function WebSocketsPage() {
                     {filteredMessages.map((msg, index) => (
                       <div
                         key={`msg-${index}`}
-                        className="border border-border rounded p-3 bg-background"
+                        className="border border-border p-3 bg-background"
                       >
                         <div className="flex items-center justify-between mb-2">
                           <span

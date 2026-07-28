@@ -108,7 +108,7 @@ export default function GamesPage() {
                 autoFocus
               />
               {errorMessage && (
-                <p className="text-sm text-red-500">{errorMessage}</p>
+                <p className="text-sm text-tone-red">{errorMessage}</p>
               )}
             </div>
           </div>

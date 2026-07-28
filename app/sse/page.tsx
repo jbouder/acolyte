@@ -375,17 +375,17 @@ export default function SSEPage() {
 
   const getEventColor = (event: string): string => {
     const colors: Record<string, string> = {
-      connect: 'text-green-600',
-      demo: 'text-blue-600',
-      counter: 'text-purple-600',
-      random: 'text-orange-600',
-      system: 'text-red-600',
-      stock: 'text-emerald-600',
-      chat: 'text-pink-600',
-      end: 'text-gray-600',
-      message: 'text-gray-800',
+      connect: 'text-tone-green',
+      demo: 'text-tone-blue',
+      counter: 'text-tone-violet',
+      random: 'text-tone-amber',
+      system: 'text-tone-red',
+      stock: 'text-tone-cyan',
+      chat: 'text-tone-violet',
+      end: 'text-muted-foreground',
+      message: 'text-foreground',
     };
-    return colors[event] || 'text-gray-600';
+    return colors[event] || 'text-muted-foreground';
   };
 
   return (
@@ -512,8 +512,8 @@ export default function SSEPage() {
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
                   <div
-                    className={`h-2 w-2 rounded-full ${
-                      isConnected ? 'bg-green-500' : 'bg-red-500'
+                    className={`h-2 w-2 ${
+                      isConnected ? 'bg-tone-green' : 'bg-tone-red'
                     }`}
                   ></div>
                   <span className="text-sm">
@@ -539,14 +539,14 @@ export default function SSEPage() {
               <div className="space-y-2 text-sm text-muted-foreground">
                 <div>
                   <p className="font-medium text-foreground mb-1">Headers:</p>
-                  <pre className="text-xs bg-muted p-2 rounded overflow-x-auto">
+                  <pre className="text-xs bg-muted p-2 overflow-x-auto">
                     {headers || 'None'}
                   </pre>
                 </div>
                 {method === 'POST' && body && (
                   <div>
                     <p className="font-medium text-foreground mb-1">Body:</p>
-                    <pre className="text-xs bg-muted p-2 rounded overflow-x-auto">
+                    <pre className="text-xs bg-muted p-2 overflow-x-auto">
                       {body}
                     </pre>
                   </div>
@@ -597,7 +597,7 @@ export default function SSEPage() {
                     {filteredMessages.map((message, index) => (
                       <div
                         key={`${message.id}-${message.timestamp}-${index}`}
-                        className="border border-border rounded p-3 bg-background overflow-hidden"
+                        className="border border-border p-3 bg-background overflow-hidden"
                       >
                         <div className="flex items-center justify-between mb-2">
                           <span

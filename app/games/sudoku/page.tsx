@@ -343,32 +343,26 @@ export default function SudokuPage() {
 
   const getCellClassName = (cell: Cell, row: number, col: number): string => {
     let className =
-      'w-10 h-10 border border-gray-300 flex items-center justify-center text-lg font-medium cursor-pointer transition-colors ';
+      'w-10 h-10 border border-border flex items-center justify-center text-lg font-medium cursor-pointer transition-colors ';
 
     if (cell.isFixed) {
-      className +=
-        'bg-gray-100 dark:bg-gray-800 font-bold text-blue-600 dark:text-blue-400 ';
+      className += 'bg-muted font-bold text-tone-blue ';
     } else if (cell.isHighlighted) {
-      className += 'bg-blue-100 dark:bg-blue-900/30 ';
+      className += 'bg-tone-blue-soft ';
     } else {
-      className +=
-        'bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900 ';
+      className += 'bg-background hover:bg-accent ';
     }
 
     if (cell.isError) {
-      className +=
-        'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 ';
+      className += 'bg-tone-red-soft text-tone-red ';
     }
 
-    // Thick borders for 3x3 boxes
-    if (row % 3 === 0)
-      className += 'border-t-2 border-t-gray-800 dark:border-t-gray-200 ';
-    if (row === 8)
-      className += 'border-b-2 border-b-gray-800 dark:border-b-gray-200 ';
-    if (col % 3 === 0)
-      className += 'border-l-2 border-l-gray-800 dark:border-l-gray-200 ';
-    if (col === 8)
-      className += 'border-r-2 border-r-gray-800 dark:border-r-gray-200 ';
+    // Thick borders for 3x3 boxes. `border-foreground` inverts with the theme,
+    // so the box grid stays the strongest rule on the board either way.
+    if (row % 3 === 0) className += 'border-t-2 border-t-foreground ';
+    if (row === 8) className += 'border-b-2 border-b-foreground ';
+    if (col % 3 === 0) className += 'border-l-2 border-l-foreground ';
+    if (col === 8) className += 'border-r-2 border-r-foreground ';
 
     return className;
   };
@@ -391,7 +385,7 @@ export default function SudokuPage() {
               <CardTitle>Sudoku Board</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col items-center gap-4">
-              <div className="grid grid-cols-9 border-2 border-gray-800 dark:border-gray-200">
+              <div className="grid grid-cols-9 border-2 border-foreground">
                 {gameState.board.map((row, rowIndex) =>
                   row.map((cell, colIndex) => (
                     <div
@@ -474,10 +468,10 @@ export default function SudokuPage() {
                 <span
                   className={`font-medium ${
                     gameState.isComplete
-                      ? 'text-green-500'
+                      ? 'text-tone-green'
                       : gameState.isPlaying
-                        ? 'text-blue-500'
-                        : 'text-yellow-500'
+                        ? 'text-tone-blue'
+                        : 'text-tone-amber'
                   }`}
                 >
                   {gameState.isComplete
