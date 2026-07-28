@@ -33,7 +33,7 @@ export function AppSidebar() {
               alt="Acolyte Logo"
               width={32}
               height={32}
-              className="h-8 w-8 object-contain"
+              className="h-8 w-8 object-contain dark:invert"
             />
           </div>
           <div className="flex flex-col">

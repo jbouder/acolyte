@@ -11,7 +11,7 @@ export default function Home() {
           width={700}
           height={400}
           priority
-          className="h-auto max-w-full"
+          className="h-auto max-w-full dark:invert"
         />
       </div>
       <div className="flex-1 rounded-xl bg-muted/50 p-6 flex items-center">
