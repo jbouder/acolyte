@@ -2,6 +2,11 @@ import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import Page from '../app/page';
 
+// TransitionLink calls useRouter, which needs a mounted app router.
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({ push: jest.fn() }),
+}));
+
 // Mock fetch for this test suite only
 const mockFetch = jest.fn(() =>
   Promise.resolve({

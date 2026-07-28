@@ -1,8 +1,9 @@
 'use client';
 
 import Image from 'next/image';
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+
+import { TransitionLink } from '@/components/transition-link';
 
 import {
   Sidebar,
@@ -22,7 +23,7 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader className="border-b border-sidebar-border h-17">
-        <Link
+        <TransitionLink
           href="/"
           className="flex items-center gap-2 px-4 py-2 hover:bg-sidebar-accent rounded-md transition-colors"
         >
@@ -39,7 +40,7 @@ export function AppSidebar() {
             <span className="text-sm font-semibold">Project Acolyte</span>
             <span className="text-xs text-muted-foreground">Web Tools</span>
           </div>
-        </Link>
+        </TransitionLink>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
@@ -48,7 +49,7 @@ export function AppSidebar() {
               {allTools.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
-                    render={<Link href={item.url} />}
+                    render={<TransitionLink href={item.url} />}
                     isActive={pathname === item.url}
                   >
                     <item.icon />

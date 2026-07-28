@@ -2,11 +2,11 @@
 
 import type { ChatCompletionMessageParam } from '@mlc-ai/web-llm';
 import { Bot, Eraser, LoaderCircle, Send, X } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useTransitionRouter } from '@/hooks/use-transition-router';
 import {
   type AssistantAction,
   assistantActionNames,
@@ -169,7 +169,7 @@ export function FloatingAssistant() {
   const [messages, setMessages] = useState<Message[]>([]);
   const isMobile = useIsMobile();
   const modelId = isMobile ? MOBILE_MODEL_ID : DESKTOP_MODEL_ID;
-  const router = useRouter();
+  const router = useTransitionRouter();
 
   // Run an action, handling the one action with a side effect (navigation)
   // here in the component and delegating the rest to the pure executor.

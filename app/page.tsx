@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import Link from 'next/link';
+import { TransitionLink } from '@/components/transition-link';
 
 export default function Home() {
   return (
@@ -31,30 +31,30 @@ export default function Home() {
               endpoints. Test and debug your APIs with ease.
             </p>
             <div className="flex flex-wrap gap-2">
-              <Link
+              <TransitionLink
                 href="/apis"
                 className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90 transition-colors"
               >
                 APIs
-              </Link>
-              <Link
+              </TransitionLink>
+              <TransitionLink
                 href="/sse"
                 className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90 transition-colors"
               >
                 SSE
-              </Link>
-              <Link
+              </TransitionLink>
+              <TransitionLink
                 href="/websockets"
                 className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90 transition-colors"
               >
                 WebSockets
-              </Link>
-              <Link
+              </TransitionLink>
+              <TransitionLink
                 href="/chat"
                 className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90 transition-colors"
               >
                 Chat
-              </Link>
+              </TransitionLink>
             </div>
           </div>
         </div>
@@ -66,36 +66,36 @@ export default function Home() {
               optimize your applications and understand your codebase.
             </p>
             <div className="flex flex-wrap gap-2">
-              <Link
+              <TransitionLink
                 href="/web-stats"
                 className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90 transition-colors"
               >
                 Web Stats
-              </Link>
-              <Link
+              </TransitionLink>
+              <TransitionLink
                 href="/website-analysis"
                 className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90 transition-colors"
               >
                 Website Analysis
-              </Link>
-              <Link
+              </TransitionLink>
+              <TransitionLink
                 href="/dependency-analysis"
                 className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90 transition-colors"
               >
                 Dependency Analysis
-              </Link>
-              <Link
+              </TransitionLink>
+              <TransitionLink
                 href="/sbom-report"
                 className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90 transition-colors"
               >
                 SBOM Report
-              </Link>
-              <Link
+              </TransitionLink>
+              <TransitionLink
                 href="/accessibility-checker"
                 className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90 transition-colors"
               >
                 Accessibility Checker
-              </Link>
+              </TransitionLink>
             </div>
           </div>
         </div>
@@ -108,72 +108,72 @@ export default function Home() {
               Swagger/OpenAPI viewer, and more to streamline your workflow.
             </p>
             <div className="flex flex-wrap gap-2">
-              <Link
+              <TransitionLink
                 href="/markdown-preview"
                 className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90 transition-colors"
               >
                 Markdown Preview
-              </Link>
-              <Link
+              </TransitionLink>
+              <TransitionLink
                 href="/mermaid-preview"
                 className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90 transition-colors"
               >
                 Mermaid Preview
-              </Link>
-              <Link
+              </TransitionLink>
+              <TransitionLink
                 href="/base64"
                 className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90 transition-colors"
               >
                 Base64 Encoding
-              </Link>
-              <Link
+              </TransitionLink>
+              <TransitionLink
                 href="/json-formatter"
                 className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90 transition-colors"
               >
                 JSON Formatter
-              </Link>
-              <Link
+              </TransitionLink>
+              <TransitionLink
                 href="/regex"
                 className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90 transition-colors"
               >
                 Regex Tester
-              </Link>
-              <Link
+              </TransitionLink>
+              <TransitionLink
                 href="/color-picker"
                 className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90 transition-colors"
               >
                 Color Picker
-              </Link>
-              <Link
+              </TransitionLink>
+              <TransitionLink
                 href="/jwt"
                 className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90 transition-colors"
               >
                 JWT Decoder
-              </Link>
-              <Link
+              </TransitionLink>
+              <TransitionLink
                 href="/password-generator"
                 className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90 transition-colors"
               >
                 Password Generator
-              </Link>
-              <Link
+              </TransitionLink>
+              <TransitionLink
                 href="/swagger-viewer"
                 className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90 transition-colors"
               >
                 Swagger Viewer
-              </Link>
-              <Link
+              </TransitionLink>
+              <TransitionLink
                 href="/image-tools"
                 className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90 transition-colors"
               >
                 Image Tools
-              </Link>
-              <Link
+              </TransitionLink>
+              <TransitionLink
                 href="/notepad"
                 className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded hover:bg-primary/90 transition-colors"
               >
                 Notepad
-              </Link>
+              </TransitionLink>
             </div>
           </div>
         </div>

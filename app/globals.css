@@ -285,3 +285,109 @@
     background: transparent;
   }
 }
+
+/* Star Wars film wipes ---------------------------------------------------
+   Page-navigation transitions driven by the View Transitions API.
+   lib/view-transitions.ts stamps data-wipe="<variant>" on <html> before
+   calling document.startViewTransition; these rules animate the incoming
+   snapshot over a frozen outgoing one, like an optical-printer wipe.
+   Reduced-motion users never get here: the JS skips the transition. */
+
+/* Registered so the clock wipe's mask angle interpolates. */
+@property --wipe-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+/* Outgoing frame holds still beneath the incoming one. animation: none kills
+   the UA fade-out; mix-blend-mode: normal defeats the plus-lighter blend so
+   the old page stays fully opaque until the wipe passes over it. */
+html[data-wipe]::view-transition-old(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+html[data-wipe]::view-transition-new(root) {
+  animation-duration: 600ms;
+  /* Constant speed, like the films' optical-printer wipes. */
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+  mix-blend-mode: normal;
+}
+
+html[data-wipe='wipe-right']::view-transition-new(root) {
+  animation-name: acolyte-wipe-right;
+}
+
+@keyframes acolyte-wipe-right {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+html[data-wipe='wipe-left']::view-transition-new(root) {
+  animation-name: acolyte-wipe-left;
+}
+
+@keyframes acolyte-wipe-left {
+  from {
+    clip-path: inset(0 0 0 100%);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+html[data-wipe='diagonal']::view-transition-new(root) {
+  animation-name: acolyte-wipe-diagonal;
+}
+
+/* Both frames keep the same vertex count so clip-path interpolates. */
+@keyframes acolyte-wipe-diagonal {
+  from {
+    clip-path: polygon(0 0, 0 0, 0 0);
+  }
+  to {
+    clip-path: polygon(0 0, 250% 0, 0 250%);
+  }
+}
+
+html[data-wipe='iris']::view-transition-new(root) {
+  animation-name: acolyte-wipe-iris;
+  animation-duration: 700ms;
+}
+
+@keyframes acolyte-wipe-iris {
+  from {
+    clip-path: circle(0% at 50% 50%);
+  }
+  to {
+    /* 71% of the diagonal covers the corners of any aspect ratio. */
+    clip-path: circle(75% at 50% 50%);
+  }
+}
+
+html[data-wipe='clock']::view-transition-new(root) {
+  animation-name: acolyte-wipe-clock;
+  animation-duration: 700ms;
+  mask-image: conic-gradient(
+    from 0deg at 50% 50%,
+    #000 var(--wipe-angle),
+    /* 1° feathered sweep edge */
+    transparent calc(var(--wipe-angle) + 1deg)
+  );
+}
+
+@keyframes acolyte-wipe-clock {
+  from {
+    --wipe-angle: 0deg;
+  }
+  to {
+    /* The +1deg mask stop clamps at 360, ending fully opaque. */
+    --wipe-angle: 361deg;
+  }
+}
