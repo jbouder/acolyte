@@ -35,7 +35,9 @@ export function AppSidebar() {
               alt="Acolyte Logo"
               width={32}
               height={32}
-              className="h-8 w-8 object-contain dark:invert"
+              // Matches the hero mark on the home page: inverted, then pulled
+              // back off pure white so it sits with the label beside it.
+              className="h-8 w-8 object-contain dark:[filter:invert(1)_brightness(0.75)]"
             />
           </div>
           <div className="flex flex-col">

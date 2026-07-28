@@ -34,7 +34,12 @@ export default function Home() {
           width={700}
           height={400}
           priority
-          className="h-auto max-w-full dark:invert"
+          // `invert` alone lands on pure white, which out-shouts the copy
+          // around it; the brightness step pulls the mark back to a light grey,
+          // between `--foreground` and `--muted-foreground`. Written as one
+          // filter because Tailwind's own utilities compose in a fixed order —
+          // `brightness` would run *before* `invert` and leave white white.
+          className="h-auto max-w-full dark:[filter:invert(1)_brightness(0.75)]"
         />
       </div>
       <div className="flex-1 border p-6">

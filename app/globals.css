@@ -168,18 +168,28 @@
   --sidebar-border: oklch(1 0 0 / 18%);
   --sidebar-ring: oklch(0.68 0 0);
 
-  --tone-violet: oklch(0.76 0.18 295);
-  --tone-violet-soft: oklch(0.27 0.08 295);
-  --tone-cyan: oklch(0.8 0.13 200);
-  --tone-cyan-soft: oklch(0.27 0.06 200);
-  --tone-green: oklch(0.8 0.17 150);
-  --tone-green-soft: oklch(0.28 0.08 150);
-  --tone-amber: oklch(0.81 0.15 80);
-  --tone-amber-soft: oklch(0.28 0.07 80);
-  --tone-red: oklch(0.73 0.17 25);
-  --tone-red-soft: oklch(0.28 0.1 25);
-  --tone-blue: oklch(0.73 0.16 264);
-  --tone-blue-soft: oklch(0.28 0.11 264);
+  /*
+   * Dark mode reads the tone inks as lightsaber blades. Blue, green and red
+   * are the three canonical ones and carry most of the work; violet, yellow
+   * and cyan fill the remaining categorical slots with the rarer blades.
+   * Chroma is deliberately held below the display's reach — these are film
+   * blade colours, not neon. The `-soft` companions stay dark, so the
+   * `bg-tone-x-soft text-tone-x` pairing keeps its contrast.
+   */
+  --tone-blue: oklch(0.73 0.12 250); /* Obi-Wan / Luke, A New Hope */
+  --tone-blue-soft: oklch(0.26 0.07 250);
+  --tone-green: oklch(0.78 0.14 152); /* Yoda / Luke, Return of the Jedi */
+  --tone-green-soft: oklch(0.26 0.06 152);
+  --tone-red: oklch(0.66 0.19 25); /* Sith crimson */
+  --tone-red-soft: oklch(0.25 0.08 25);
+  /* Held down in lightness: any brighter at this chroma and the blade reads
+     magenta rather than purple. */
+  --tone-violet: oklch(0.66 0.15 300); /* Mace Windu */
+  --tone-violet-soft: oklch(0.25 0.06 300);
+  --tone-amber: oklch(0.82 0.13 88); /* Rey, temple guard */
+  --tone-amber-soft: oklch(0.26 0.06 88);
+  --tone-cyan: oklch(0.78 0.09 218); /* Ahsoka */
+  --tone-cyan-soft: oklch(0.25 0.05 218);
 }
 
 @layer base {
