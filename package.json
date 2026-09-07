@@ -54,7 +54,6 @@
     "@testing-library/user-event": "^14.6.6",
     "@types/jest": "^30.0.0",
     "@types/node": "^20",
-    "@types/puppeteer": "^7.0.4",
     "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
     "babel-jest": "^30.5.0",
