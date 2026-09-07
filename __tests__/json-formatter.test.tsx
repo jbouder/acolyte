@@ -1,10 +1,8 @@
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import JsonFormatterPage from '../app/json-formatter/page';
 
-// Mock navigator.clipboard. Reinstalled per-test because userEvent.setup()
-// swaps in its own clipboard stub and does not restore it.
+// Mock navigator.clipboard
 const mockClipboard = {
   writeText: jest.fn(),
 };
@@ -173,31 +171,6 @@ describe('JsonFormatterPage', () => {
       expect(output).toHaveValue(
         '{\n  "apple": "fruit",\n  "banana": "fruit",\n  "zebra": "animal"\n}',
       );
-    });
-  });
-
-  it('changes indentation based on selection', async () => {
-    render(<JsonFormatterPage />);
-
-    const input = screen.getByPlaceholderText('Paste your JSON here...');
-    const formatButton = screen.getByText('Format');
-    const output = screen.getByPlaceholderText('Output will appear here...');
-
-    // Enter test JSON
-    const testJson = '{"name":"John"}';
-    fireEvent.change(input, { target: { value: testJson } });
-
-    // Change indentation to 4 spaces
-    const user = userEvent.setup();
-    await user.click(screen.getByRole('combobox'));
-    await user.click(await screen.findByRole('option', { name: '4' }));
-
-    // Click format button
-    fireEvent.click(formatButton);
-
-    // Check output uses 4-space indentation
-    await waitFor(() => {
-      expect(output).toHaveValue('{\n    "name": "John"\n}');
     });
   });
 

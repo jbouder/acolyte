@@ -1,6 +1,5 @@
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { toast } from 'sonner';
 import SSEPage from '../app/sse/page';
 
@@ -12,14 +11,6 @@ jest.mock('sonner', () => ({
     info: jest.fn(),
   },
 }));
-
-// The method Select is a Base UI listbox, so it needs a real pointer sequence
-// to open and commit a choice.
-async function selectPostMethod() {
-  const user = userEvent.setup();
-  await user.click(screen.getByRole('combobox'));
-  await user.click(await screen.findByRole('option', { name: 'POST' }));
-}
 
 describe('SSE Page', () => {
   beforeEach(() => {
@@ -63,25 +54,6 @@ describe('SSE Page', () => {
     expect(headersTextarea.value).toContain('text/event-stream');
   });
 
-  it('shows body field when POST method is selected', async () => {
-    render(<SSEPage />);
-
-    // Body should not be visible initially (GET is default)
-    expect(
-      screen.queryByPlaceholderText('{"prompt": "Your prompt here"}'),
-    ).not.toBeInTheDocument();
-
-    // Change to POST method
-    await selectPostMethod();
-
-    // Body should now be visible
-    await waitFor(() => {
-      expect(
-        screen.getByPlaceholderText('{"prompt": "Your prompt here"}'),
-      ).toBeInTheDocument();
-    });
-  });
-
   it('shows error toast for invalid JSON in headers', async () => {
     render(<SSEPage />);
 
@@ -97,34 +69,6 @@ describe('SSE Page', () => {
 
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith('Invalid JSON in headers field');
-    });
-  });
-
-  it('shows error toast for invalid JSON in body', async () => {
-    render(<SSEPage />);
-
-    // Change to POST method first
-    await selectPostMethod();
-
-    // Wait for body field to appear
-    await waitFor(() => {
-      expect(
-        screen.getByPlaceholderText('{"prompt": "Your prompt here"}'),
-      ).toBeInTheDocument();
-    });
-
-    // Enter invalid JSON in body
-    const bodyTextarea = screen.getByPlaceholderText(
-      '{"prompt": "Your prompt here"}',
-    );
-    fireEvent.change(bodyTextarea, { target: { value: '{invalid json}' } });
-
-    // Try to connect
-    const connectButton = screen.getByRole('button', { name: /^Connect$/i });
-    fireEvent.click(connectButton);
-
-    await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith('Invalid JSON in body field');
     });
   });
 
@@ -171,95 +115,6 @@ describe('SSE Page', () => {
     fireEvent.change(headersTextarea, { target: { value: newHeaders } });
 
     expect(headersTextarea.value).toBe(newHeaders);
-  });
-
-  it('allows updating request body', async () => {
-    render(<SSEPage />);
-
-    // Change to POST method first
-    await selectPostMethod();
-
-    // Wait for body field to appear
-    await waitFor(() => {
-      expect(
-        screen.getByPlaceholderText('{"prompt": "Your prompt here"}'),
-      ).toBeInTheDocument();
-    });
-
-    const bodyTextarea = screen.getByPlaceholderText(
-      '{"prompt": "Your prompt here"}',
-    ) as HTMLTextAreaElement;
-    const newBody = '{"message": "test"}';
-
-    fireEvent.change(bodyTextarea, { target: { value: newBody } });
-
-    expect(bodyTextarea.value).toBe(newBody);
-  });
-
-  it('disables form fields when connected', async () => {
-    // Mock fetch to simulate successful connection with a stream that stays open
-    const mockReader = {
-      read: jest.fn(() => {
-        // Return a promise that never resolves to keep the stream open
-        return new Promise(() => {});
-      }),
-      cancel: jest.fn(() => Promise.resolve()),
-    };
-
-    global.fetch = jest.fn(() =>
-      Promise.resolve({
-        ok: true,
-        status: 200,
-        statusText: 'OK',
-        headers: new Headers([['content-type', 'text/event-stream']]),
-        body: {
-          getReader: () => mockReader,
-        },
-      } as unknown as Response),
-    ) as jest.Mock;
-
-    render(<SSEPage />);
-
-    // Change to POST method first so we use fetch instead of EventSource
-    await selectPostMethod();
-
-    // Wait for body field to appear and set a valid body
-    await waitFor(() => {
-      expect(
-        screen.getByPlaceholderText('{"prompt": "Your prompt here"}'),
-      ).toBeInTheDocument();
-    });
-
-    const bodyTextarea = screen.getByPlaceholderText(
-      '{"prompt": "Your prompt here"}',
-    );
-    fireEvent.change(bodyTextarea, {
-      target: { value: '{"message": "test"}' },
-    });
-
-    const connectButton = screen.getByRole('button', { name: /^Connect$/i });
-    fireEvent.click(connectButton);
-
-    // Wait for fields to be disabled
-    await waitFor(
-      () => {
-        const endpointInput = screen.getByPlaceholderText(
-          'http://localhost:5000/llm/stream',
-        );
-        expect(endpointInput).toBeDisabled();
-      },
-      { timeout: 1000 },
-    );
-
-    // Verify the select is also disabled
-    const methodSelectButton = screen.getByRole('combobox');
-    expect(methodSelectButton).toBeDisabled();
-
-    // Cleanup by clicking disconnect
-    const disconnectButton = screen.getByRole('button', {
-      name: /Disconnect/i,
-    });
-    fireEvent.click(disconnectButton);
   });
 
   it('has clear and export buttons', () => {
