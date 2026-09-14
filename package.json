@@ -19,7 +19,7 @@
   "dependencies": {
     "@base-ui/react": "^1.8.0",
     "@mlc-ai/web-llm": "^0.2.85",
-    "@sparticuz/chromium": "^149.0.0",
+    "@sparticuz/chromium": "^152.0.0",
     "@tailwindcss/typography": "^0.5.20",
     "@types/jsonwebtoken": "^9.0.10",
     "axe-core": "^4.13.0",
