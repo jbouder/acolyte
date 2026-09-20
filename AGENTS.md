@@ -171,12 +171,20 @@ Scan websites for accessibility issues and WCAG compliance:
 
 ### Frontend
 
-- **Next.js 15.5.2** - React framework with App Router for server-side rendering and routing
-- **React 19.1.0** - Modern React with latest features and performance improvements
+- **Next.js 16** - React framework with App Router for server-side rendering and routing
+- **React 19** - Modern React with latest features and performance improvements
 - **TypeScript** - Static type checking for enhanced developer experience
 - **Tailwind CSS 4** - Utility-first CSS framework for rapid UI development
 - **Shadcn/UI** (`base-lyra` style) - Component library built on **Base UI** (`@base-ui/react`) primitives. Note the Base UI conventions: composition uses a `render` prop rather than `asChild`, and boolean state is exposed as valueless data attributes (`data-active=""`, not `data-active="true"`).
-- **Oxanium / JetBrains Mono** - UI and code typefaces, loaded via `next/font` and exposed as `--font-oxanium` / `--font-jetbrains-mono` on `<html>`
+- **Oxanium / JetBrains Mono** - UI and code typefaces, loaded via `next/font` and exposed as `--font-oxanium` / `--font-jetbrains-mono` on `<html>`. Under vinext these are fetched from the Google Fonts CDN at runtime rather than self-hosted at build time.
+
+### Build & Runtime
+
+- **vinext** - Builds the Next.js App Router source on Vite and targets Cloudflare Workers. `next/*` imports are shimmed, so application code is written as plain Next.js; do not rewrite imports to `vinext/*`.
+- **Cloudflare Workers** - Production runtime. The Worker is named `project-acolyte`; `wrangler.jsonc` holds its config and bindings, and `cloudflare-env.d.ts` types them. See [DEPLOYMENT.md](DEPLOYMENT.md).
+- **Browser Rendering** - Supplies headless Chrome to the Accessibility Checker through the `BROWSER` binding. There is no bundled Chromium; `puppeteer-core` and `@sparticuz/chromium` do not run on Workers.
+- Server code reaches bindings with `import { env } from 'cloudflare:workers'`.
+- Large browser-only dependencies must stay out of the server bundle. `vite.config.ts` marks `mermaid` and `@mlc-ai/web-llm` external for the `ssr` and `rsc` environments to keep the Worker under Cloudflare's size limit; add any similar dependency there too.
 
 ### Development Tools
 

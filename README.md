@@ -128,7 +128,8 @@ Before running Acolyte, ensure you have the following installed:
 
 ### Building for Production
 
-To create an optimized production build:
+To create an optimized production build and run it in the Cloudflare Workers
+runtime locally:
 
 ```bash
 npm run build
@@ -137,18 +138,24 @@ npm start
 
 ## Deployment
 
-Acolyte is optimized for deployment on Vercel and other serverless platforms. The Accessibility Checker feature uses a serverless-compatible Puppeteer configuration that works seamlessly on:
+Acolyte runs on **Cloudflare Workers** as a Worker named `project-acolyte`. The
+Next.js App Router source is built by [vinext](https://github.com/cloudflare/vinext),
+which compiles Next.js on Vite and targets Workers natively.
 
-- **Vercel** (recommended)
-- **AWS Lambda**
-- **Netlify Functions**
-- **Google Cloud Functions**
+Pushing to `main` deploys automatically via
+[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml), which runs Biome
+and the test suite first. To deploy by hand:
 
-For detailed deployment instructions and troubleshooting, see [DEPLOYMENT.md](DEPLOYMENT.md).
+```bash
+npm run deploy
+```
 
-### Quick Deploy to Vercel
+The Accessibility Checker drives headless Chrome through
+[Cloudflare Browser Rendering](https://developers.cloudflare.com/browser-rendering/)
+rather than a bundled Chromium binary.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/jbouder/acolyte)
+For configuration, Worker size limits, Browser Rendering quotas, and
+troubleshooting, see [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ## Usage
 

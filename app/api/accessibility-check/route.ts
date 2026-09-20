@@ -1,7 +1,10 @@
-import chromium from '@sparticuz/chromium';
+import { env } from 'cloudflare:workers';
+import puppeteer from '@cloudflare/puppeteer';
 import type { AxeResults, ImpactValue, Result } from 'axe-core';
 import { NextRequest, NextResponse } from 'next/server';
-import puppeteer from 'puppeteer-core';
+
+// Injected into the scanned page; keep in step with the axe-core devDependency.
+const AXE_CORE_VERSION = '4.13.0';
 
 interface AccessibilityIssue {
   type: 'error' | 'warning' | 'info';
@@ -73,39 +76,33 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Launch headless browser with serverless-compatible configuration
-    const isDev = process.env.NODE_ENV === 'development';
+    // Cloudflare Browser Rendering supplies the headless browser via the
+    // BROWSER binding declared in wrangler.jsonc.
+    if (!env.BROWSER) {
+      return NextResponse.json(
+        {
+          error:
+            'Browser Rendering is unavailable. Check the BROWSER binding in wrangler.jsonc.',
+        },
+        { status: 503 },
+      );
+    }
 
-    browser = await puppeteer.launch({
-      args: isDev
-        ? [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-          ]
-        : [...chromium.args, '--no-sandbox', '--disable-setuid-sandbox'],
-      defaultViewport: {
-        width: 1920,
-        height: 1080,
-      },
-      executablePath: isDev
-        ? process.env.PUPPETEER_EXECUTABLE_PATH ||
-          '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
-        : await chromium.executablePath(),
-      headless: true,
-    });
+    browser = await puppeteer.launch(env.BROWSER);
 
     const page = await browser.newPage();
+    await page.setViewport({ width: 1920, height: 1080 });
 
-    // Set timeout and navigate to the page
+    // Browser Rendering caps a browser instance at 60s of inactivity, so keep
+    // navigation well inside that budget.
     await page.goto(targetUrl.toString(), {
-      waitUntil: 'networkidle0',
-      timeout: 30000,
+      waitUntil: 'networkidle2',
+      timeout: 20000,
     });
 
     // Inject axe-core into the page from CDN
     await page.addScriptTag({
-      url: 'https://unpkg.com/axe-core@latest/axe.min.js',
+      url: `https://unpkg.com/axe-core@${AXE_CORE_VERSION}/axe.min.js`,
     });
 
     // Run axe-core accessibility tests
@@ -135,8 +132,6 @@ export async function POST(request: NextRequest) {
         window.axe.run(runOptions).then(resolve);
       });
     }, wcagLevel as string)) as AxeResults;
-
-    await browser.close();
 
     // Convert axe-core results to our format
     const issues: AccessibilityIssue[] = [];
@@ -215,11 +210,6 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Accessibility check error:', error);
 
-    // Ensure browser is closed on error
-    if (browser) {
-      await browser.close();
-    }
-
     if (error instanceof Error) {
       if (error.name === 'TimeoutError' || error.message.includes('timeout')) {
         return NextResponse.json(
@@ -242,5 +232,11 @@ export async function POST(request: NextRequest) {
       { error: 'Failed to check accessibility' },
       { status: 500 },
     );
+  } finally {
+    // Browser Rendering allows only a few concurrent browsers per account, so
+    // always hand this one back.
+    if (browser) {
+      await browser.close().catch(() => {});
+    }
   }
 }

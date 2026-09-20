@@ -1,93 +1,123 @@
 # Deployment Guide
 
-## Vercel Deployment
+Acolyte runs on **Cloudflare Workers**. The Next.js App Router source is built by
+[vinext](https://github.com/cloudflare/vinext) (Next.js on Vite) and deployed
+with Wrangler to a Worker named `project-acolyte`.
 
-This application is optimized for deployment on Vercel and other serverless platforms.
-
-### Accessibility Checker - Puppeteer Configuration
-
-The Accessibility Checker feature uses Puppeteer to run automated accessibility tests. Due to serverless environment constraints, we use:
-
-- **`puppeteer-core`**: A lightweight version of Puppeteer without the bundled Chromium binary
-- **`@sparticuz/chromium`**: A pre-compiled Chromium binary optimized for serverless environments
-
-#### How It Works
-
-The implementation automatically detects the environment:
-
-- **Development**: Uses your local Chrome installation (macOS path by default)
-- **Production/Vercel**: Uses the serverless-optimized Chromium binary from `@sparticuz/chromium`
-
-#### Environment Variables (Optional)
-
-You can set the following environment variable for local development if Chrome is installed in a non-standard location:
+## Commands
 
 ```bash
-PUPPETEER_EXECUTABLE_PATH=/path/to/your/chrome
+npm run dev      # vinext dev server
+npm run build    # production build -> dist/client + dist/server
+npm run start    # run the built Worker locally via wrangler dev
+npm run deploy   # build + deploy to Cloudflare
 ```
 
-Common Chrome paths:
+`npm run deploy` runs `vinext-cloudflare deploy`, which performs its own
+production build and then hands the generated `dist/server/wrangler.json` to
+Wrangler.
 
-- **macOS**: `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`
-- **Linux**: `/usr/bin/google-chrome`
-- **Windows**: `C:\Program Files\Google\Chrome\Application\chrome.exe`
+## Continuous deployment
 
-#### Vercel Configuration
+`.github/workflows/deploy.yml` deploys on every push to `main` (and on manual
+dispatch). It runs Biome and the test suite first, then deploys. Authentication
+comes from two repository secrets:
 
-No special configuration is needed for Vercel. The `@sparticuz/chromium` package will automatically download and use the appropriate Chromium binary during the build process.
+| Secret                  | Purpose                                  |
+| ----------------------- | ---------------------------------------- |
+| `CLOUDFLARE_API_TOKEN`  | Token with Workers Scripts:Edit          |
+| `CLOUDFLARE_ACCOUNT_ID` | The account that owns `project-acolyte`  |
 
-The package is optimized for:
+`.github/workflows/code-quality.yml` still runs the same checks on pull
+requests.
 
-- AWS Lambda
-- Vercel Functions
-- Netlify Functions
-- Google Cloud Functions
+## Configuration
 
-#### Testing Locally
+`wrangler.jsonc` is the source of truth for the Worker. Notable entries:
 
-To test the serverless configuration locally:
+- `main: vinext/server/fetch-handler` — the vinext Worker entrypoint.
+- `assets` — static output from `dist/client`, served ahead of the Worker.
+- `compatibility_flags: ["nodejs_compat"]` — required by vinext.
+- `browser` — the Browser Rendering binding (see below).
 
-1. Set `NODE_ENV=production` in your environment
-2. Run the development server:
-   ```bash
-   NODE_ENV=production npm run dev
-   ```
+Custom domains are not configured yet. To add one, put a `routes` entry in
+`wrangler.jsonc`:
 
-This will use the serverless Chromium binary instead of your local Chrome installation.
-
-#### Troubleshooting
-
-If you encounter issues with the Accessibility Checker in production:
-
-1. **Timeout Errors**: The serverless function has a default timeout (usually 10s on free tier). Consider upgrading your Vercel plan for longer function execution times.
-
-2. **Memory Issues**: Chromium requires significant memory. Ensure your serverless function has at least 1GB of memory allocated.
-
-3. **Binary Not Found**: If `@sparticuz/chromium` fails to download during build, check your build logs and ensure the package is in `dependencies` (not `devDependencies`).
-
-## Other Platforms
-
-### AWS Lambda
-
-The same configuration works on AWS Lambda. Ensure:
-
-- Function timeout is set to at least 30 seconds
-- Memory is set to at least 1GB
-
-### Docker
-
-If deploying with Docker, you'll need to install Chrome/Chromium in your container:
-
-```dockerfile
-RUN apt-get update && apt-get install -y \
-    chromium \
-    && rm -rf /var/lib/apt/lists/*
-
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+```jsonc
+"routes": [{ "pattern": "acolyte.example.com", "custom_domain": true }]
 ```
 
-## Performance Considerations
+The zone must live in the same Cloudflare account; DNS records are created on
+deploy.
 
-- Each accessibility scan launches a new browser instance, which can be resource-intensive
-- Consider implementing rate limiting for the accessibility checker endpoint
-- Cache results when possible to reduce redundant scans
+### Worker size
+
+Workers are capped at 3 MiB compressed on the Free plan and 10 MiB on Paid.
+`mermaid` and `@mlc-ai/web-llm` are browser-only but would otherwise be emitted
+into the server bundle as well, which alone pushed the Worker past 4 MiB
+compressed. `vite.config.ts` marks both external for the `ssr` and `rsc`
+environments, which keeps the upload around 700 KiB compressed. If you add
+another large browser-only dependency, add it to that list.
+
+Check the current size without deploying:
+
+```bash
+npm run build
+npx wrangler deploy --dry-run --config dist/server/wrangler.json
+```
+
+## Accessibility Checker — Browser Rendering
+
+The Accessibility Checker (`app/api/accessibility-check/route.ts`) drives a
+headless Chrome through [Cloudflare Browser
+Rendering](https://developers.cloudflare.com/browser-rendering/) and runs
+axe-core against the target page.
+
+It uses the `BROWSER` binding declared in `wrangler.jsonc`:
+
+```jsonc
+"browser": {
+  "binding": "BROWSER",
+  "remote": true
+}
+```
+
+`remote: true` makes local development talk to a real headless browser in
+Cloudflare rather than a stub, so `npm run dev` and `npm run start` behave the
+same as production. It has no effect on a deployed Worker.
+
+The binding is typed in `cloudflare-env.d.ts`. That file is hand-written on
+purpose — `wrangler types` generates a `worker-configuration.d.ts` that declares
+the whole workerd runtime globally, which replaces the DOM's `Request`/`Response`
+and breaks every client component that calls `res.json()`. Acolyte is mostly
+browser code, so the DOM types win and only the bindings actually used are
+declared by hand. Add new bindings to both `wrangler.jsonc` and
+`cloudflare-env.d.ts`.
+
+### Limits
+
+Browser Rendering is metered per account:
+
+| Plan | Browser minutes | Concurrent browsers | Instance timeout |
+| ---- | --------------- | ------------------- | ---------------- |
+| Free | 10 / day        | 3                   | 60s              |
+| Paid | unlimited       | 200                 | 60s (extendable) |
+
+A single scan takes roughly 5–10 seconds. The route closes its browser in a
+`finally` block so a failed scan cannot hold one of the concurrency slots, and
+navigation is capped at 20s to stay inside the 60s instance timeout.
+
+### Troubleshooting
+
+- **503 "Browser Rendering is unavailable"** — the `BROWSER` binding is missing.
+  Confirm it is in `wrangler.jsonc` and redeploy.
+- **408 timeouts** — the target site is slow or blocks headless Chrome. The
+  route waits for `networkidle2` with a 20s cap.
+- **Errors under load** — you are likely at the concurrent-browser limit. Free
+  accounts get 3.
+
+Live logs for a deployed Worker:
+
+```bash
+npx wrangler tail project-acolyte
+```

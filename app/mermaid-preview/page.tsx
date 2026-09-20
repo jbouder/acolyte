@@ -1,7 +1,7 @@
 'use client';
 
 import { Copy, Download, Eye, FileText, Upload } from 'lucide-react';
-import mermaid from 'mermaid';
+import type { Mermaid } from 'mermaid';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -26,21 +26,36 @@ export default function MermaidViewerPage() {
   const [isInitialized, setIsInitialized] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const mermaidRef = useRef<Mermaid | null>(null);
 
+  // mermaid is ~10MB and only ever runs in the browser, so it is imported
+  // lazily to keep it out of the server bundle and off the initial page load.
   useEffect(() => {
-    mermaid.initialize({
-      startOnLoad: true,
-      theme: 'default',
-      securityLevel: 'strict',
+    let cancelled = false;
+
+    import('mermaid').then(({ default: mermaid }) => {
+      if (cancelled) return;
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: 'default',
+        securityLevel: 'strict',
+      });
+      mermaidRef.current = mermaid;
+      setIsInitialized(true);
     });
-    setIsInitialized(true);
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
     if (!isInitialized) return;
 
     const renderDiagram = async () => {
-      if (!previewRef.current) return;
+      const mermaid = mermaidRef.current;
+      if (!previewRef.current || !mermaid) return;
 
       // Don't attempt to render if mermaidCode is empty or only whitespace
       if (!mermaidCode.trim()) {
