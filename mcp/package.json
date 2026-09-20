@@ -1,0 +1,26 @@
+{
+  "name": "acolyte-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Remote MCP server exposing Acolyte's developer tools, running on Cloudflare Workers.",
+  "scripts": {
+    "dev": "wrangler dev --config wrangler.jsonc",
+    "deploy": "wrangler deploy --config wrangler.jsonc",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "size": "wrangler deploy --dry-run --config wrangler.jsonc"
+  },
+  "dependencies": {
+    "@cloudflare/puppeteer": "^1.0.5",
+    "@modelcontextprotocol/server": "2.0.0",
+    "agents": "^0.24.0",
+    "yaml": "^2.9.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260920.1",
+    "axe-core": "^4.13.0",
+    "typescript": "^5.9.3",
+    "wrangler": "^4.135.0"
+  }
+}

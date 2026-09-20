@@ -2,6 +2,9 @@
   "name": "acolyte",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "mcp"
+  ],
   "scripts": {
     "generate:assistant-content": "node scripts/generate-assistant-content.mjs",
     "prebuild": "npm run generate:assistant-content",
@@ -16,7 +19,10 @@
     "format": "biome format --write .",
     "format:ci": "biome format .",
     "check": "biome check --write .",
-    "check:ci": "biome check ."
+    "check:ci": "biome check .",
+    "mcp:dev": "npm run dev --workspace mcp",
+    "mcp:deploy": "npm run deploy --workspace mcp",
+    "mcp:typecheck": "npm run typecheck --workspace mcp"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",

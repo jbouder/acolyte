@@ -12,19 +12,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 
-interface PackageInfo {
-  name: string;
-  version?: string;
-  description?: string;
-  homepage?: string;
-  repository?: string;
-  license?: string;
-  dependencies?: Record<string, string>;
-  devDependencies?: Record<string, string>;
-  peerDependencies?: Record<string, string>;
-  outdated?: boolean;
-  vulnerabilities?: number;
-}
+import { type PackageInfo, summarizePackageJson } from '@/lib/package-utils';
 
 interface DependencyNode {
   name: string;
@@ -65,73 +53,6 @@ export default function DependencyAnalysisPage() {
     new Map(),
   );
   const [error, setError] = useState('');
-
-  const analyzePackageJson = (
-    packageData: Record<string, unknown>,
-  ): AnalysisResult => {
-    const dependencies =
-      (packageData.dependencies as Record<string, string>) || {};
-    const devDependencies =
-      (packageData.devDependencies as Record<string, string>) || {};
-    const peerDependencies =
-      (packageData.peerDependencies as Record<string, string>) || {};
-    const packages: PackageInfo[] = [];
-
-    // Analyze dependencies
-    Object.entries(dependencies).forEach(([name, version]) => {
-      packages.push({
-        name,
-        version: version as string,
-        description: 'Production dependency',
-      });
-    });
-
-    // Analyze dev dependencies
-    Object.entries(devDependencies).forEach(([name, version]) => {
-      packages.push({
-        name,
-        version: version as string,
-        description: 'Development dependency',
-      });
-    });
-
-    // Analyze peer dependencies
-    Object.entries(peerDependencies).forEach(([name, version]) => {
-      packages.push({
-        name,
-        version: version as string,
-        description: 'Peer dependency',
-      });
-    });
-
-    // Find duplicates (packages that appear in multiple dependency types)
-    const duplicates: string[] = [];
-    const seen = new Set();
-    packages.forEach((pkg) => {
-      if (seen.has(pkg.name)) {
-        duplicates.push(pkg.name);
-      } else {
-        seen.add(pkg.name);
-      }
-    });
-
-    // Mock outdated packages (in real app, you'd call npm outdated API)
-    const outdated = packages
-      .filter((pkg) => pkg.version && pkg.version.includes('^'))
-      .slice(0, 3)
-      .map((pkg) => pkg.name);
-
-    return {
-      totalPackages: packages.length,
-      productionPackages: Object.keys(dependencies).length,
-      devPackages: Object.keys(devDependencies).length,
-      packages,
-      duplicates,
-      outdated,
-      dependencyTree: [], // Will be populated individually per package
-      vulnerabilities: [], // Will be populated by checkVulnerabilities
-    };
-  };
 
   const buildDependencyTree = async (packageName: string, version: string) => {
     try {
@@ -251,7 +172,11 @@ export default function DependencyAnalysisPage() {
         throw new Error('No dependencies found in package.json');
       }
 
-      const result = analyzePackageJson(packageData);
+      const result = {
+        ...summarizePackageJson(packageData),
+        dependencyTree: [],
+        vulnerabilities: [],
+      };
 
       // Check for vulnerabilities using the API
       toast.info('Checking for security vulnerabilities...');

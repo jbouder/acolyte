@@ -12,71 +12,11 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 
-interface SPDXPackage {
-  SPDXID: string;
-  name: string;
-  versionInfo?: string;
-  licenseConcluded?: string;
-  licenseDeclared?: string;
-  supplier?: string;
-  downloadLocation?: string;
-  filesAnalyzed?: boolean;
-  copyrightText?: string;
-  externalRefs?: Array<{
-    referenceCategory: string;
-    referenceType: string;
-    referenceLocator: string;
-  }>;
-}
-
-interface SPDXRelationship {
-  spdxElementId: string;
-  relationshipType: string;
-  relatedSpdxElement: string;
-}
-
-interface SPDXDocument {
-  spdxVersion?: string;
-  dataLicense?: string;
-  SPDXID?: string;
-  name?: string;
-  documentNamespace?: string;
-  creationInfo?: {
-    created?: string;
-    creators?: string[];
-    licenseListVersion?: string;
-  };
-  packages?: SPDXPackage[];
-  relationships?: SPDXRelationship[];
-  documentDescribes?: string[];
-}
-
-interface SBOMReport {
-  metadata: {
-    name: string;
-    version: string;
-    spdxVersion: string;
-    dataLicense: string;
-    created: string;
-    creators: string[];
-    namespace: string;
-  };
-  packages: Array<{
-    id: string;
-    name: string;
-    version: string;
-    license: string;
-    supplier: string;
-    downloadLocation: string;
-  }>;
-  relationships: SPDXRelationship[];
-  statistics: {
-    totalPackages: number;
-    licensedPackages: number;
-    packagesWithSupplier: number;
-    uniqueLicenses: number;
-  };
-}
+import {
+  parseSPDXSBOM,
+  type SBOMReport,
+  type SPDXDocument,
+} from '@/lib/sbom-utils';
 
 export default function SBOMReportPage() {
   const [sbomInput, setSbomInput] = useState('');
@@ -84,46 +24,6 @@ export default function SBOMReportPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const parseSPDXSBOM = (sbomData: SPDXDocument): SBOMReport => {
-    const packages = (sbomData.packages || [])
-      .filter((pkg) => pkg.SPDXID && pkg.name)
-      .map((pkg) => ({
-        id: pkg.SPDXID,
-        name: pkg.name,
-        version: pkg.versionInfo || 'N/A',
-        license: pkg.licenseConcluded || pkg.licenseDeclared || 'NOASSERTION',
-        supplier: pkg.supplier || 'N/A',
-        downloadLocation: pkg.downloadLocation || 'N/A',
-      }));
-
-    const uniqueLicenses = new Set(
-      packages.map((pkg) => pkg.license).filter((lic) => lic !== 'NOASSERTION'),
-    );
-
-    return {
-      metadata: {
-        name: sbomData.name || 'Unknown',
-        version: 'N/A',
-        spdxVersion: sbomData.spdxVersion || 'N/A',
-        dataLicense: sbomData.dataLicense || 'N/A',
-        created: sbomData.creationInfo?.created || 'N/A',
-        creators: sbomData.creationInfo?.creators || [],
-        namespace: sbomData.documentNamespace || 'N/A',
-      },
-      packages,
-      relationships: sbomData.relationships || [],
-      statistics: {
-        totalPackages: packages.length,
-        licensedPackages: packages.filter(
-          (pkg) => pkg.license !== 'NOASSERTION',
-        ).length,
-        packagesWithSupplier: packages.filter((pkg) => pkg.supplier !== 'N/A')
-          .length,
-        uniqueLicenses: uniqueLicenses.size,
-      },
-    };
-  };
 
   const analyzeSBOM = () => {
     try {

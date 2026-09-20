@@ -70,6 +70,24 @@
 - **Breakout** - Brick-breaking game with physics-based ball movement
 - **Sudoku** - Number puzzle game with multiple difficulty levels
 
+## MCP Server
+
+Acolyte's tools are also available to AI agents through a remote
+[Model Context Protocol](https://modelcontextprotocol.io/) server that runs as
+its own Cloudflare Worker (`project-acolyte-mcp`). It serves Streamable HTTP at
+`/mcp` and exposes the JSON, Base64, JWT, color, regex and password utilities,
+the HTTP/SSE/WebSocket probes, and the website, accessibility, dependency,
+SBOM and OpenAPI analysis tools — backed by the same code as the web app.
+
+```bash
+npm run mcp:dev      # local server on http://localhost:8787/mcp
+npm run mcp:deploy   # deploy the Worker
+claude mcp add --transport http acolyte https://project-acolyte-mcp.<account>.workers.dev/mcp
+```
+
+See [mcp/README.md](mcp/README.md) for the full tool list, client
+configuration and auth options.
+
 ## Technology Stack
 
 ### Frontend
