@@ -31,6 +31,9 @@ comes from two repository secrets:
 `.github/workflows/code-quality.yml` still runs the same checks on pull
 requests.
 
+The `deploy-mcp` job in the same workflow deploys the MCP Worker (below) with
+the same secrets, in parallel with the app.
+
 ## Configuration
 
 `wrangler.jsonc` is the source of truth for the Worker. Notable entries:
@@ -121,3 +124,28 @@ Live logs for a deployed Worker:
 ```bash
 npx wrangler tail project-acolyte
 ```
+
+## MCP Server — second Worker
+
+The [`mcp/`](mcp/) workspace is a separate Worker named `project-acolyte-mcp`
+that serves Acolyte's tools over the Model Context Protocol. It has its own
+`mcp/wrangler.jsonc` and deploys independently of the app:
+
+```bash
+npm run mcp:dev      # wrangler dev on http://localhost:8787
+npm run mcp:deploy   # wrangler deploy
+```
+
+It declares the same `BROWSER` binding for the `check_accessibility` tool, so
+the Browser Rendering limits above apply to it too. Optional settings:
+
+| Setting            | Kind   | Purpose                                                        |
+| ------------------ | ------ | -------------------------------------------------------------- |
+| `ACOLYTE_APP_URL`  | var    | Public origin of the app, used for links in catalog results    |
+| `MCP_AUTH_TOKEN`   | secret | When set, `/mcp` requires `Authorization: Bearer <token>`      |
+
+The `mcp` scripts pass `--config wrangler.jsonc` explicitly: a plain
+`wrangler deploy` from `mcp/` would otherwise find the app's generated
+`.wrangler/deploy/config.json` at the repo root and refuse to pick one.
+
+Details, tool list and client setup: [mcp/README.md](mcp/README.md).

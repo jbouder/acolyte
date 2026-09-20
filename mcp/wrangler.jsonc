@@ -1,0 +1,45 @@
+/**
+ * Wrangler config for the Acolyte MCP Worker.
+ * https://developers.cloudflare.com/workers/wrangler/configuration/
+ *
+ * This is a second, independent Worker next to the web app (`../wrangler.jsonc`).
+ * It serves the Model Context Protocol over Streamable HTTP at /mcp and shares
+ * the tool implementations in `../lib` with the app.
+ */
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "project-acolyte-mcp",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-20",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true
+  },
+  "upload_source_maps": true,
+  "vars": {
+    /**
+     * Public origin of the Acolyte web app. The catalog tools use it to hand
+     * agents a clickable link to the matching page. Leave empty to return
+     * paths only.
+     */
+    "ACOLYTE_APP_URL": ""
+  },
+  /**
+   * Browser Rendering powers the check_accessibility tool, exactly as it does
+   * for /api/accessibility-check in the web app. `remote: true` makes
+   * `wrangler dev` talk to a real headless browser in Cloudflare.
+   * https://developers.cloudflare.com/browser-rendering/workers-bindings/
+   */
+  "browser": {
+    "binding": "BROWSER",
+    "remote": true
+  }
+  /**
+   * Secrets (set with `npx wrangler secret put <NAME>`):
+   *   MCP_AUTH_TOKEN — when set, clients must send `Authorization: Bearer <token>`.
+   *
+   * Custom domains — add routes here once a hostname is ready, e.g.
+   * "routes": [{ "pattern": "mcp.acolyte.example.com", "custom_domain": true }]
+   * and list the hostname in `allowedHostnames` in src/index.ts.
+   */
+}

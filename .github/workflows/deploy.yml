@@ -8,7 +8,7 @@ on:
 permissions:
   contents: read
 
-# Never let two deploys race each other onto the same Worker.
+# Never let two deploys race each other onto the same Workers.
 concurrency:
   group: deploy-cloudflare
   cancel-in-progress: false
@@ -59,3 +59,27 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: npm run deploy
+
+  # The MCP server is a second Worker with its own config in mcp/. It deploys
+  # in parallel with the app; both share the same account and token.
+  deploy-mcp:
+    runs-on: ubuntu-latest
+    needs: verify
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Deploy MCP Worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npm run mcp:deploy

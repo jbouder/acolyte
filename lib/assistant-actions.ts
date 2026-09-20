@@ -1,4 +1,5 @@
 import { assistantTools } from '@/lib/assistant-tools';
+import { decodeBase64, encodeBase64 } from '@/lib/base64-utils';
 import { formatColor } from '@/lib/color-utils';
 import { decodeJWT } from '@/lib/jwt-utils';
 import { findMatches } from '@/lib/regex-utils';
@@ -177,19 +178,6 @@ function extractJson(message: string): string | undefined {
     }
   }
   return undefined;
-}
-
-function encodeBase64(value: string) {
-  const bytes = new TextEncoder().encode(value);
-  let binary = '';
-  for (const byte of bytes) binary += String.fromCharCode(byte);
-  return btoa(binary);
-}
-
-function decodeBase64(value: string) {
-  const binary = atob(value.replace(/\s/g, ''));
-  const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
-  return new TextDecoder().decode(bytes);
 }
 
 const PASSWORD_CHARSET =
