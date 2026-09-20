@@ -1,0 +1,43 @@
+/**
+ * Wrangler config for the Acolyte Worker.
+ * https://developers.cloudflare.com/workers/wrangler/configuration/
+ *
+ * The app is built by vinext (`npm run build`), which emits the client assets
+ * to dist/client and a resolved copy of this config to dist/server/wrangler.json.
+ */
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "project-acolyte",
+  "compatibility_date": "2026-09-20",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "vinext/server/fetch-handler",
+  "assets": {
+    "directory": "dist/client",
+    "not_found_handling": "none",
+    "binding": "ASSETS"
+  },
+  "cache": {
+    "enabled": true
+  },
+  "version_metadata": {
+    "binding": "CF_VERSION_METADATA"
+  },
+  "observability": {
+    "enabled": true
+  },
+  "upload_source_maps": true,
+  /**
+   * Browser Rendering powers /api/accessibility-check. `remote: true` makes
+   * `vinext dev` talk to a real headless browser in Cloudflare rather than a
+   * local stub.
+   * https://developers.cloudflare.com/browser-rendering/workers-bindings/
+   */
+  "browser": {
+    "binding": "BROWSER",
+    "remote": true
+  }
+  /**
+   * Custom domains — add routes here once a hostname is ready, e.g.
+   * "routes": [{ "pattern": "acolyte.example.com", "custom_domain": true }]
+   */
+}
