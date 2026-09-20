@@ -39,6 +39,16 @@ Acolyte is a comprehensive web application designed to assist developers in thei
 - Low-latency application testing
 - Advanced connection management
 
+#### Chat
+
+Chat with any OpenAI v1-compatible model provider:
+
+- Presets for llama.cpp, Ollama and Docker Model Runner on localhost, plus a custom preset for any external endpoint such as OpenAI
+- Configurable base URL, model name, API key and system prompt
+- Non-streaming chat completions against the provider's `/chat/completions` endpoint
+- Settings persisted in Local Storage; the API key is stored in IndexedDB only when "remember" is checked
+- Clear conversation history
+
 ### 📊 Analysis Tools
 
 #### Web Stats
@@ -142,6 +152,18 @@ Scan websites for accessibility issues and WCAG compliance:
   - HSV
 - Color palette generation
 - Copy color values
+
+#### Image Tools
+
+Browser-side image editing with no upload to a server:
+
+- Load PNG, JPEG or WebP images up to 10 MB
+- Crop by pixel coordinates with a live overlay preview
+- Resize to a target width and height
+- Convert between PNG, JPEG and WebP with an adjustable quality slider
+- Generate a multi-size `favicon.ico` (16, 32 and 48 px)
+- Generate the web app PNG icon set (180, 192 and 512 px)
+- Download results directly
 
 #### JWT Decoder
 
@@ -275,9 +297,11 @@ acolyte/
 │   ├── accessibility-checker/# Accessibility scanning tool
 │   ├── apis/              # REST API testing interface
 │   ├── base64/            # Base64 encoding/decoding tool
+│   ├── chat/              # OpenAI-compatible model chat
 │   ├── color-picker/      # Color selection utility
 │   ├── dependency-analysis/# Package analysis tool
 │   ├── games/             # Browser games
+│   ├── image-tools/       # Crop, resize, convert, favicon generation
 │   ├── json-formatter/    # JSON formatting utility
 │   ├── jwt/               # JWT decoder tool
 │   ├── markdown-preview/  # Markdown editor and preview
