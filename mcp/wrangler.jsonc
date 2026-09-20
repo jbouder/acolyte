@@ -22,7 +22,7 @@
      * agents a clickable link to the matching page. Leave empty to return
      * paths only.
      */
-    "ACOLYTE_APP_URL": ""
+    "ACOLYTE_APP_URL": "https://project-acolyte.beskar.workers.dev"
   },
   /**
    * Browser Rendering powers the check_accessibility tool, exactly as it does
