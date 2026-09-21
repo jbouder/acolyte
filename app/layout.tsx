@@ -30,6 +30,10 @@ export const metadata: Metadata = {
   title: 'Project Acolyte',
   description:
     'A tool designed to assist web developers in their day-to-day duties.',
+  // Hugging Face's CDN rejects requests that carry a *.workers.dev Referer,
+  // which blocks the floating assistant from downloading its WebLLM model
+  // from the deployed Worker. Sending no referrer cross-origin avoids that.
+  referrer: 'same-origin',
 };
 
 export default function RootLayout({
