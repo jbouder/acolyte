@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@cloudflare/puppeteer": "^1.0.5",
-    "@modelcontextprotocol/server": "2.0.0",
+    "@modelcontextprotocol/server": "2.1.0",
     "agents": "^0.24.0",
     "yaml": "^2.9.0",
     "zod": "^4.0.0"
