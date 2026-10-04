@@ -2,7 +2,7 @@
 
 Acolyte runs on **Cloudflare Workers**. The Next.js App Router source is built by
 [vinext](https://github.com/cloudflare/vinext) (Next.js on Vite) and deployed
-with Wrangler to a Worker named `project-acolyte`.
+with Wrangler to a Worker named `acolyte`.
 
 ## Commands
 
@@ -26,7 +26,7 @@ comes from two repository secrets:
 | Secret                  | Purpose                                  |
 | ----------------------- | ---------------------------------------- |
 | `CLOUDFLARE_API_TOKEN`  | Token with Workers Scripts:Edit          |
-| `CLOUDFLARE_ACCOUNT_ID` | The account that owns `project-acolyte`  |
+| `CLOUDFLARE_ACCOUNT_ID` | The account that owns `acolyte`          |
 
 `.github/workflows/code-quality.yml` still runs the same checks on pull
 requests.
@@ -122,12 +122,12 @@ navigation is capped at 20s to stay inside the 60s instance timeout.
 Live logs for a deployed Worker:
 
 ```bash
-npx wrangler tail project-acolyte
+npx wrangler tail acolyte
 ```
 
 ## MCP Server — second Worker
 
-The [`mcp/`](mcp/) workspace is a separate Worker named `project-acolyte-mcp`
+The [`mcp/`](mcp/) workspace is a separate Worker named `acolyte-mcp`
 that serves Acolyte's tools over the Model Context Protocol. It has its own
 `mcp/wrangler.jsonc` and deploys independently of the app:
 
