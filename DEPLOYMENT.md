@@ -34,6 +34,29 @@ requests.
 The `deploy-mcp` job in the same workflow deploys the MCP Worker (below) with
 the same secrets, in parallel with the app.
 
+## Pull request Previews
+
+`.github/workflows/preview.yml` deploys a
+[Worker Preview](https://developers.cloudflare.com/workers/previews/) of both
+Workers for every pull request against `main`, named `pr-<number>`, and
+comments the two URLs on the PR. Each push updates the same Preview, and
+closing the PR deletes both. Previews run under the `acolyte` and
+`acolyte-mcp` Workers without touching their production deployments, and use
+the same two repository secrets as the deploy. Fork and Dependabot PRs are
+skipped because they do not receive those secrets.
+
+Previews do not inherit vars, bindings or secrets, so each `wrangler.jsonc`
+repeats what a Preview needs in its `previews` block. Preview URLs are public,
+and an MCP Preview has no `MCP_AUTH_TOKEN` unless you add one with
+`npx wrangler preview secret`.
+
+To create one by hand (defaults to the current branch name):
+
+```bash
+npm run build && npx wrangler preview --config dist/server/wrangler.json
+(cd mcp && npx wrangler preview --config wrangler.jsonc)
+```
+
 ## Configuration
 
 `wrangler.jsonc` is the source of truth for the Worker. Notable entries:

@@ -33,6 +33,22 @@
   "browser": {
     "binding": "BROWSER",
     "remote": true
+  },
+  /**
+   * Worker Previews (`wrangler preview`, run per pull request by
+   * .github/workflows/preview.yml). Previews do not inherit vars, bindings or
+   * secrets from the top level, so they are repeated here. Catalog links point
+   * at the production app. MCP_AUTH_TOKEN is not set on Previews unless you
+   * add it with `wrangler preview secret`, so a Preview endpoint is open.
+   * https://developers.cloudflare.com/workers/previews/configuration/
+   */
+  "previews": {
+    "vars": {
+      "ACOLYTE_APP_URL": "https://acolyte.vibeproject.workers.dev"
+    },
+    "browser": {
+      "binding": "BROWSER"
+    }
   }
   /**
    * Secrets (set with `npx wrangler secret put <NAME>`):
