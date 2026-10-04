@@ -1,4 +1,4 @@
-// OpenAPI/Swagger parsing shared by the Swagger Viewer page and the MCP Worker.
+// OpenAPI/Swagger parsing for the Swagger Viewer page.
 
 export interface OpenAPIEndpoint {
   method: string;

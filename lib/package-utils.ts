@@ -1,6 +1,6 @@
-// package.json inspection shared by the Dependency Analysis page and the MCP
-// Worker. Network-backed checks (vulnerabilities, dependency trees) live in
-// `lib/server/`; this module is pure.
+// package.json inspection for the Dependency Analysis page. Network-backed
+// checks (vulnerabilities, dependency trees) live in `lib/server/`; this module
+// is pure.
 
 export interface PackageInfo {
   name: string;

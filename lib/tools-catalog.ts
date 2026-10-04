@@ -1,8 +1,6 @@
 /*
  * The catalog of Acolyte tools, without any UI concerns. `lib/tools-data.ts`
- * decorates these entries with icons for the sidebar, home page and search;
- * the MCP Worker (`mcp/`) serves the same list to agents, so it must stay free
- * of React and browser-only imports.
+ * decorates these entries with icons for the sidebar, home page and search.
  */
 
 export type ToolCategory = 'API Testing' | 'Analysis' | 'Utilities' | 'Other';
