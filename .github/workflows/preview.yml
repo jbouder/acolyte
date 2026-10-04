@@ -1,0 +1,112 @@
+name: Preview
+
+# Deploys a Worker Preview of the app and the MCP server for every pull
+# request, comments the URLs on the PR, and deletes both Previews when the PR
+# closes. Previews run under the production Workers (`acolyte`, `acolyte-mcp`)
+# but never replace their production deployments.
+# https://developers.cloudflare.com/workers/previews/
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, closed]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+# One run per PR at a time; a new push supersedes an in-flight Preview.
+concurrency:
+  group: preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  PREVIEW_NAME: pr-${{ github.event.pull_request.number }}
+  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+jobs:
+  preview:
+    # Fork and Dependabot PRs do not get the Cloudflare secrets.
+    if: >-
+      github.event.action != 'closed' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # vinext emits the resolved config, `previews` block included, to
+      # dist/server/wrangler.json. `vinext-cloudflare deploy --preview` targets
+      # a Wrangler environment rather than Worker Previews, so build and call
+      # `wrangler preview` directly.
+      - name: Build app
+        run: npm run build
+
+      - id: app
+        name: Create or update app Preview
+        run: |
+          set -o pipefail
+          output="$(npx wrangler preview --config dist/server/wrangler.json --name "$PREVIEW_NAME" --message "${{ github.event.pull_request.head.sha }}" --json)"
+          printf '%s\n' "$output"
+          echo "url=$(printf '%s' "$output" | jq -er '.preview.urls[0]')" >> "$GITHUB_OUTPUT"
+
+      - id: mcp
+        name: Create or update MCP Preview
+        working-directory: mcp
+        run: |
+          set -o pipefail
+          output="$(npx wrangler preview --config wrangler.jsonc --name "$PREVIEW_NAME" --message "${{ github.event.pull_request.head.sha }}" --json)"
+          printf '%s\n' "$output"
+          echo "url=$(printf '%s' "$output" | jq -er '.preview.urls[0]')" >> "$GITHUB_OUTPUT"
+
+      - name: Comment Preview URLs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APP_URL: ${{ steps.app.outputs.url }}
+          MCP_URL: ${{ steps.mcp.outputs.url }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          body="$(printf '### Worker Previews\n\n| Worker | URL |\n| --- | --- |\n| App | %s |\n| MCP | %s/mcp |\n\nDeployed from %s.' "$APP_URL" "${MCP_URL%/}" "$SHA")"
+          gh pr comment "${{ github.event.pull_request.number }}" --edit-last --create-if-none --body "$body"
+
+  cleanup:
+    if: >-
+      github.event.action == 'closed' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # A PR closed before its first Preview finished has nothing to delete.
+      # Keep going so one failure doesn't strand the other Preview; a failed
+      # step still shows as a warning on the run.
+      - name: Delete app Preview
+        continue-on-error: true
+        run: npx wrangler preview delete --name "$PREVIEW_NAME" --skip-confirmation
+
+      - name: Delete MCP Preview
+        continue-on-error: true
+        working-directory: mcp
+        run: npx wrangler preview delete --config wrangler.jsonc --name "$PREVIEW_NAME" --skip-confirmation

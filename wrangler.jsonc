@@ -35,6 +35,23 @@
   "browser": {
     "binding": "BROWSER",
     "remote": true
+  },
+  /**
+   * Worker Previews (`wrangler preview`, run per pull request by
+   * .github/workflows/preview.yml). Previews do not inherit bindings or vars
+   * from the top level, so everything the app needs is repeated here.
+   * https://developers.cloudflare.com/workers/previews/configuration/
+   */
+  "previews": {
+    "cache": {
+      "enabled": true
+    },
+    "version_metadata": {
+      "binding": "CF_VERSION_METADATA"
+    },
+    "browser": {
+      "binding": "BROWSER"
+    }
   }
   /**
    * Custom domains — add routes here once a hostname is ready, e.g.
