@@ -59,7 +59,9 @@ jobs:
           set -o pipefail
           output="$(npx wrangler preview --config dist/server/wrangler.json --name "$PREVIEW_NAME" --message "${{ github.event.pull_request.head.sha }}" --json)"
           printf '%s\n' "$output"
-          echo "url=$(printf '%s' "$output" | jq -er '.preview.urls[0]')" >> "$GITHUB_OUTPUT"
+          # Wrangler prints its module table to stdout ahead of the JSON.
+          url="$(printf '%s\n' "$output" | sed -n '/^{/,$p' | jq -er '.preview.urls[0]')"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
 
       - id: mcp
         name: Create or update MCP Preview
@@ -68,7 +70,9 @@ jobs:
           set -o pipefail
           output="$(npx wrangler preview --config wrangler.jsonc --name "$PREVIEW_NAME" --message "${{ github.event.pull_request.head.sha }}" --json)"
           printf '%s\n' "$output"
-          echo "url=$(printf '%s' "$output" | jq -er '.preview.urls[0]')" >> "$GITHUB_OUTPUT"
+          # Wrangler prints its module table to stdout ahead of the JSON.
+          url="$(printf '%s\n' "$output" | sed -n '/^{/,$p' | jq -er '.preview.urls[0]')"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
 
       - name: Comment Preview URLs
         env:
