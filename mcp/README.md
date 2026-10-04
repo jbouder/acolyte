@@ -2,7 +2,7 @@
 
 A remote [Model Context Protocol](https://modelcontextprotocol.io/) server that
 exposes Acolyte's developer tools to AI agents. It runs as its own Cloudflare
-Worker (`project-acolyte-mcp`) next to the web app and shares the tool
+Worker (`acolyte-mcp`) next to the web app and shares the tool
 implementations in [`../lib`](../lib), so a fix in the app is a fix here too.
 
 The transport is **Streamable HTTP** at `/mcp`, served by
@@ -42,13 +42,13 @@ names.
 
 ## Connecting a client
 
-The endpoint is `https://project-acolyte-mcp.<account>.workers.dev/mcp` once
+The endpoint is `https://acolyte-mcp.vibeproject.workers.dev/mcp` once
 deployed (or `http://localhost:8787/mcp` under `npm run mcp:dev`).
 
 **Claude Code**
 
 ```bash
-claude mcp add --transport http acolyte https://project-acolyte-mcp.<account>.workers.dev/mcp
+claude mcp add --transport http acolyte https://acolyte-mcp.vibeproject.workers.dev/mcp
 # with a token:
 claude mcp add --transport http acolyte https://…/mcp --header "Authorization: Bearer <token>"
 ```
@@ -61,7 +61,7 @@ claude mcp add --transport http acolyte https://…/mcp --header "Authorization:
 {
   "mcpServers": {
     "acolyte": {
-      "url": "https://project-acolyte-mcp.<account>.workers.dev/mcp",
+      "url": "https://acolyte-mcp.vibeproject.workers.dev/mcp",
       "headers": { "Authorization": "Bearer <token>" }
     }
   }

@@ -8,7 +8,7 @@
  */
 {
   "$schema": "../node_modules/wrangler/config-schema.json",
-  "name": "project-acolyte-mcp",
+  "name": "acolyte-mcp",
   "main": "src/index.ts",
   "compatibility_date": "2026-09-20",
   "compatibility_flags": ["nodejs_compat"],
@@ -22,7 +22,7 @@
      * agents a clickable link to the matching page. Leave empty to return
      * paths only.
      */
-    "ACOLYTE_APP_URL": "https://project-acolyte.beskar.workers.dev"
+    "ACOLYTE_APP_URL": "https://acolyte.vibeproject.workers.dev"
   },
   /**
    * Browser Rendering powers the check_accessibility tool, exactly as it does

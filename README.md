@@ -74,7 +74,7 @@
 
 Acolyte's tools are also available to AI agents through a remote
 [Model Context Protocol](https://modelcontextprotocol.io/) server that runs as
-its own Cloudflare Worker (`project-acolyte-mcp`). It serves Streamable HTTP at
+its own Cloudflare Worker (`acolyte-mcp`). It serves Streamable HTTP at
 `/mcp` and exposes the JSON, Base64, JWT, color, regex and password utilities,
 the HTTP/SSE/WebSocket probes, and the website, accessibility, dependency,
 SBOM and OpenAPI analysis tools — backed by the same code as the web app.
@@ -82,7 +82,7 @@ SBOM and OpenAPI analysis tools — backed by the same code as the web app.
 ```bash
 npm run mcp:dev      # local server on http://localhost:8787/mcp
 npm run mcp:deploy   # deploy the Worker
-claude mcp add --transport http acolyte https://project-acolyte-mcp.<account>.workers.dev/mcp
+claude mcp add --transport http acolyte https://acolyte-mcp.vibeproject.workers.dev/mcp
 ```
 
 See [mcp/README.md](mcp/README.md) for the full tool list, client
@@ -156,7 +156,7 @@ npm start
 
 ## Deployment
 
-Acolyte runs on **Cloudflare Workers** as a Worker named `project-acolyte`. The
+Acolyte runs on **Cloudflare Workers** as a Worker named `acolyte`. The
 Next.js App Router source is built by [vinext](https://github.com/cloudflare/vinext),
 which compiles Next.js on Vite and targets Workers natively.
 
