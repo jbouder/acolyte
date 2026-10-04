@@ -74,8 +74,7 @@ const getWcagCriteria = (tags: string[]): string => {
 };
 
 // Drive Cloudflare Browser Rendering to load the page and run axe-core in it.
-// `browser` is the BROWSER binding; callers must pass it through so this
-// module works from both the Next.js route and the MCP Worker.
+// `browser` is the BROWSER binding; callers pass it through from the route.
 export async function checkAccessibility(
   browser: BrowserWorker | undefined,
   url: string,

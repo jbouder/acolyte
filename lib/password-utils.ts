@@ -1,5 +1,5 @@
-// Password generation shared by the Password Generator page, the in-app
-// assistant and the MCP Worker. Randomness comes from the Web Crypto RNG,
+// Password generation shared by the Password Generator page and the in-app
+// assistant. Randomness comes from the Web Crypto RNG,
 // which is available in browsers and on Cloudflare Workers alike.
 
 const LOWERCASE = 'abcdefghijklmnopqrstuvwxyz';

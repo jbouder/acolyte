@@ -31,30 +31,23 @@ comes from two repository secrets:
 `.github/workflows/code-quality.yml` still runs the same checks on pull
 requests.
 
-The `deploy-mcp` job in the same workflow deploys the MCP Worker (below) with
-the same secrets, in parallel with the app.
-
 ## Pull request Previews
 
 `.github/workflows/preview.yml` deploys a
-[Worker Preview](https://developers.cloudflare.com/workers/previews/) of both
-Workers for every pull request against `main`, named `pr-<number>`, and
-comments the two URLs on the PR. Each push updates the same Preview, and
-closing the PR deletes both. Previews run under the `acolyte` and
-`acolyte-mcp` Workers without touching their production deployments, and use
-the same two repository secrets as the deploy. Fork and Dependabot PRs are
+[Worker Preview](https://developers.cloudflare.com/workers/previews/) of the
+app for every pull request against `main`, named `pr-<number>`, and comments
+the URL on the PR. Each push updates the same Preview, and closing the PR
+deletes it. Previews run under the `acolyte` Worker without touching its
+production deployment, and use the same two repository secrets as the deploy. Fork and Dependabot PRs are
 skipped because they do not receive those secrets.
 
-Previews do not inherit vars, bindings or secrets, so each `wrangler.jsonc`
-repeats what a Preview needs in its `previews` block. Preview URLs are public,
-and an MCP Preview has no `MCP_AUTH_TOKEN` unless you add one with
-`npx wrangler preview secret`.
+Previews do not inherit vars, bindings or secrets, so `wrangler.jsonc` repeats
+what a Preview needs in its `previews` block. Preview URLs are public.
 
 To create one by hand (defaults to the current branch name):
 
 ```bash
 npm run build && npx wrangler preview --config dist/server/wrangler.json
-(cd mcp && npx wrangler preview --config wrangler.jsonc)
 ```
 
 ## Configuration
@@ -147,28 +140,3 @@ Live logs for a deployed Worker:
 ```bash
 npx wrangler tail acolyte
 ```
-
-## MCP Server — second Worker
-
-The [`mcp/`](mcp/) workspace is a separate Worker named `acolyte-mcp`
-that serves Acolyte's tools over the Model Context Protocol. It has its own
-`mcp/wrangler.jsonc` and deploys independently of the app:
-
-```bash
-npm run mcp:dev      # wrangler dev on http://localhost:8787
-npm run mcp:deploy   # wrangler deploy
-```
-
-It declares the same `BROWSER` binding for the `check_accessibility` tool, so
-the Browser Rendering limits above apply to it too. Optional settings:
-
-| Setting            | Kind   | Purpose                                                        |
-| ------------------ | ------ | -------------------------------------------------------------- |
-| `ACOLYTE_APP_URL`  | var    | Public origin of the app, used for links in catalog results    |
-| `MCP_AUTH_TOKEN`   | secret | When set, `/mcp` requires `Authorization: Bearer <token>`      |
-
-The `mcp` scripts pass `--config wrangler.jsonc` explicitly: a plain
-`wrangler deploy` from `mcp/` would otherwise find the app's generated
-`.wrangler/deploy/config.json` at the repo root and refuse to pick one.
-
-Details, tool list and client setup: [mcp/README.md](mcp/README.md).

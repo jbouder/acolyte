@@ -1,7 +1,6 @@
 /*
  * Error type shared by the server-side tool implementations in `lib/server/`.
- * The Next.js route handlers map `status` onto the HTTP response; the MCP
- * Worker reports `message` back to the calling agent.
+ * The Next.js route handlers map `status` onto the HTTP response.
  */
 export class ToolError extends Error {
   readonly status: number;

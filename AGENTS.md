@@ -206,7 +206,6 @@ Browser-side image editing with no upload to a server:
 - **Cloudflare Workers** - Production runtime. The Worker is named `acolyte`; `wrangler.jsonc` holds its config and bindings, and `cloudflare-env.d.ts` types them. See [DEPLOYMENT.md](DEPLOYMENT.md).
 - **Browser Rendering** - Supplies headless Chrome to the Accessibility Checker through the `BROWSER` binding. There is no bundled Chromium; `puppeteer-core` and `@sparticuz/chromium` do not run on Workers.
 - Server code reaches bindings with `import { env } from 'cloudflare:workers'`.
-- **MCP Server** - `mcp/` is a second Worker (`acolyte-mcp`, an npm workspace) that exposes the tools over the Model Context Protocol via `createMcpHandler` from the Cloudflare Agents SDK. It imports the shared logic in `lib/` (pure helpers such as `jwt-utils`, `color-utils`, `password-utils`) and `lib/server/` (fetching/binding-backed helpers such as `web-stats`, `accessibility-check`). Keep tool logic in those modules so the app and the MCP server stay in step; see [mcp/README.md](mcp/README.md).
 - Large browser-only dependencies must stay out of the server bundle. `vite.config.ts` marks `mermaid` and `@mlc-ai/web-llm` external for the `ssr` and `rsc` environments to keep the Worker under Cloudflare's size limit; add any similar dependency there too.
 
 ### Development Tools
@@ -313,8 +312,7 @@ acolyte/
 │   └── webtransport/      # WebTransport testing tool
 ├── components/            # Reusable React components
 ├── lib/                   # Utility functions and helpers
-│   └── server/            # Fetch/binding-backed logic shared by API routes and the MCP server
-├── mcp/                   # MCP server Worker (npm workspace, own wrangler.jsonc)
+│   └── server/            # Fetch/binding-backed logic used by API routes
 ├── public/                # Static assets
 └── __tests__/             # Test files
 ```

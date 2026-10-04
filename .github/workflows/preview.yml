@@ -1,9 +1,8 @@
 name: Preview
 
-# Deploys a Worker Preview of the app and the MCP server for every pull
-# request, comments the URLs on the PR, and deletes both Previews when the PR
-# closes. Previews run under the production Workers (`acolyte`, `acolyte-mcp`)
-# but never replace their production deployments.
+# Deploys a Worker Preview of the app for every pull request, comments the URL
+# on the PR, and deletes the Preview when the PR closes. Previews run under the
+# production Worker (`acolyte`) but never replace its production deployment.
 # https://developers.cloudflare.com/workers/previews/
 
 on:
@@ -63,25 +62,13 @@ jobs:
           url="$(printf '%s\n' "$output" | sed -n '/^{/,$p' | jq -er '.preview.urls[0]')"
           echo "url=$url" >> "$GITHUB_OUTPUT"
 
-      - id: mcp
-        name: Create or update MCP Preview
-        working-directory: mcp
-        run: |
-          set -o pipefail
-          output="$(npx wrangler preview --config wrangler.jsonc --name "$PREVIEW_NAME" --message "${{ github.event.pull_request.head.sha }}" --json)"
-          printf '%s\n' "$output"
-          # Wrangler prints its module table to stdout ahead of the JSON.
-          url="$(printf '%s\n' "$output" | sed -n '/^{/,$p' | jq -er '.preview.urls[0]')"
-          echo "url=$url" >> "$GITHUB_OUTPUT"
-
-      - name: Comment Preview URLs
+      - name: Comment Preview URL
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           APP_URL: ${{ steps.app.outputs.url }}
-          MCP_URL: ${{ steps.mcp.outputs.url }}
           SHA: ${{ github.event.pull_request.head.sha }}
         run: |
-          body="$(printf '### Worker Previews\n\n| Worker | URL |\n| --- | --- |\n| App | %s |\n| MCP | %s/mcp |\n\nDeployed from %s.' "$APP_URL" "${MCP_URL%/}" "$SHA")"
+          body="$(printf '### Worker Preview\n\n%s\n\nDeployed from %s.' "$APP_URL" "$SHA")"
           gh pr comment "${{ github.event.pull_request.number }}" --edit-last --create-if-none --body "$body"
 
   cleanup:
@@ -103,14 +90,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # A PR closed before its first Preview finished has nothing to delete.
-      # Keep going so one failure doesn't strand the other Preview; a failed
-      # step still shows as a warning on the run.
+      # A PR closed before its first Preview finished has nothing to delete;
+      # the failed step shows as a warning instead of failing the run.
       - name: Delete app Preview
         continue-on-error: true
         run: npx wrangler preview delete --name "$PREVIEW_NAME" --skip-confirmation
-
-      - name: Delete MCP Preview
-        continue-on-error: true
-        working-directory: mcp
-        run: npx wrangler preview delete --config wrangler.jsonc --name "$PREVIEW_NAME" --skip-confirmation

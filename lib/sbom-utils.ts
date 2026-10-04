@@ -1,4 +1,4 @@
-// SPDX SBOM parsing shared by the SBOM Report page and the MCP Worker.
+// SPDX SBOM parsing for the SBOM Report page.
 
 export interface SPDXPackage {
   SPDXID: string;
