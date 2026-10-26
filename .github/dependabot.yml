@@ -1,48 +1,48 @@
 version: 2
 updates:
-  - package-ecosystem: 'npm'
-    directory: '/'
+  - package-ecosystem: "npm"
+    directory: "/"
     schedule:
-      interval: 'weekly'
-      day: 'monday'
-      time: '08:00'
-      timezone: 'US/Eastern'
+      interval: "weekly"
+      day: "monday"
+      time: "08:00"
+      timezone: "US/Eastern"
     open-pull-requests-limit: 10
     labels:
-      - 'security'
+      - "security"
     groups:
       babel:
         patterns:
-          - '@babel/*'
+          - "@babel/*"
         update-types:
-          - 'major'
-          - 'minor'
-          - 'patch'
+          - "major"
+          - "minor"
+          - "patch"
       minor-and-patch:
         patterns:
-          - '*'
+          - "*"
         update-types:
-          - 'minor'
-          - 'patch'
+          - "minor"
+          - "patch"
     ignore:
       - dependency-name: next
         versions:
-          - '>=15.6.0'
+          - ">=15.6.0"
       - dependency-name: react
         versions:
-          - '>=19.1.0'
+          - ">=19.1.0"
       - dependency-name: react-dom
         versions:
-          - '>=19.1.0'
-      - dependency-name: '@types/node'
+          - ">=19.1.0"
+      - dependency-name: "@types/node"
         versions:
-          - '>20.0.0'
-      - dependency-name: '@types/react'
+          - ">20.0.0"
+      - dependency-name: "@types/react"
         versions:
-          - '>19.0.0'
-      - dependency-name: '@types/react-dom'
+          - ">19.0.0"
+      - dependency-name: "@types/react-dom"
         versions:
-          - '>=19.0.0'
+          - ">=19.0.0"
       - dependency-name: typescript
         versions:
-          - '>=7.0.0'
+          - ">=7.0.0"
