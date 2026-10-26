@@ -42,7 +42,6 @@ Acolyte is a comprehensive web application designed to assist developers in thei
 #### Chat
 
 Chat with any OpenAI v1-compatible model provider:
-
 - Presets for llama.cpp, Ollama and Docker Model Runner on localhost, plus a custom preset for any external endpoint such as OpenAI
 - Configurable base URL, model name, API key and system prompt
 - Non-streaming chat completions against the provider's `/chat/completions` endpoint
@@ -54,7 +53,6 @@ Chat with any OpenAI v1-compatible model provider:
 #### Web Stats
 
 Provides detailed information about the current web client:
-
 - IP address detection
 - Browser details and capabilities
 - Geographic location
@@ -64,7 +62,6 @@ Provides detailed information about the current web client:
 #### Website Analysis
 
 In-depth analysis of web applications including:
-
 - Security headers inspection
 - Performance metrics
 - Best practices validation
@@ -74,7 +71,6 @@ In-depth analysis of web applications including:
 #### Dependency Analysis
 
 Package.json analysis tool featuring:
-
 - Vulnerability scanning
 - Outdated package detection
 - Dependency tree visualization
@@ -84,7 +80,6 @@ Package.json analysis tool featuring:
 #### Accessibility Checker
 
 Scan websites for accessibility issues and WCAG compliance:
-
 - Automated accessibility testing
 - WCAG 2.1 compliance checking
 - Detection of missing alt text, labels, and ARIA attributes
@@ -156,7 +151,6 @@ Scan websites for accessibility issues and WCAG compliance:
 #### Image Tools
 
 Browser-side image editing with no upload to a server:
-
 - Load PNG, JPEG or WebP images up to 10 MB
 - Crop by pixel coordinates with a live overlay preview
 - Resize to a target width and height
@@ -341,7 +335,6 @@ npm run lint:ci
 ### Testing Coverage
 
 The project maintains comprehensive test coverage:
-
 - **Statement Coverage**: 82.65%
 - **Passing Tests**: 79 tests
 - Unit tests for components and utilities
@@ -350,14 +343,15 @@ The project maintains comprehensive test coverage:
 ## Contributing
 
 Contributions are welcome! Follow these steps:
-
 1. Fork the repository on GitHub
 2. Create a feature branch from `main`:
+
    ```bash
    git checkout -b feature/your-feature-name
    ```
 3. Make your changes and ensure tests pass
 4. Run code quality checks:
+
    ```bash
    npm run test
    npm run lint

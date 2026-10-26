@@ -23,10 +23,10 @@ Wrangler.
 dispatch). It runs Biome and the test suite first, then deploys. Authentication
 comes from two repository secrets:
 
-| Secret                  | Purpose                                  |
-| ----------------------- | ---------------------------------------- |
-| `CLOUDFLARE_API_TOKEN`  | Token with Workers Scripts:Edit          |
-| `CLOUDFLARE_ACCOUNT_ID` | The account that owns `acolyte`          |
+| Secret                  | Purpose                         |
+| ----------------------- | ------------------------------- |
+| `CLOUDFLARE_API_TOKEN`  | Token with Workers Scripts:Edit |
+| `CLOUDFLARE_ACCOUNT_ID` | The account that owns `acolyte` |
 
 `.github/workflows/code-quality.yml` still runs the same checks on pull
 requests.
@@ -53,7 +53,6 @@ npm run build && npx wrangler preview --config dist/server/wrangler.json
 ## Configuration
 
 `wrangler.jsonc` is the source of truth for the Worker. Notable entries:
-
 - `main: vinext/server/fetch-handler` — the vinext Worker entrypoint.
 - `assets` — static output from `dist/client`, served ahead of the Worker.
 - `compatibility_flags: ["nodejs_compat"]` — required by vinext.
