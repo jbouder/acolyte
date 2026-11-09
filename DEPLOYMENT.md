@@ -53,6 +53,7 @@ npm run build && npx wrangler preview --config dist/server/wrangler.json
 ## Configuration
 
 `wrangler.jsonc` is the source of truth for the Worker. Notable entries:
+
 - `main: vinext/server/fetch-handler` — the vinext Worker entrypoint.
 - `assets` — static output from `dist/client`, served ahead of the Worker.
 - `compatibility_flags: ["nodejs_compat"]` — required by vinext.

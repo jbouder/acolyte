@@ -95,6 +95,7 @@
 ## Prerequisites
 
 Before running Acolyte, ensure you have the following installed:
+
 - **Node.js** (version 20.x or higher)
 - **npm** (comes with Node.js)
 
@@ -265,6 +266,7 @@ npm run lint:ci
 ### Testing
 
 The project includes comprehensive test coverage:
+
 - **Unit Tests**: Testing individual components and utilities
 - **Integration Tests**: Testing component interactions
 - **Coverage**: 82.65% statement coverage with 79 passing tests
@@ -272,6 +274,7 @@ The project includes comprehensive test coverage:
 ### Contributing
 
 We welcome contributions to Acolyte! Here's how you can help:
+
 1. **Fork the repository** on GitHub
 2. **Create a feature branch** from `main`
 
