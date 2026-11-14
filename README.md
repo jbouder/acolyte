@@ -78,7 +78,7 @@
 - **[React 19.1.0](https://react.dev/)** - Modern React with latest features and performance improvements
 - **[TypeScript](https://www.typescriptlang.org/)** - Static type checking for enhanced developer experience
 - **[Tailwind CSS 4](https://tailwindcss.com/)** - Utility-first CSS framework for rapid UI development
-- **[Shadcn/UI](https://ui.shadcn.com/)** (`base-lyra` style) - Component library built on [Base UI](https://base-ui.com/) primitives
+- **[Beskar](https://github.com/jbouder/beskar)** (a [Shadcn/UI](https://ui.shadcn.com/) `base-lyra` registry) - Component library built on [Base UI](https://base-ui.com/) primitives
 - **[Oxanium](https://fonts.google.com/specimen/Oxanium)** / **[JetBrains Mono](https://fonts.google.com/specimen/JetBrains+Mono)** - UI and code typefaces, loaded via `next/font`
 
 ### Development Tools
@@ -315,7 +315,7 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE.md](LIC
 ## Acknowledgments
 
 - Built with [Next.js](https://nextjs.org/) and [React](https://react.dev/)
-- UI components from [Shadcn/UI](https://ui.shadcn.com/)
+- UI components from [Beskar](https://github.com/jbouder/beskar), built on [Shadcn/UI](https://ui.shadcn.com/)
 - Icons from [Lucide React](https://lucide.dev/)
 - Styling with [Tailwind CSS](https://tailwindcss.com/)
 

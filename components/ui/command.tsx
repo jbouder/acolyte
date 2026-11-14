@@ -1,8 +1,9 @@
 'use client';
 
-import { Command as CommandPrimitive } from 'cmdk';
-import { CheckIcon, SearchIcon } from 'lucide-react';
-import * as React from 'react';
+import { CheckIcon, MagnifyingGlassIcon } from '@phosphor-icons/react';
+import { Command as CommandPrimitive, useCommandState } from 'cmdk';
+import type * as React from 'react';
+
 import {
   Dialog,
   DialogContent,
@@ -45,6 +46,10 @@ function CommandDialog({
 }) {
   return (
     <Dialog {...props}>
+      <DialogHeader className="sr-only">
+        <DialogTitle>{title}</DialogTitle>
+        <DialogDescription>{description}</DialogDescription>
+      </DialogHeader>
       <DialogContent
         className={cn(
           'top-1/3 translate-y-0 overflow-hidden rounded-none p-0',
@@ -52,12 +57,7 @@ function CommandDialog({
         )}
         showCloseButton={showCloseButton}
       >
-        <DialogHeader className="sr-only">
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
-        </DialogHeader>
-        {/* cmdk's Input/List/Item read a context that only <Command> provides. */}
-        <Command>{children}</Command>
+        {children}
       </DialogContent>
     </Dialog>
   );
@@ -79,7 +79,7 @@ function CommandInput({
           {...props}
         />
         <InputGroupAddon>
-          <SearchIcon className="size-4 shrink-0 opacity-50" />
+          <MagnifyingGlassIcon className="size-4 shrink-0 opacity-50" />
         </InputGroupAddon>
       </InputGroup>
     </div>
@@ -131,12 +131,27 @@ function CommandGroup({
   );
 }
 
+/**
+ * A divider between groups. cmdk's own separator forces `role="separator"`,
+ * which is not a valid child of the list's `listbox` role, so this one is a
+ * plain presentational element. Like cmdk's, it hides while a search is
+ * active unless `alwaysRender` is set.
+ */
 function CommandSeparator({
   className,
+  alwaysRender = false,
   ...props
-}: React.ComponentProps<typeof CommandPrimitive.Separator>) {
+}: React.ComponentProps<'div'> & {
+  alwaysRender?: boolean;
+}) {
+  const searching = useCommandState((state) => Boolean(state.search));
+  if (searching && !alwaysRender) {
+    return null;
+  }
+
   return (
-    <CommandPrimitive.Separator
+    <div
+      role="none"
       data-slot="command-separator"
       className={cn('-mx-1 h-px bg-border', className)}
       {...props}
