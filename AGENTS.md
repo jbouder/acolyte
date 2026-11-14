@@ -197,7 +197,7 @@ Browser-side image editing with no upload to a server:
 - **React 19** - Modern React with latest features and performance improvements
 - **TypeScript** - Static type checking for enhanced developer experience
 - **Tailwind CSS 4** - Utility-first CSS framework for rapid UI development
-- **Shadcn/UI** (`base-lyra` style) - Component library built on **Base UI** (`@base-ui/react`) primitives. Note the Base UI conventions: composition uses a `render` prop rather than `asChild`, and boolean state is exposed as valueless data attributes (`data-active=""`, not `data-active="true"`).
+- **[Beskar](https://github.com/jbouder/beskar)** (a shadcn `base-lyra` registry) - Component library built on **Base UI** (`@base-ui/react`) primitives. `components/ui` is managed by the shadcn CLI: do not edit it by hand. Add or update a component with `npx shadcn@latest add @beskar/<name> --overwrite`, then remove the two `@fontsource-variable` imports and the duplicate `tw-animate-css` and `shadcn/tailwind.css` imports the theme adds to `app/globals.css` (fonts load through `next/font` here), and uninstall the `@fontsource-variable` packages. App-specific looks go in `app/globals.css` on the components' `data-slot` hooks, or in `className` at the call site. The `beskar-ui` skill in `.claude/skills` has the catalog. The Beskar components use Phosphor icons inside themselves; app code keeps Lucide. Note the Base UI conventions: composition uses a `render` prop rather than `asChild`, and boolean state is exposed as valueless data attributes (`data-active=""`, not `data-active="true"`).
 - **Oxanium / JetBrains Mono** - UI and code typefaces, loaded via `next/font` and exposed as `--font-oxanium` / `--font-jetbrains-mono` on `<html>`. Under vinext these are fetched from the Google Fonts CDN at runtime rather than self-hosted at build time.
 
 ### Build & Runtime
@@ -387,7 +387,7 @@ Contributions are welcome! Follow these steps:
 ## Acknowledgments
 
 - Built with [Next.js](https://nextjs.org/) and [React](https://react.dev/)
-- UI components from [Shadcn/UI](https://ui.shadcn.com/)
+- UI components from [Beskar](https://github.com/jbouder/beskar), built on [Shadcn/UI](https://ui.shadcn.com/)
 - Icons from [Lucide React](https://lucide.dev/)
 - Styling with [Tailwind CSS](https://tailwindcss.com/)
 

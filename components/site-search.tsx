@@ -3,6 +3,7 @@
 import { Search } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import {
+  Command,
   CommandDialog,
   CommandEmpty,
   CommandGroup,
@@ -73,33 +74,36 @@ export function SiteSearch() {
         description="Search for developer tools by name, description, or keyword"
         showCloseButton={false}
       >
-        <CommandInput placeholder="Search tools..." />
-        <CommandList>
-          <CommandEmpty>No tools found.</CommandEmpty>
-          {categoryOrder.map((category) => {
-            const tools = groupedTools[category];
-            if (!tools?.length) return null;
-            return (
-              <CommandGroup key={category} heading={category}>
-                {tools.map((tool) => (
-                  <CommandItem
-                    key={tool.url}
-                    value={`${tool.title} ${tool.description} ${tool.keywords.join(' ')}`}
-                    onSelect={() => handleSelect(tool.url)}
-                  >
-                    <tool.icon className="mr-2 h-4 w-4" />
-                    <div className="flex flex-col">
-                      <span>{tool.title}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {tool.description}
-                      </span>
-                    </div>
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            );
-          })}
-        </CommandList>
+        {/* cmdk's Input, List and Item read a context that only Command provides. */}
+        <Command>
+          <CommandInput placeholder="Search tools..." />
+          <CommandList>
+            <CommandEmpty>No tools found.</CommandEmpty>
+            {categoryOrder.map((category) => {
+              const tools = groupedTools[category];
+              if (!tools?.length) return null;
+              return (
+                <CommandGroup key={category} heading={category}>
+                  {tools.map((tool) => (
+                    <CommandItem
+                      key={tool.url}
+                      value={`${tool.title} ${tool.description} ${tool.keywords.join(' ')}`}
+                      onSelect={() => handleSelect(tool.url)}
+                    >
+                      <tool.icon className="mr-2 h-4 w-4" />
+                      <div className="flex flex-col">
+                        <span>{tool.title}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {tool.description}
+                        </span>
+                      </div>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              );
+            })}
+          </CommandList>
+        </Command>
       </CommandDialog>
     </>
   );

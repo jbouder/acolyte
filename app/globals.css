@@ -4,6 +4,8 @@
 @import 'highlight.js/styles/github.css';
 
 @custom-variant dark (&:is(.dark *));
+/* Touch screens and other devices that cannot hover. The Beskar theme adds it. */
+@custom-variant hover-none (@media (hover: none));
 
 /*
  * shadcn `base-lyra` style, neutral base color / theme / charts — kept in sync
@@ -74,6 +76,11 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+  --color-fx-glow: var(--fx-glow);
+  --color-warn-foreground: var(--warn-foreground);
+  --color-warn: var(--warn);
+  --color-ok-foreground: var(--ok-foreground);
+  --color-ok: var(--ok);
 }
 
 :root {
@@ -133,6 +140,16 @@
   --tone-red-soft: oklch(0.92 0.06 27);
   --tone-blue: oklch(0.5 0.21 264);
   --tone-blue-soft: oklch(0.92 0.07 264);
+  --ok: oklch(0.53 0.13 150);
+  --ok-foreground: oklch(0.99 0.01 150);
+  --warn: oklch(0.54 0.14 75);
+  --warn-foreground: oklch(0.99 0.01 75);
+  --fx-glow: oklch(0.42 0 0);
+    --duration-fast: 100ms;
+    --duration-base: 200ms;
+    --duration-slow: 350ms;
+    --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
 }
 
 .dark {
@@ -190,6 +207,11 @@
   --tone-amber-soft: oklch(0.26 0.06 88);
   --tone-cyan: oklch(0.78 0.09 218); /* Ahsoka */
   --tone-cyan-soft: oklch(0.25 0.05 218);
+  --ok: oklch(0.76 0.14 150);
+  --ok-foreground: oklch(0.2 0.04 150);
+  --warn: oklch(0.8 0.14 80);
+  --warn-foreground: oklch(0.2 0.04 80);
+  --fx-glow: oklch(0.75 0 0);
 }
 
 @layer base {
@@ -199,6 +221,7 @@
 
   html {
     @apply font-sans;
+    color-scheme: light;
   }
 
   body {
@@ -207,6 +230,9 @@
 
   :is(h1, h2, h3, h4, h5, h6) {
     @apply font-heading;
+  }
+  html.dark {
+    color-scheme: dark;
   }
 }
 
@@ -458,6 +484,12 @@
     transition: none;
     transform: none;
   }
+  *, *::before, *::after {
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
 }
 
 /* Star Wars film wipes ---------------------------------------------------
@@ -564,4 +596,17 @@ html[data-wipe='clock']::view-transition-new(root) {
     /* The +1deg mask stop clamps at 360, ending fully opaque. */
     --wipe-angle: 361deg;
   }
+}
+
+/*
+ * Acolyte outlines its cards, dialogs and select menus with the border
+ * color. The Beskar components use a fainter ring (foreground at 10%).
+ * `components/ui` is managed by the shadcn CLI and is not edited by hand,
+ * so the app's look is set here, on the components' data-slot hooks.
+ * Unlayered on purpose: it has to win over the ring utility.
+ */
+[data-slot='card'],
+[data-slot='dialog-content'],
+[data-slot='select-content'] {
+  --tw-ring-color: var(--border);
 }
